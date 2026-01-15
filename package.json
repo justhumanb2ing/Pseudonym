@@ -5,6 +5,7 @@
   "scripts": {
     "build": "vitest run && react-router build",
     "dev": "react-router dev",
+    "hooks:setup": "git config core.hooksPath config/githooks",
     "test": "vitest run",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
