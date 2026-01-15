@@ -6,7 +6,7 @@ import {
   serializePageLayout,
   type PageGridBrick,
   type PageLayoutSnapshot,
-} from "../../service/pages/page-grid";
+} from "../../app/service/pages/page-grid";
 
 function buildSampleBricks(): PageGridBrick[] {
   const first = createPageGridBrick({

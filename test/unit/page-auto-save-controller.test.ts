@@ -8,7 +8,7 @@ import {
   usePageAutoSaveActions,
   usePageAutoSaveState,
 } from "@/hooks/page/use-page-auto-save-controller";
-import type { PageSavePayload, PageSnapshot } from "../../service/pages/save-page";
+import type { PageSavePayload, PageSnapshot } from "../../app/service/pages/save-page";
 
 const mockSavePage = vi.fn(async (_payload: PageSavePayload) => undefined);
 

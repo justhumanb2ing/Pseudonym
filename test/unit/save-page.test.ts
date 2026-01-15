@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createPageSaver } from "../../service/pages/save-page";
+import { createPageSaver } from "../../app/service/pages/save-page";
 
 type SupabaseError = { message: string };
 

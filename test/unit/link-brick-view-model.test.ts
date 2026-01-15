@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { buildLinkBrickViewModel } from "../../utils/link-brick-view-model";
-import type { BrickLinkRow } from "../../../types/brick";
+import { buildLinkBrickViewModel } from "../../app/utils/link-brick-view-model";
+import type { BrickLinkRow } from "../../types/brick";
 
 const baseData: BrickLinkRow = {
   title: "Example title",

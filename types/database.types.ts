@@ -169,6 +169,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_page_item: {
+        Args: {
+          p_config?: Json
+          p_is_active?: boolean
+          p_page_id: string
+          p_title?: string
+          p_type: string
+          p_url?: string
+        }
+        Returns: {
+          config: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          page_id: string
+          sort_key: number
+          title: string | null
+          type: string
+          updated_at: string
+          url: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "profile_items"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_page: {
         Args: {
           p_description?: string
