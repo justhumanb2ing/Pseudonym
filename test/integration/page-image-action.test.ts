@@ -107,6 +107,9 @@ describe("page image action", () => {
     const request = new Request("http://localhost/en/user", {
       method: "POST",
       body: formData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
     });
 
     const result = await action({
