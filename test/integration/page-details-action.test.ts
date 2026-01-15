@@ -57,8 +57,12 @@ function createSupabaseStub(): SupabaseStub {
 describe("page details action", () => {
   it("updates page details using normalized values", async () => {
     const { supabase, calls } = createSupabaseStub();
-    vi.mocked(getSupabaseServerClient).mockResolvedValueOnce(supabase);
-    vi.mocked(getAuth).mockResolvedValueOnce({ userId: "user-1" });
+    vi.mocked(getSupabaseServerClient).mockResolvedValueOnce(
+      supabase as unknown as Awaited<ReturnType<typeof getSupabaseServerClient>>
+    );
+    vi.mocked(getAuth).mockResolvedValueOnce(
+      { userId: "user-1" } as Awaited<ReturnType<typeof getAuth>>
+    );
 
     const formData = new FormData();
     formData.set("pageId", "page-123");
