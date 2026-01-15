@@ -1,0 +1,16 @@
+.DS_Store
+.env
+/node_modules/
+.vscode
+.vercel
+
+
+# React Router
+/.react-router/
+/build/
+
+.env.*
+.intlayer
+/app/generated/prisma
+
+.claude/PROMPT.md
