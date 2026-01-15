@@ -57,7 +57,7 @@ import {
 } from "@/components/ui/empty";
 
 import DeleteAccountButton from "../auth/delete-account-button";
-import { Activity } from "@/components/legacy/effects/activity";
+import { Activity } from "@/components/common/activity";
 import {
   getUmamiEventAttributes,
   trackUmamiEvent,

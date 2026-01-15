@@ -17,7 +17,7 @@ import {
   StepperTrigger,
 } from "@/components/ui/stepper";
 import { getLocalizedPath } from "@/utils/localized-path";
-import { Activity } from "@/components/legacy/effects/activity";
+import { Activity } from "@/components/common/activity";
 import { useUmamiPageView } from "@/hooks/use-umami-page-view";
 import { useHandleValidation } from "@/hooks/use-handle-validation";
 import { useOnboardingTracking } from "@/hooks/onboarding/use-onboarding-tracking";
