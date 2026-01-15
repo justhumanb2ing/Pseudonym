@@ -24,7 +24,7 @@ import { Button } from "./components/ui/button";
 import { HouseSimpleIcon } from "@phosphor-icons/react";
 
 import { shadcn } from "@clerk/themes";
-import { LocalizedLink } from "@/components/legacy/i18n/localized-link";
+import { LocalizedLink } from "@/components/i18n/localized-link";
 
 const clerkLocalization = {
   signIn: {

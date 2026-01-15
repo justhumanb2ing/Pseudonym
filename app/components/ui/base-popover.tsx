@@ -2,7 +2,7 @@ import * as React from "react";
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 import { AnimatePresence, motion, type HTMLMotionProps } from "motion/react";
 
-import { getStrictContext } from "@/lib/get-strict-context";
+import { getStrictContext } from "@/components/ui/get-strict-context";
 import { useControlledState } from "@/hooks/use-controlled-state";
 
 type PopoverContextType = {
