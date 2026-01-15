@@ -1,9 +1,9 @@
 import { SignInButton, SignOutButton, useUser } from "@clerk/react-router";
 import { useIntlayer } from "react-intlayer";
 import { useLocation } from "react-router";
-import { Button } from "../../ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
-import { Spinner } from "../../ui/spinner";
+import { Button } from "../ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Spinner } from "../ui/spinner";
 import { getUmamiEventAttributes } from "@/lib/umami";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
 

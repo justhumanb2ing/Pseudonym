@@ -1,4 +1,4 @@
-import { LocalizedLink } from "@/components/legacy/i18n/localized-link";
+import { LocalizedLink } from "@/components/i18n/localized-link";
 
 export default function HomeFooter() {
   return (

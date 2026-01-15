@@ -1,12 +1,12 @@
-import LocaleSwitcher from "@/components/legacy/i18n/locale-switcher";
+import LocaleSwitcher from "@/components/i18n/locale-switcher";
 import { SignedIn, SignedOut } from "@clerk/react-router";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import UserButton from "@/components/legacy/auth/user-button";
+import UserButton from "@/components/auth/user-button";
 import { getUmamiEventAttributes } from "@/lib/umami";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
-import { LocalizedLink } from "@/components/legacy/i18n/localized-link";
-import Logo from "@/components/legacy/layout/logo";
+import { LocalizedLink } from "@/components/i18n/localized-link";
+import Logo from "@/components/common/logo";
 
 type HomeHeaderProps = {
   primaryHandle: string | null;

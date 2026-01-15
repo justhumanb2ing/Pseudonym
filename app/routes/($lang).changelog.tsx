@@ -1,4 +1,4 @@
-import Logo from "@/components/legacy/layout/logo";
+import Logo from "@/components/common/logo";
 import {
   Empty,
   EmptyDescription,

@@ -1,12 +1,12 @@
 import { DesktopIcon, DeviceMobileCameraIcon } from "@phosphor-icons/react";
 import { useIntlayer } from "react-intlayer";
-import { ToggleGroup, ToggleGroupItem } from "../../ui/toggle-group";
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../../ui/tooltip";
+} from "../ui/tooltip";
 import { isMobileWeb } from "@toss/utils";
 
 interface LayoutToggleProps {

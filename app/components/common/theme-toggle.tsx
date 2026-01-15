@@ -4,7 +4,7 @@ import { useIntlayer } from "react-intlayer";
 
 import { cn } from "@/lib/utils";
 import { MoonStarsIcon, SunDimIcon } from "@phosphor-icons/react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useTheme } from "next-themes";
 
 interface ThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {

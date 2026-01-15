@@ -3,7 +3,7 @@ import { LockIcon, LockOpenIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { getSupabaseClient } from "@/lib/supabase";
-import { Button } from "../../ui/button";
+import { Button } from "../ui/button";
 import {
   getUmamiEventAttributes,
   trackUmamiEvent,
