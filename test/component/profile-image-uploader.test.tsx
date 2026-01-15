@@ -171,7 +171,7 @@ describe("ProfileImageUploader", () => {
 
   it("shows a cancel toast when upload is in progress", async () => {
     const user = userEvent.setup();
-    let resolveUpload: ((value: { publicUrl: string }) => void) | null = null;
+    let resolveUpload: ((value: { publicUrl: string }) => void) | undefined;
     uploadMock.mockImplementation(
       () =>
         new Promise<{ publicUrl: string }>((resolve) => {
@@ -207,6 +207,9 @@ describe("ProfileImageUploader", () => {
       expect.objectContaining({ title: "Upload canceled" })
     );
 
-    resolveUpload?.({ publicUrl: "https://cdn.example.com/avatar.png" });
+    if (!resolveUpload) {
+      throw new Error("Expected upload resolver to be available.");
+    }
+    resolveUpload({ publicUrl: "https://cdn.example.com/avatar.png" });
   });
 });
