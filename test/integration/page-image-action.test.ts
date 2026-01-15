@@ -67,7 +67,7 @@ describe("page image action", () => {
       ReturnType<typeof getAuth>
     >);
 
-    const formData = new FormData();
+    const formData = new URLSearchParams();
     formData.set("intent", "update-image");
     formData.set("pageId", "page-123");
     formData.set("imageUrl", "https://cdn.example.com/avatar.png");
@@ -75,6 +75,9 @@ describe("page image action", () => {
     const request = new Request("http://localhost/en/user", {
       method: "POST",
       body: formData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
     });
 
     const result = await action({
@@ -100,7 +103,7 @@ describe("page image action", () => {
       ReturnType<typeof getAuth>
     >);
 
-    const formData = new FormData();
+    const formData = new URLSearchParams();
     formData.set("intent", "remove-image");
     formData.set("pageId", "page-123");
 
