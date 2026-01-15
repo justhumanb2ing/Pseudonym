@@ -1,6 +1,8 @@
 import type { Route } from "./+types/($lang).$handle._index";
 import { getAuth } from "@clerk/react-router/server";
 import { getSupabaseServerClient } from "@/lib/supabase";
+import { redirect } from "react-router";
+import { z } from "zod";
 import {
   fetchUmamiVisits,
   getTodayRange,
@@ -14,12 +16,19 @@ import { breadcrumbs } from "@forge42/seo-tools/structured-data/breadcrumb";
 import { profile } from "@forge42/seo-tools/structured-data/profile";
 import { metadataConfig } from "@/config/metadata";
 import { useUserProfilePageView } from "@/hooks/use-user-profile-pageview";
-import { buildUrl } from "@/lib/url";
-
-const defaultImageUrl = new URL(
-  metadataConfig.defaultImage,
-  metadataConfig.url
-).toString();
+import { buildUrl, defaultImageUrl } from "@/lib/url";
+import {
+  Cropper,
+  CropperCropArea,
+  CropperDescription,
+  CropperImage,
+} from "@/components/ui/cropper";
+import PageDetailsEditor from "@/components/page/page-details-editor";
+import {
+  normalizePageDetails,
+  pageDetailsSchema,
+} from "@/service/pages/page-details";
+import { getLocalizedPath } from "@/utils/localized-path";
 
 export const meta = ({ loaderData, params }: Route.MetaArgs) => {
   const handle = params.handle ?? "user";
@@ -124,6 +133,57 @@ export async function loader(args: Route.LoaderArgs) {
   };
 }
 
+export type ActionData = {
+  formError?: string;
+  fieldErrors?: {
+    title?: string;
+    description?: string;
+  };
+  success?: boolean;
+};
+
+export async function action(args: Route.ActionArgs) {
+  const auth = await getAuth(args);
+  if (!auth.userId) {
+    throw redirect(getLocalizedPath(args.params.lang, "/sign-in"));
+  }
+
+  const formData = await args.request.formData();
+  const parsed = pageDetailsSchema.safeParse({
+    pageId: formData.get("pageId"),
+    title: formData.get("title"),
+    description: formData.get("description"),
+  });
+
+  if (!parsed.success) {
+    const tree = z.treeifyError(parsed.error);
+    return {
+      fieldErrors: {
+        title: tree.properties?.title?.errors[0],
+        description: tree.properties?.description?.errors[0],
+      },
+      formError: tree.properties?.pageId?.errors[0],
+    } satisfies ActionData;
+  }
+
+  const { pageId } = parsed.data;
+  const normalized = normalizePageDetails(parsed.data);
+  const supabase = await getSupabaseServerClient(args);
+  const { error: updateError } = await supabase
+    .from("pages")
+    .update({
+      title: normalized.title,
+      description: normalized.description,
+    })
+    .eq("id", pageId);
+
+  if (updateError) {
+    return { formError: updateError.message } satisfies ActionData;
+  }
+
+  return { success: true } satisfies ActionData;
+}
+
 export default function UserProfileRoute({ loaderData }: Route.ComponentProps) {
   const {
     page: { id, owner_id, title, description, image_url, is_public },
@@ -133,5 +193,25 @@ export default function UserProfileRoute({ loaderData }: Route.ComponentProps) {
 
   useUserProfilePageView({ id, isOwner });
 
-  return <div>user page</div>;
+  return (
+    <main className="container max-w-7xl mx-auto h-full">
+      <div className="flex flex-col items-center gap-4">
+        <PageDetailsEditor
+          pageId={id}
+          title={title}
+          description={description}
+          isOwner={isOwner}
+        />
+        <Cropper
+          zoom={1}
+          className="h-80"
+          image="https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/cropper-06_dduwky.jpg"
+        >
+          <CropperDescription />
+          <CropperImage />
+          <CropperCropArea className="rounded-full" />
+        </Cropper>
+      </div>
+    </main>
+  );
 }

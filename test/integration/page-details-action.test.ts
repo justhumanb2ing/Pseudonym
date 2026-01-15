@@ -1,0 +1,84 @@
+import { describe, expect, it, vi } from "vitest";
+
+import { getAuth } from "@clerk/react-router/server";
+import { action } from "@/routes/($lang).$handle._index";
+import { getSupabaseServerClient } from "@/lib/supabase";
+
+vi.mock("@clerk/react-router/server", () => ({
+  getAuth: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase", () => ({
+  getSupabaseServerClient: vi.fn(),
+}));
+
+type SupabaseStub = {
+  supabase: {
+    from: (table: string) => {
+      update: (payload: Record<string, unknown>) => {
+        eq: (column: string, value: string) => {
+          error: { message: string } | null;
+        };
+      };
+    };
+  };
+  calls: {
+    table: string;
+    payload: Record<string, unknown> | null;
+    eq: { column: string; value: string };
+  };
+};
+
+function createSupabaseStub(): SupabaseStub {
+  const calls = {
+    table: "",
+    payload: null as Record<string, unknown> | null,
+    eq: { column: "", value: "" },
+  };
+
+  const supabase = {
+    from: (table: string) => ({
+      update: (payload: Record<string, unknown>) => {
+        calls.table = table;
+        calls.payload = payload;
+        return {
+          eq: (column: string, value: string) => {
+            calls.eq = { column, value };
+            return { error: null };
+          },
+        };
+      },
+    }),
+  };
+
+  return { supabase, calls };
+}
+
+describe("page details action", () => {
+  it("updates page details using normalized values", async () => {
+    const { supabase, calls } = createSupabaseStub();
+    vi.mocked(getSupabaseServerClient).mockResolvedValueOnce(supabase);
+    vi.mocked(getAuth).mockResolvedValueOnce({ userId: "user-1" });
+
+    const formData = new FormData();
+    formData.set("pageId", "page-123");
+    formData.set("title", "  My Page  ");
+    formData.set("description", "   ");
+
+    const request = new Request("http://localhost/en/user", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await action({
+      request,
+      params: { lang: "en" },
+      context: {},
+    } as Parameters<typeof action>[0]);
+
+    expect(calls.table).toBe("pages");
+    expect(calls.payload).toEqual({ title: "My Page", description: null });
+    expect(calls.eq).toEqual({ column: "id", value: "page-123" });
+    expect(result).toEqual({ success: true });
+  });
+});
