@@ -16,7 +16,10 @@ type SupabaseStub = {
   supabase: {
     from: (table: string) => {
       update: (payload: Record<string, unknown>) => {
-        eq: (column: string, value: string) => {
+        eq: (
+          column: string,
+          value: string
+        ) => {
           error: { message: string } | null;
         };
       };
@@ -54,27 +57,24 @@ function createSupabaseStub(): SupabaseStub {
   return { supabase, calls };
 }
 
-describe("page details action", () => {
-  it("updates page details using normalized values", async () => {
+describe("page image action", () => {
+  it("updates the page image url", async () => {
     const { supabase, calls } = createSupabaseStub();
     vi.mocked(getSupabaseServerClient).mockResolvedValueOnce(
       supabase as unknown as Awaited<ReturnType<typeof getSupabaseServerClient>>
     );
-    vi.mocked(getAuth).mockResolvedValueOnce(
-      { userId: "user-1" } as Awaited<ReturnType<typeof getAuth>>
-    );
+    vi.mocked(getAuth).mockResolvedValueOnce({ userId: "user-1" } as Awaited<
+      ReturnType<typeof getAuth>
+    >);
 
-    const formData = new URLSearchParams();
+    const formData = new FormData();
+    formData.set("intent", "update-image");
     formData.set("pageId", "page-123");
-    formData.set("title", "  My Page  ");
-    formData.set("description", "   ");
+    formData.set("imageUrl", "https://cdn.example.com/avatar.png");
 
     const request = new Request("http://localhost/en/user", {
       method: "POST",
       body: formData,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
     });
 
     const result = await action({
@@ -84,8 +84,40 @@ describe("page details action", () => {
     } as Parameters<typeof action>[0]);
 
     expect(calls.table).toBe("pages");
-    expect(calls.payload).toEqual({ title: "My Page", description: null });
+    expect(calls.payload).toEqual({
+      image_url: "https://cdn.example.com/avatar.png",
+    });
     expect(calls.eq).toEqual({ column: "id", value: "page-123" });
-    expect(result).toEqual({ success: true, intent: "page-details" });
+    expect(result).toEqual({ success: true, intent: "update-image" });
+  });
+
+  it("clears the page image url", async () => {
+    const { supabase, calls } = createSupabaseStub();
+    vi.mocked(getSupabaseServerClient).mockResolvedValueOnce(
+      supabase as unknown as Awaited<ReturnType<typeof getSupabaseServerClient>>
+    );
+    vi.mocked(getAuth).mockResolvedValueOnce({ userId: "user-1" } as Awaited<
+      ReturnType<typeof getAuth>
+    >);
+
+    const formData = new FormData();
+    formData.set("intent", "remove-image");
+    formData.set("pageId", "page-123");
+
+    const request = new Request("http://localhost/en/user", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await action({
+      request,
+      params: { lang: "en" },
+      context: {},
+    } as Parameters<typeof action>[0]);
+
+    expect(calls.table).toBe("pages");
+    expect(calls.payload).toEqual({ image_url: null });
+    expect(calls.eq).toEqual({ column: "id", value: "page-123" });
+    expect(result).toEqual({ success: true, intent: "remove-image" });
   });
 });

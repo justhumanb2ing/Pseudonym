@@ -105,4 +105,24 @@ describe("createPageImageUploader", () => {
       uploadPageImage({ pageId: "page-1", userId: "user-1", file })
     ).rejects.toThrow("Failed to resolve image URL.");
   });
+
+  it("passes an abort signal when provided", async () => {
+    const { supabase, calls } = createSupabaseStorageStub({});
+    const uploadPageImage = createPageImageUploader(
+      Promise.resolve(supabase as never)
+    );
+    const file = new File([new Uint8Array([1])], "avatar.png", {
+      type: "image/png",
+    });
+    const controller = new AbortController();
+
+    await uploadPageImage({
+      pageId: "page-1",
+      userId: "user-1",
+      file,
+      signal: controller.signal,
+    });
+
+    expect(calls.upload.options?.signal).toBe(controller.signal);
+  });
 });

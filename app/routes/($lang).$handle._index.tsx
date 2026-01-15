@@ -17,17 +17,16 @@ import { profile } from "@forge42/seo-tools/structured-data/profile";
 import { metadataConfig } from "@/config/metadata";
 import { useUserProfilePageView } from "@/hooks/use-user-profile-pageview";
 import { buildUrl, defaultImageUrl } from "@/lib/url";
-import {
-  Cropper,
-  CropperCropArea,
-  CropperDescription,
-  CropperImage,
-} from "@/components/ui/cropper";
 import PageDetailsEditor from "@/components/page/page-details-editor";
+import ProfileImageUploader from "@/components/page/profile-image-uploader";
 import {
   normalizePageDetails,
   pageDetailsSchema,
 } from "@/service/pages/page-details";
+import {
+  pageImageRemoveSchema,
+  pageImageUpdateSchema,
+} from "@/service/pages/page-image";
 import { getLocalizedPath } from "@/utils/localized-path";
 
 export const meta = ({ loaderData, params }: Route.MetaArgs) => {
@@ -140,6 +139,7 @@ export type ActionData = {
     description?: string;
   };
   success?: boolean;
+  intent?: "page-details" | "update-image" | "remove-image";
 };
 
 export async function action(args: Route.ActionArgs) {
@@ -149,6 +149,61 @@ export async function action(args: Route.ActionArgs) {
   }
 
   const formData = await args.request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "update-image") {
+    const parsed = pageImageUpdateSchema.safeParse({
+      pageId: formData.get("pageId"),
+      imageUrl: formData.get("imageUrl"),
+    });
+
+    if (!parsed.success) {
+      const tree = z.treeifyError(parsed.error);
+      return {
+        formError:
+          tree.properties?.imageUrl?.errors[0] ??
+          tree.properties?.pageId?.errors[0],
+      } satisfies ActionData;
+    }
+
+    const supabase = await getSupabaseServerClient(args);
+    const { error: updateError } = await supabase
+      .from("pages")
+      .update({ image_url: parsed.data.imageUrl })
+      .eq("id", parsed.data.pageId);
+
+    if (updateError) {
+      return { formError: updateError.message } satisfies ActionData;
+    }
+
+    return { success: true, intent: "update-image" } satisfies ActionData;
+  }
+
+  if (intent === "remove-image") {
+    const parsed = pageImageRemoveSchema.safeParse({
+      pageId: formData.get("pageId"),
+    });
+
+    if (!parsed.success) {
+      const tree = z.treeifyError(parsed.error);
+      return {
+        formError: tree.properties?.pageId?.errors[0],
+      } satisfies ActionData;
+    }
+
+    const supabase = await getSupabaseServerClient(args);
+    const { error: updateError } = await supabase
+      .from("pages")
+      .update({ image_url: null })
+      .eq("id", parsed.data.pageId);
+
+    if (updateError) {
+      return { formError: updateError.message } satisfies ActionData;
+    }
+
+    return { success: true, intent: "remove-image" } satisfies ActionData;
+  }
+
   const parsed = pageDetailsSchema.safeParse({
     pageId: formData.get("pageId"),
     title: formData.get("title"),
@@ -181,7 +236,7 @@ export async function action(args: Route.ActionArgs) {
     return { formError: updateError.message } satisfies ActionData;
   }
 
-  return { success: true } satisfies ActionData;
+  return { success: true, intent: "page-details" } satisfies ActionData;
 }
 
 export default function UserProfileRoute({ loaderData }: Route.ComponentProps) {
@@ -196,21 +251,20 @@ export default function UserProfileRoute({ loaderData }: Route.ComponentProps) {
   return (
     <main className="container max-w-7xl mx-auto h-full">
       <div className="flex flex-col items-center gap-4">
+        <ProfileImageUploader
+          pageId={id}
+          userId={owner_id}
+          imageUrl={image_url}
+          defaultImageUrl={defaultImageUrl}
+          isOwner={isOwner}
+          alt={title ?? handle ?? "Profile image"}
+        />
         <PageDetailsEditor
           pageId={id}
           title={title}
           description={description}
           isOwner={isOwner}
         />
-        <Cropper
-          zoom={1}
-          className="h-80"
-          image="https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/cropper-06_dduwky.jpg"
-        >
-          <CropperDescription />
-          <CropperImage />
-          <CropperCropArea className="rounded-full" />
-        </Cropper>
       </div>
     </main>
   );

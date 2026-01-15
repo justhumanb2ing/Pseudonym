@@ -9,6 +9,7 @@ export type PageImageUploadPayload = {
   pageId: string;
   userId: string;
   file: File;
+  signal?: AbortSignal;
 };
 
 export type PageImageUploadResult = {
@@ -26,6 +27,7 @@ export function createPageImageUploader(
     pageId,
     userId,
     file,
+    signal,
   }: PageImageUploadPayload): Promise<PageImageUploadResult> {
     const supabase = await supabasePromise;
     const path = resolvePageImagePath(userId, pageId, file);
@@ -36,6 +38,7 @@ export function createPageImageUploader(
         upsert: true,
         contentType: file.type || "application/octet-stream",
         cacheControl: "3600",
+        ...(signal ? { signal } : {}),
       });
 
     if (error) {
