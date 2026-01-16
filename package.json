@@ -25,6 +25,7 @@
     "@react-router/node": "7.10.1",
     "@react-router/serve": "7.10.1",
     "@supabase/supabase-js": "^2.89.0",
+    "@tabler/icons-react": "^3.36.1",
     "@toss/utils": "^1.6.1",
     "@umami/api-client": "^0.80.0",
     "@vercel/react-router": "^1.2.4",

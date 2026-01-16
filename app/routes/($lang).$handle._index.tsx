@@ -2,7 +2,6 @@ import type { Route } from "./+types/($lang).$handle._index";
 import { getAuth } from "@clerk/react-router/server";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { redirect } from "react-router";
-import { z } from "zod";
 import {
   fetchUmamiVisits,
   getTodayRange,
@@ -19,14 +18,14 @@ import { useUserProfilePageView } from "@/hooks/use-user-profile-pageview";
 import { buildUrl, defaultImageUrl } from "@/lib/url";
 import PageDetailsEditor from "@/components/page/page-details-editor";
 import ProfileImageUploader from "@/components/page/profile-image-uploader";
+import AddItemFlow from "@/components/page/add-item-flow";
 import {
-  normalizePageDetails,
-  pageDetailsSchema,
-} from "@/service/pages/page-details";
-import {
-  pageImageRemoveSchema,
-  pageImageUpdateSchema,
-} from "@/service/pages/page-image";
+  handleLinkSave,
+  handlePageDetails,
+  handleRemoveImage,
+  handleUpdateImage,
+  type PageProfileActionData,
+} from "@/service/pages/page-profile.action";
 import { getLocalizedPath } from "@/utils/localized-path";
 
 export const meta = ({ loaderData, params }: Route.MetaArgs) => {
@@ -132,15 +131,7 @@ export async function loader(args: Route.LoaderArgs) {
   };
 }
 
-export type ActionData = {
-  formError?: string;
-  fieldErrors?: {
-    title?: string;
-    description?: string;
-  };
-  success?: boolean;
-  intent?: "page-details" | "update-image" | "remove-image";
-};
+export type ActionData = PageProfileActionData;
 
 export async function action(args: Route.ActionArgs) {
   const auth = await getAuth(args);
@@ -150,93 +141,18 @@ export async function action(args: Route.ActionArgs) {
 
   const formData = await args.request.formData();
   const intent = formData.get("intent");
-
-  if (intent === "update-image") {
-    const parsed = pageImageUpdateSchema.safeParse({
-      pageId: formData.get("pageId"),
-      imageUrl: formData.get("imageUrl"),
-    });
-
-    if (!parsed.success) {
-      const tree = z.treeifyError(parsed.error);
-      return {
-        formError:
-          tree.properties?.imageUrl?.errors[0] ??
-          tree.properties?.pageId?.errors[0],
-      } satisfies ActionData;
-    }
-
-    const supabase = await getSupabaseServerClient(args);
-    const { error: updateError } = await supabase
-      .from("pages")
-      .update({ image_url: parsed.data.imageUrl })
-      .eq("id", parsed.data.pageId);
-
-    if (updateError) {
-      return { formError: updateError.message } satisfies ActionData;
-    }
-
-    return { success: true, intent: "update-image" } satisfies ActionData;
-  }
-
-  if (intent === "remove-image") {
-    const parsed = pageImageRemoveSchema.safeParse({
-      pageId: formData.get("pageId"),
-    });
-
-    if (!parsed.success) {
-      const tree = z.treeifyError(parsed.error);
-      return {
-        formError: tree.properties?.pageId?.errors[0],
-      } satisfies ActionData;
-    }
-
-    const supabase = await getSupabaseServerClient(args);
-    const { error: updateError } = await supabase
-      .from("pages")
-      .update({ image_url: null })
-      .eq("id", parsed.data.pageId);
-
-    if (updateError) {
-      return { formError: updateError.message } satisfies ActionData;
-    }
-
-    return { success: true, intent: "remove-image" } satisfies ActionData;
-  }
-
-  const parsed = pageDetailsSchema.safeParse({
-    pageId: formData.get("pageId"),
-    title: formData.get("title"),
-    description: formData.get("description"),
-  });
-
-  if (!parsed.success) {
-    const tree = z.treeifyError(parsed.error);
-    return {
-      fieldErrors: {
-        title: tree.properties?.title?.errors[0],
-        description: tree.properties?.description?.errors[0],
-      },
-      formError: tree.properties?.pageId?.errors[0],
-    } satisfies ActionData;
-  }
-
-  const { pageId } = parsed.data;
-  const normalized = normalizePageDetails(parsed.data);
   const supabase = await getSupabaseServerClient(args);
-  const { error: updateError } = await supabase
-    .from("pages")
-    .update({
-      title: normalized.title,
-      description: normalized.description,
-    })
-    .eq("id", pageId);
 
-  if (updateError) {
-    return { formError: updateError.message } satisfies ActionData;
+  switch (intent) {
+    case "update-image":
+      return handleUpdateImage({ formData, supabase });
+    case "remove-image":
+      return handleRemoveImage({ formData, supabase });
+    case "link-save":
+      return handleLinkSave({ formData, supabase });
+    default:
+      return handlePageDetails({ formData, supabase });
   }
-
-  return { success: true, intent: "page-details" } satisfies ActionData;
 }
 
 export default function UserProfileRoute({ loaderData }: Route.ComponentProps) {
@@ -259,6 +175,7 @@ export default function UserProfileRoute({ loaderData }: Route.ComponentProps) {
           isOwner={isOwner}
           alt={title ?? handle ?? "Profile image"}
         />
+        {isOwner ? <AddItemFlow pageId={id} /> : null}
         <PageDetailsEditor
           pageId={id}
           title={title}
