@@ -77,10 +77,14 @@ describe("PageDetailsEditor", () => {
     const descriptionInput = screen.getByLabelText(
       "Bio"
     ) as HTMLTextAreaElement;
+    const intentInput = document.querySelector(
+      "input[name='intent']"
+    ) as HTMLInputElement | null;
 
     expect(document.querySelector("[data-slot='dialog-content']")).not.toBeNull();
     expect(titleInput.maxLength).toBe(PAGE_TITLE_MAX_LENGTH);
     expect(descriptionInput.maxLength).toBe(PAGE_DESCRIPTION_MAX_LENGTH);
+    expect(intentInput?.value).toBe("page-details");
 
     await waitFor(() =>
       expect(

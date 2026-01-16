@@ -17,9 +17,8 @@ export type ActionData = PageProfileActionData;
 
 export async function action(args: Route.ActionArgs) {
   const formData = await args.request.formData();
-  const intent = formData.get("intent");
+  const intent = formData.get("intent")?.toString();
   const supabase = await getSupabaseServerClient(args);
-
   // Intent 타입 검증
   const validIntents = [
     "page-details",

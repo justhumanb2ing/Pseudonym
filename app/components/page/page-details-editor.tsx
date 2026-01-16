@@ -32,7 +32,6 @@ import {
   PAGE_DESCRIPTION_MAX_LENGTH,
   PAGE_TITLE_MAX_LENGTH,
 } from "@/service/pages/page-details";
-import { cn } from "@/lib/utils";
 import { IconX } from "@tabler/icons-react";
 
 type PageDetailsActionData = {
@@ -99,6 +98,7 @@ export default function PageDetailsEditor({
 
   const editorContent = (
     <fetcher.Form method="post" className="flex flex-col gap-2" noValidate>
+      <input type="hidden" name="intent" value="page-details" />
       <input type="hidden" name="pageId" value={pageId} />
       <Field data-invalid={isTitleMissing}>
         <FieldContent>
@@ -177,9 +177,7 @@ export default function PageDetailsEditor({
     <div className="flex flex-col items-start p-0">
       <p className="text-lg font-medium hover:underline">{title}</p>
       <p className="text-sm font-light text-left truncate min-w-0 max-w-60 md:max-w-96 text-wrap line-clamp-2">
-        {description}asdfmaslkdfmlak asdmlfamsdl falksdflk asdlfkamsdl kalsdmflk
-        alskdmflkamsdlk malksmfdldkamf asdfma,sdk alskdflak sdflkams dlkmaslk
-        dflkas mdlkamsdklfmaskldflkasmdlf amdsklmlkasmdflasd
+        {description}
       </p>
     </div>
   );
