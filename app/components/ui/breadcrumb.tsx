@@ -3,7 +3,7 @@ import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 
 import { cn } from '@/lib/utils'
-import { CaretRightIcon, DotsThreeIcon } from "@phosphor-icons/react"
+import { IconChevronRight, IconDots } from "@tabler/icons-react"
 
 function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -21,7 +21,7 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
     <ol
       data-slot="breadcrumb-list"
       className={cn(
-        "text-muted-foreground gap-1.5 text-xs/relaxed flex flex-wrap items-center break-words",
+        "text-muted-foreground gap-1.5 text-sm sm:gap-2.5 flex flex-wrap items-center break-words",
         className
       )}
       {...props}
@@ -33,7 +33,7 @@ function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
   return (
     <li
       data-slot="breadcrumb-item"
-      className={cn("gap-1 inline-flex items-center", className)}
+      className={cn("gap-1.5 inline-flex items-center", className)}
       {...props}
     />
   )
@@ -86,7 +86,7 @@ function BreadcrumbSeparator({
       {...props}
     >
       {children ?? (
-        <CaretRightIcon
+        <IconChevronRight
         />
       )}
     </li>
@@ -103,12 +103,12 @@ function BreadcrumbEllipsis({
       role="presentation"
       aria-hidden="true"
       className={cn(
-        "size-4 [&>svg]:size-3.5 flex items-center justify-center",
+        "size-5 [&>svg]:size-4 flex items-center justify-center",
         className
       )}
       {...props}
     >
-      <DotsThreeIcon
+      <IconDots
       />
       <span className="sr-only">More</span>
     </span>

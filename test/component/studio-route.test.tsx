@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { createMemoryRouter, RouterProvider } from "react-router";
@@ -21,14 +20,22 @@ describe("studio routes", () => {
 
     render(<RouterProvider router={router} />);
 
-    expect(screen.getByText("StudioChild"))
-      .toBeInTheDocument();
+    expect(screen.getByText("StudioChild")).toBeInTheDocument();
   });
 
   it("renders the studio index route", () => {
-    render(<StudioHandleIndexRoute />);
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/studio/:handle",
+          element: <StudioHandleIndexRoute />,
+        },
+      ],
+      { initialEntries: ["/studio/demo"] }
+    );
 
-    expect(screen.getByText("StudioHandleIndexRoute"))
-      .toBeInTheDocument();
+    render(<RouterProvider router={router} />);
+
+    expect(screen.getByText("StudioHandleIndexRoute")).toBeInTheDocument();
   });
 });

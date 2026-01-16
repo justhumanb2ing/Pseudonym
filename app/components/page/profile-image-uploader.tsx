@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/cropper";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -21,6 +22,7 @@ import { toastManager } from "@/components/ui/toast";
 import { usePageImageUploader } from "@/hooks/use-page-image-uploader";
 import { cn } from "@/lib/utils";
 import { getPageImageValidationError } from "@/service/pages/page-image";
+import { IconX } from "@tabler/icons-react";
 
 type CropArea = { x: number; y: number; width: number; height: number };
 
@@ -379,14 +381,26 @@ export default function ProfileImageUploader({
             handleCancelCrop();
           }}
         >
-          <DialogContent className="max-w-lg" showCloseButton={!isUploading}>
+          <DialogContent className="max-w-lg" showCloseButton={false}>
             <DialogHeader>
               <DialogTitle hidden>Crop profile image</DialogTitle>
               <DialogDescription hidden>
                 Drag to reposition, then upload.
               </DialogDescription>
             </DialogHeader>
-            <div className="flex w-full flex-col gap-3">
+            <DialogClose
+              render={
+                <Button
+                  variant={"ghost"}
+                  size={"icon-lg"}
+                  className={"rounded-full absolute top-3 right-3"}
+                  disabled={isUploading}
+                >
+                  <IconX className="size-5" />
+                </Button>
+              }
+            />
+            <div className="flex w-full flex-col gap-3 pt-3">
               <Cropper
                 className="h-72 rounded-xl border-2 border-black bg-transparent"
                 image={previewUrl}

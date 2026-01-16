@@ -2,12 +2,16 @@ import { LocalizedLink } from "../i18n/localized-link";
 
 export default function Logo() {
   return (
-    <div>
+    <div className="size-16">
       <LocalizedLink
         to={"/"}
         className="font-medium tracking-tighter text-xl sm:text-3xl"
       >
-        beyondthewave
+        <img
+          src="/logo.png"
+          alt="logo"
+          className="w-full h-full object-cover"
+        />
       </LocalizedLink>
     </div>
   );

@@ -40,7 +40,6 @@ export async function action(args: Route.ActionArgs) {
 
   if (!parsed.success) {
     const tree = z.treeifyError(parsed.error);
-    // const fieldErrors = parsed.error.flatten().fieldErrors;
     return {
       fieldErrors: {
         handle: tree.properties?.handle?.errors[0],

@@ -4,6 +4,7 @@ import { useFetcher } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -32,6 +33,7 @@ import {
   PAGE_TITLE_MAX_LENGTH,
 } from "@/service/pages/page-details";
 import { cn } from "@/lib/utils";
+import { IconX } from "@tabler/icons-react";
 
 type PageDetailsActionData = {
   fieldErrors?: {
@@ -95,8 +97,7 @@ export default function PageDetailsEditor({
     setDescriptionValue(nextValue);
   };
 
-  const fieldCountClassName =
-    "text-[0.625rem] text-muted-foreground text-right";
+  const fieldCountClassName = "text-xs text-muted-foreground text-right mt-1";
 
   const editorContent = (
     <fetcher.Form method="post" className="flex flex-col gap-2" noValidate>
@@ -106,7 +107,7 @@ export default function PageDetailsEditor({
           <div className="relative">
             <FieldLabel
               htmlFor="page-title"
-              className="pointer-events-none absolute left-3 top-1.5 text-[0.625rem] text-muted-foreground"
+              className="pointer-events-none absolute left-3 top-2 text-sm text-muted-foreground"
             >
               Title
             </FieldLabel>
@@ -119,7 +120,7 @@ export default function PageDetailsEditor({
               disabled={!isOwner || isSaving}
               aria-invalid={isTitleMissing}
               placeholder="Add a title"
-              className="px-3 pt-6 h-14"
+              className="px-3 pt-8 h-16 rounded-lg"
             />
           </div>
           <div className={fieldCountClassName}>
@@ -135,9 +136,9 @@ export default function PageDetailsEditor({
           <div className="relative">
             <FieldLabel
               htmlFor="page-description"
-              className="pointer-events-none absolute left-3 top-1.5 text-[0.625rem] text-muted-foreground"
+              className="pointer-events-none absolute left-3 top-2 text-sm text-muted-foreground"
             >
-              Description
+              Bio
             </FieldLabel>
             <Textarea
               id="page-description"
@@ -147,8 +148,8 @@ export default function PageDetailsEditor({
               maxLength={PAGE_DESCRIPTION_MAX_LENGTH}
               disabled={!isOwner || isSaving}
               aria-invalid={!!descriptionError}
-              placeholder="Add a description"
-              className="px-3 pt-6 h-32"
+              placeholder="Add a bio"
+              className="px-3 pt-8 min-h-32 rounded-lg"
             />
           </div>
           <div className={fieldCountClassName}>
@@ -164,7 +165,11 @@ export default function PageDetailsEditor({
           {formError}
         </p>
       ) : null}
-      <Button type="submit" disabled={!isOwner || isSaving || isTitleMissing}>
+      <Button
+        type="submit"
+        disabled={!isOwner || isSaving || isTitleMissing}
+        className={"mt-2 h-12 text-base"}
+      >
         {isSaving ? "Saving..." : "Save"}
       </Button>
     </fetcher.Form>
@@ -188,17 +193,28 @@ export default function PageDetailsEditor({
             <Button
               type="button"
               variant="ghost"
-              className={cn("text-lg font-semibold", !isOwner && "opacity-60")}
+              className={cn("text-lg font-semibold hover:underline")}
             >
               {triggerLabel}
             </Button>
           }
         ></DialogTrigger>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg" showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>Title & Bio</DialogTitle>
+            <DialogTitle className={"text-lg"}>Title & Bio</DialogTitle>
             <DialogDescription hidden></DialogDescription>
           </DialogHeader>
+          <DialogClose
+            render={
+              <Button
+                variant={"ghost"}
+                size={"icon-lg"}
+                className={"rounded-full absolute top-3 right-3"}
+              >
+                <IconX className="size-5" />
+              </Button>
+            }
+          />
           {editorContent}
         </DialogContent>
       </Dialog>
@@ -208,7 +224,7 @@ export default function PageDetailsEditor({
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button type="button" variant="ghost" className="text-lg font-semibold">
+        <Button type="button" variant="ghost" className="text-lg font-semibold hover:underline">
           {triggerLabel}
         </Button>
       </DrawerTrigger>

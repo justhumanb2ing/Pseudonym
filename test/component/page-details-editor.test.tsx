@@ -76,7 +76,7 @@ describe("PageDetailsEditor", () => {
 
     const titleInput = screen.getByLabelText("Title") as HTMLInputElement;
     const descriptionInput = screen.getByLabelText(
-      "Description"
+      "Bio"
     ) as HTMLTextAreaElement;
 
     expect(document.querySelector("[data-slot='dialog-content']")).not.toBeNull();

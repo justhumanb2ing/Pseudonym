@@ -15,7 +15,7 @@ export default function UserButton({ primaryHandle }: UserButtonProps) {
 
   return (
     <Button size={"lg"} variant={"link"}>
-      <LocalizedLink prefetch="viewport" to={`/${primaryHandle}`}>
+      <LocalizedLink prefetch="viewport" to={`/studio/${primaryHandle}`}>
         Wave to Profile
       </LocalizedLink>
     </Button>

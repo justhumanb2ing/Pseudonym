@@ -1,4 +1,4 @@
-"use client";
+;
 
 import { Cropper as CropperPrimitive } from "@origin-space/image-cropper";
 
