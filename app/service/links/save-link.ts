@@ -16,6 +16,7 @@ export type LinkSaveDependencies = {
 
 /**
  * Creates a link saver that crawls the URL before persisting it.
+ * No duplicate checks or rollback; errors bubble to the caller.
  */
 export function createLinkSaver(
   supabasePromise: Promise<SupabaseClient<Database>>,

@@ -28,6 +28,10 @@ describe("normalizeLinkUrl", () => {
     );
     expect(normalizeLinkUrl("http://example.com")).toBe("http://example.com");
   });
+
+  it("rejects empty input", () => {
+    expect(() => normalizeLinkUrl("   ")).toThrow("URL is required.");
+  });
 });
 
 describe("crawlLinkUrl", () => {

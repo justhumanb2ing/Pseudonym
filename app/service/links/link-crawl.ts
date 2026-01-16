@@ -36,6 +36,7 @@ export type CrawlLinkResult = {
 
 /**
  * Normalizes user input into a crawl-ready URL.
+ * Only rejects empty input.
  */
 export function normalizeLinkUrl(input: string) {
   const trimmed = input.trim();
