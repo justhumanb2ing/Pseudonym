@@ -5,7 +5,6 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  redirect,
   useNavigation,
 } from "react-router";
 
@@ -13,18 +12,17 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import Providers from "./providers";
 import {
-  clerkClient,
   clerkMiddleware,
   rootAuthLoader,
 } from "@clerk/react-router/server";
 import { ClerkProvider } from "@clerk/react-router";
-import { locales } from "intlayer";
 import { Spinner } from "./components/ui/spinner";
 import { Button } from "./components/ui/button";
 import { HouseSimpleIcon } from "@phosphor-icons/react";
 
 import { shadcn } from "@clerk/themes";
 import { LocalizedLink } from "@/components/i18n/localized-link";
+import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard";
 
 const clerkLocalization = {
   signIn: {
@@ -52,63 +50,16 @@ export const links: Route.LinksFunction = () => [
 
 export const middleware: Route.MiddlewareFunction[] = [clerkMiddleware()];
 
-function getLocalizedPathFromPathname(pathname: string, targetPath: string) {
-  if (!targetPath.startsWith("/")) {
-    throw new Error("pathname must start with '/'");
-  }
-
-  const [, maybeLocale] = pathname.split("/");
-  const locale = locales.find((value) => value === maybeLocale);
-
-  return locale ? `/${locale}${targetPath}` : targetPath;
-}
-
-function isPublicAuthPath(pathname: string) {
-  const normalizedPathname = pathname.replace(/\/+$/, "");
-  const authSegmentPattern = /(^|\/)(sign-in|sign-up)(\/|$)/;
-
-  return authSegmentPattern.test(normalizedPathname);
-}
-
-function isOnboardingPath(pathname: string) {
-  const normalizedPathname = pathname.replace(/\/+$/, "");
-  const onboardingSegmentPattern = /(^|\/)onboarding(\/|$)/;
-
-  return onboardingSegmentPattern.test(normalizedPathname);
-}
-
 export const loader = (args: Route.LoaderArgs) =>
   rootAuthLoader(args, async (loaderArgs) => {
     const { pathname } = new URL(loaderArgs.request.url);
-    const { auth } = loaderArgs.request;
+    const redirectResponse = await resolveOnboardingRedirect({
+      ...loaderArgs,
+      pathname,
+    });
 
-    if (auth.userId) {
-      const onboardingComplete =
-        auth.sessionClaims?.metadata?.onboardingComplete === true;
-
-      if (isOnboardingPath(pathname)) {
-        if (onboardingComplete) {
-          throw redirect(getLocalizedPathFromPathname(pathname, "/"));
-        }
-        return null;
-      }
-
-      if (isPublicAuthPath(pathname)) {
-        return null;
-      }
-
-      if (!onboardingComplete) {
-        const clerk = clerkClient(loaderArgs);
-        const user = await clerk.users.getUser(auth.userId);
-        const hasOnboardingComplete =
-          user.publicMetadata?.onboardingComplete === true;
-
-        if (!hasOnboardingComplete) {
-          throw redirect(getLocalizedPathFromPathname(pathname, "/onboarding"));
-        }
-      }
-
-      return null;
+    if (redirectResponse) {
+      throw redirectResponse;
     }
 
     return null;

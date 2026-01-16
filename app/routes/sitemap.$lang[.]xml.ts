@@ -21,6 +21,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
       // dynamic routes
       "/:lang?/:handle",
+      "/:lang?/studio/:handle",
 
       // api
       "/api/delete-account",

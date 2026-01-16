@@ -262,7 +262,7 @@ export default function OnboardingRoute() {
     if (!completedHandle) {
       return;
     }
-    navigate(getLocalizedPath(lang, `/${completedHandle}`));
+    navigate(getLocalizedPath(lang, `/studio/${completedHandle}`));
   };
 
   return (
