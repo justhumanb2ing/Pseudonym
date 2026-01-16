@@ -6,6 +6,7 @@ import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard";
 
 export async function loader(args: Route.LoaderArgs) {
   const auth = await getAuth(args);
+  const requestWithAuth = Object.assign(args.request, { auth });
 
   if (!auth.userId) {
     throw redirect(getLocalizedPath(args.params.lang, "/sign-in"));
@@ -14,6 +15,7 @@ export async function loader(args: Route.LoaderArgs) {
   const pathname = new URL(args.request.url).pathname;
   const redirectResponse = await resolveOnboardingRedirect({
     ...args,
+    request: requestWithAuth,
     pathname,
   });
   if (redirectResponse) {
