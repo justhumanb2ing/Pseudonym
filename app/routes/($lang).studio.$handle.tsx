@@ -3,6 +3,10 @@ import { getAuth } from "@clerk/react-router/server";
 import { Outlet, redirect } from "react-router";
 import { getLocalizedPath } from "@/utils/localized-path";
 import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/common/app-sidebar";
+import { ThemeToggle } from "@/components/common/theme-toggle";
+import LocaleSwitcher from "@/components/i18n/locale-switcher";
 
 export async function loader(args: Route.LoaderArgs) {
   const auth = await getAuth(args);
@@ -26,5 +30,19 @@ export async function loader(args: Route.LoaderArgs) {
 }
 
 export default function StudioHandleLayoutRoute() {
-  return <Outlet />;
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="h-dvh w-full bg-sidebar flex flex-col gap-4">
+        <header className="h-16 flex justify-between items-center gap-2 p-2 px-4">
+          <SidebarTrigger className="size-9 bg-surface rounded-md" />
+          <div className="flex items-center gap-2 ml-auto">
+            <ThemeToggle iconSize="size-5" />
+            <LocaleSwitcher />
+          </div>
+        </header>
+        <Outlet />
+      </main>
+    </SidebarProvider>
+  );
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { shouldShowUrlRequiredError } from "@/components/page/link-save-form.utils";
+import { shouldShowUrlRequiredError } from "@/utils/link-save-form.utils";
 
 describe("shouldShowUrlRequiredError", () => {
   it("returns false before interaction even when empty", () => {

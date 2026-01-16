@@ -9,7 +9,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { shouldShowUrlRequiredError } from "@/components/page/link-save-form.utils";
+import { shouldShowUrlRequiredError } from "@/utils/link-save-form.utils";
 
 type LinkSaveActionData = {
   fieldErrors?: {

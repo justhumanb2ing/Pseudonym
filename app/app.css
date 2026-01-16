@@ -5,7 +5,6 @@
 
 @import "@clerk/themes/shadcn.css";
 
-
 @custom-variant dark (&:is(.dark *));
 
 @theme {
@@ -61,7 +60,6 @@
   }
 }
 
-
 .toolbar-shadow {
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.04),
@@ -72,7 +70,6 @@
     0 2.2px 4.4px rgba(0, 0, 0, 0.016),
     0 0.5px 2.125px rgba(0, 0, 0, 0.01);
 }
-
 
 @theme inline {
   --font-sans: var(--font-sans);
@@ -117,6 +114,8 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
   --color-brand: var(--brand);
+  --color-test: var(--test);
+  --color-surface: var(--surface);
 }
 
 :root {
@@ -153,6 +152,8 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --brand: oklch(0.6591 0.232 13.79);
+  --test: oklch(0.985 0 0);
+  --surface: oklch(1 0 0);
   --destructive-foreground: var(--color-red-700);
 }
 
@@ -189,5 +190,7 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   --brand: oklch(0.61 0.2285 9.73);
+  --test: oklch(0.2972 0 0);
+  --surface: oklch(0 0 0);
   --destructive-foreground: var(--color-red-400);
 }

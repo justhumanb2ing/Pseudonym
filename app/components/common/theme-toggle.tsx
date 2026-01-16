@@ -3,9 +3,9 @@ import { flushSync } from "react-dom";
 import { useIntlayer } from "react-intlayer";
 
 import { cn } from "@/lib/utils";
-import { MoonStarsIcon, SunDimIcon } from "@phosphor-icons/react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useTheme } from "next-themes";
+import { IconMoonStars, IconSun } from "@tabler/icons-react";
 
 interface ThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {
   duration?: number;
@@ -63,15 +63,15 @@ export const ThemeToggle = ({
             ref={buttonRef}
             onClick={toggleTheme}
             className={cn(
-              "rounded-md p-2 hover:bg-muted dark:hover:bg-muted/50",
+              "rounded-md p-2 bg-white dark:bg-black hover:bg-muted dark:hover:bg-muted/50",
               className
             )}
             {...props}
           >
             {theme === "dark" ? (
-              <SunDimIcon className={iconSize} />
+              <IconSun className={iconSize} />
             ) : (
-              <MoonStarsIcon className={iconSize} />
+              <IconMoonStars className={iconSize} />
             )}
             <span className="sr-only">Toggle theme</span>
           </button>
