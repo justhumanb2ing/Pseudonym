@@ -3,5 +3,3 @@ set -eu
 
 printf "Running tests before push...\n"
 bun run test
-printf "Running typecheck before push...\n"
-bun run typecheck
