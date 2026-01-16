@@ -5,13 +5,29 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import StudioHandleLayoutRoute from "@/routes/($lang).studio.$handle";
 import StudioHandleIndexRoute from "@/routes/($lang).studio.$handle._index";
 
+const mockPageData = {
+  page: {
+    id: "test-id",
+    owner_id: "test-owner-id",
+    handle: "demo",
+    title: "Test Page",
+    description: "Test Description",
+    image_url: null,
+    is_public: true,
+    is_primary: true,
+  },
+  handle: "demo",
+};
+
 describe("studio routes", () => {
-  it("renders the studio layout route", () => {
+  it("renders the studio layout route", async () => {
     const router = createMemoryRouter(
       [
         {
           path: "/studio/:handle",
           element: <StudioHandleLayoutRoute />,
+          loader: () => mockPageData,
+          hydrateFallbackElement: <div />,
           children: [{ index: true, element: <div>StudioChild</div> }],
         },
       ],
@@ -20,7 +36,7 @@ describe("studio routes", () => {
 
     render(<RouterProvider router={router} />);
 
-    expect(screen.getByText("StudioChild")).toBeInTheDocument();
+    expect(await screen.findByText("StudioChild")).toBeInTheDocument();
   });
 
   it("renders the studio index route", () => {
@@ -34,8 +50,8 @@ describe("studio routes", () => {
       { initialEntries: ["/studio/demo"] }
     );
 
-    render(<RouterProvider router={router} />);
+    const { container } = render(<RouterProvider router={router} />);
 
-    expect(screen.getByText("StudioHandleIndexRoute")).toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
   });
 });

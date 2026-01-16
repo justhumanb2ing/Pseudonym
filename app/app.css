@@ -60,6 +60,10 @@
   }
 }
 
+.shadow-float {
+  @apply shadow-[0px_6px_4px_-6px_rgba(0,0,0,0.1)];
+}
+
 .toolbar-shadow {
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.04),

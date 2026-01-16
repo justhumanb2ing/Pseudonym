@@ -68,11 +68,10 @@ describe("PageDetailsEditor", () => {
         pageId="page-1"
         title="My Page"
         description="Hello"
-        isOwner={true}
       />
     );
 
-    await user.click(screen.getByRole("button", { name: "My Page" }));
+    await user.click(screen.getByRole("button", { name: /My Page/ }));
 
     const titleInput = screen.getByLabelText("Title") as HTMLInputElement;
     const descriptionInput = screen.getByLabelText(
@@ -101,11 +100,10 @@ describe("PageDetailsEditor", () => {
         pageId="page-2"
         title="Mobile Page"
         description={null}
-        isOwner={true}
       />
     );
 
-    await user.click(screen.getByRole("button", { name: "Mobile Page" }));
+    await user.click(screen.getByRole("button", { name: /Mobile Page/ }));
 
     expect(document.querySelector("[data-slot='drawer-content']")).not.toBeNull();
     expect(document.querySelector("[data-slot='dialog-content']")).toBeNull();

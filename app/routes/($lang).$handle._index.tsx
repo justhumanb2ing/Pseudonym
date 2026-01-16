@@ -155,34 +155,6 @@ export async function action(args: Route.ActionArgs) {
   }
 }
 
-export default function UserProfileRoute({ loaderData }: Route.ComponentProps) {
-  const {
-    page: { id, owner_id, title, description, image_url, is_public },
-    handle,
-    isOwner,
-  } = loaderData;
-
-  useUserProfilePageView({ id, isOwner });
-
-  return (
-    <main className="container max-w-7xl mx-auto h-full">
-      <div className="flex flex-col items-center gap-4">
-        <ProfileImageUploader
-          pageId={id}
-          userId={owner_id}
-          imageUrl={image_url}
-          defaultImageUrl={defaultImageUrl}
-          isOwner={isOwner}
-          alt={title ?? handle ?? "Profile image"}
-        />
-        {isOwner ? <AddItemFlow pageId={id} /> : null}
-        <PageDetailsEditor
-          pageId={id}
-          title={title}
-          description={description}
-          isOwner={isOwner}
-        />
-      </div>
-    </main>
-  );
+export default function UserProfileRoute() {
+  return <main className="container max-w-7xl mx-auto h-full"></main>;
 }

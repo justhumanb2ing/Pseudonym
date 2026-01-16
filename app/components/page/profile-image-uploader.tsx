@@ -36,8 +36,6 @@ type ProfileImageUploaderProps = {
   pageId: string;
   userId: string;
   imageUrl: string | null;
-  defaultImageUrl: string;
-  isOwner: boolean;
   alt: string;
 };
 
@@ -108,8 +106,6 @@ export default function ProfileImageUploader({
   pageId,
   userId,
   imageUrl,
-  defaultImageUrl,
-  isOwner,
   alt,
 }: ProfileImageUploaderProps) {
   const uploadPageImage = usePageImageUploader();
@@ -172,15 +168,10 @@ export default function ProfileImageUploader({
     });
   }, [actionData]);
 
-  const resolvedImageUrl = currentImageUrl || defaultImageUrl;
   const hasImage = currentImageUrl.length > 0;
   const isCropperOpen = Boolean(previewUrl);
 
   const handleSelectFile = () => {
-    if (!isOwner) {
-      return;
-    }
-
     fileInputRef.current?.click();
   };
 
@@ -219,10 +210,6 @@ export default function ProfileImageUploader({
   };
 
   const handleRemoveImage = () => {
-    if (!isOwner) {
-      return;
-    }
-
     uploadRequestIdRef.current += 1;
     if (uploadAbortRef.current) {
       uploadAbortRef.current.abort();
@@ -236,7 +223,7 @@ export default function ProfileImageUploader({
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !previewUrl || !isOwner) {
+    if (!selectedFile || !previewUrl) {
       return;
     }
 
@@ -319,22 +306,20 @@ export default function ProfileImageUploader({
   };
 
   return (
-    <div className="flex w-full flex-col items-center gap-4">
+    <div className="">
       <div className="relative group">
         <button
           type="button"
           onClick={handleSelectFile}
-          disabled={!isOwner}
           aria-label="Change profile image"
           className={cn(
-            "relative size-32 overflow-hidden rounded-full bg-muted shadow-sm transition border border-black",
-            "hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            !isOwner && "cursor-default"
+            "relative size-18 overflow-hidden rounded-full bg-muted transition border border-black",
+            "hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           )}
         >
-          {resolvedImageUrl ? (
+          {currentImageUrl ? (
             <img
-              src={resolvedImageUrl}
+              src={currentImageUrl}
               alt={alt}
               className="h-full w-full object-cover"
             />
@@ -342,7 +327,7 @@ export default function ProfileImageUploader({
             <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground bg-muted"></div>
           )}
         </button>
-        {isOwner && hasImage ? (
+        {hasImage ? (
           <button
             type="button"
             onClick={(event) => {
@@ -364,13 +349,11 @@ export default function ProfileImageUploader({
           accept="image/*"
           className="sr-only"
           onChange={handleFileChange}
-          disabled={!isOwner}
-          aria-disabled={!isOwner}
           aria-label="Profile image upload"
         />
       </div>
 
-      {isOwner && previewUrl ? (
+      {previewUrl ? (
         <Dialog
           open={isCropperOpen}
           onOpenChange={(open) => {

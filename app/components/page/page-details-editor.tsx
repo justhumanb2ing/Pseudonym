@@ -48,14 +48,12 @@ type PageDetailsEditorProps = {
   pageId: string;
   title: string | null;
   description: string | null;
-  isOwner: boolean;
 };
 
 export default function PageDetailsEditor({
   pageId,
   title,
   description,
-  isOwner,
 }: PageDetailsEditorProps) {
   const isDesktop = useMediaQuery("(min-width: 1280px)");
   const fetcher = useFetcher();
@@ -117,7 +115,7 @@ export default function PageDetailsEditor({
               value={titleValue}
               onValueChange={handleTitleChange}
               maxLength={PAGE_TITLE_MAX_LENGTH}
-              disabled={!isOwner || isSaving}
+              disabled={isSaving}
               aria-invalid={isTitleMissing}
               placeholder="Add a title"
               className="px-3 pt-8 h-16 rounded-lg"
@@ -146,7 +144,7 @@ export default function PageDetailsEditor({
               value={descriptionValue}
               onChange={handleDescriptionChange}
               maxLength={PAGE_DESCRIPTION_MAX_LENGTH}
-              disabled={!isOwner || isSaving}
+              disabled={isSaving}
               aria-invalid={!!descriptionError}
               placeholder="Add a bio"
               className="px-3 pt-8 min-h-32 rounded-lg"
@@ -167,7 +165,7 @@ export default function PageDetailsEditor({
       ) : null}
       <Button
         type="submit"
-        disabled={!isOwner || isSaving || isTitleMissing}
+        disabled={isSaving || isTitleMissing}
         className={"mt-2 h-12 text-base"}
       >
         {isSaving ? "Saving..." : "Save"}
@@ -175,15 +173,16 @@ export default function PageDetailsEditor({
     </fetcher.Form>
   );
 
-  const triggerLabel = title?.trim().length ? title : "Untitled";
-
-  if (!isOwner) {
-    return (
-      <div className="text-lg font-semibold text-foreground">
-        {triggerLabel}
-      </div>
-    );
-  }
+  const triggerLabel = (
+    <div className="flex flex-col items-start p-0">
+      <p className="text-lg font-medium hover:underline">{title}</p>
+      <p className="text-sm font-light text-left truncate min-w-0 max-w-60 md:max-w-96 text-wrap line-clamp-2">
+        {description}asdfmaslkdfmlak asdmlfamsdl falksdflk asdlfkamsdl kalsdmflk
+        alskdmflkamsdlk malksmfdldkamf asdfma,sdk alskdflak sdflkams dlkmaslk
+        dflkas mdlkamsdklfmaskldflkasmdlf amdsklmlkasmdflasd
+      </p>
+    </div>
+  );
 
   if (isDesktop) {
     return (
@@ -193,7 +192,7 @@ export default function PageDetailsEditor({
             <Button
               type="button"
               variant="ghost"
-              className={cn("text-lg font-semibold hover:underline")}
+              className={"rounded-md justify-start w-fit h-fit"}
             >
               {triggerLabel}
             </Button>
@@ -224,7 +223,7 @@ export default function PageDetailsEditor({
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button type="button" variant="ghost" className="text-lg font-semibold hover:underline">
+        <Button type="button" variant="ghost" className="">
           {triggerLabel}
         </Button>
       </DrawerTrigger>

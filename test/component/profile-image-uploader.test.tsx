@@ -90,8 +90,6 @@ describe("ProfileImageUploader", () => {
         pageId="page-1"
         userId="user-1"
         imageUrl={null}
-        defaultImageUrl="https://example.com/default.png"
-        isOwner={true}
         alt="Profile image"
       />
     );
@@ -121,8 +119,6 @@ describe("ProfileImageUploader", () => {
         pageId="page-1"
         userId="user-1"
         imageUrl={null}
-        defaultImageUrl="https://example.com/default.png"
-        isOwner={true}
         alt="Profile image"
       />
     );
@@ -146,8 +142,6 @@ describe("ProfileImageUploader", () => {
         pageId="page-1"
         userId="user-1"
         imageUrl={null}
-        defaultImageUrl="https://example.com/default.png"
-        isOwner={true}
         alt="Profile image"
       />
     );
@@ -184,8 +178,6 @@ describe("ProfileImageUploader", () => {
         pageId="page-1"
         userId="user-1"
         imageUrl={null}
-        defaultImageUrl="https://example.com/default.png"
-        isOwner={true}
         alt="Profile image"
       />
     );
