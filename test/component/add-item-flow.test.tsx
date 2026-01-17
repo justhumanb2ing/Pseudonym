@@ -47,7 +47,7 @@ describe("AddItemFlow", () => {
 		await user.click(screen.getByRole("button", { name: "Add" }));
 
 		expect(document.querySelector("[data-slot='drawer-content']")).not.toBeNull();
-		expect(screen.getByRole("button", { name: "Add link" })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
 
 		await user.click(screen.getByRole("tab", { name: "Image" }));
 
@@ -63,7 +63,7 @@ describe("AddItemFlow", () => {
 		await user.click(screen.getByRole("button", { name: "Add" }));
 
 		expect(document.querySelector("[data-slot='dialog-content']")).not.toBeNull();
-		expect(screen.getByRole("button", { name: "Add link" })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
 
 		await user.click(screen.getByRole("tab", { name: "Video" }));
 

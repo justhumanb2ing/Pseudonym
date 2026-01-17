@@ -39,7 +39,7 @@ describe("AddItemFlow + LinkSaveForm", () => {
 		expect(screen.queryByText("URL is required.")).not.toBeInTheDocument();
 
 		const input = screen.getByLabelText("Link URL");
-		const submitButton = screen.getByRole("button", { name: "Add link" });
+		const submitButton = screen.getByRole("button", { name: "Save" });
 
 		expect(submitButton).toBeDisabled();
 
@@ -48,7 +48,7 @@ describe("AddItemFlow + LinkSaveForm", () => {
 		expect(input).toHaveValue("example.com");
 
 		await waitFor(() => {
-			expect(screen.getByRole("button", { name: "Add link" })).toBeEnabled();
+			expect(screen.getByRole("button", { name: "Save" })).toBeEnabled();
 		});
 	});
 });

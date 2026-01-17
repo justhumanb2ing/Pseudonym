@@ -18,9 +18,10 @@ type LinkSaveActionData = {
 type LinkSaveFormProps = {
 	pageId: string;
 	onSuccess?: () => void;
+	onCancel?: () => void;
 };
 
-export default function LinkSaveForm({ pageId, onSuccess }: LinkSaveFormProps) {
+export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFormProps) {
 	const fetcher = useFetcher();
 	const actionData = fetcher.data as LinkSaveActionData | undefined;
 	const [urlValue, setUrlValue] = useState("");
@@ -46,22 +47,25 @@ export default function LinkSaveForm({ pageId, onSuccess }: LinkSaveFormProps) {
 			<input type="hidden" name="intent" value="link-save" />
 			<input type="hidden" name="pageId" value={pageId} />
 			<Field data-invalid={showRequiredError || !!urlError}>
-				<FieldLabel htmlFor="link-url" className="font-medium text-sm">
-					Link URL
-				</FieldLabel>
 				<FieldContent>
-					<Input
-						id="link-url"
-						name="url"
-						value={urlValue}
-						autoComplete="off"
-						onChange={(event) => setUrlValue(event.target.value)}
-						onBlur={() => setHasInteracted(true)}
-						placeholder="example.com"
-						disabled={isSaving}
-						aria-invalid={showRequiredError || !!urlError}
-						aria-describedby={urlError ? "link-url-error" : undefined}
-					/>
+					<div className="relative">
+						<FieldLabel htmlFor="link-url" className="pointer-events-none absolute top-2 left-3 text-muted-foreground text-sm">
+							Link URL
+						</FieldLabel>
+						<Input
+							id="link-url"
+							name="url"
+							value={urlValue}
+							autoComplete="off"
+							onChange={(event) => setUrlValue(event.target.value)}
+							onBlur={() => setHasInteracted(true)}
+							placeholder="example.com"
+							disabled={isSaving}
+							aria-invalid={showRequiredError || !!urlError}
+							aria-describedby={urlError ? "link-url-error" : undefined}
+							className="h-16 rounded-lg px-3 pt-8"
+						/>
+					</div>
 					<FieldError id="link-url-error" errors={urlError || urlErrorMessage ? [{ message: urlError ?? urlErrorMessage ?? "" }] : []} />
 				</FieldContent>
 			</Field>
@@ -70,9 +74,16 @@ export default function LinkSaveForm({ pageId, onSuccess }: LinkSaveFormProps) {
 					{formError}
 				</p>
 			) : null}
-			<Button type="submit" disabled={isSaving || isUrlMissing} aria-busy={isSaving}>
-				{isSaving ? "Saving..." : "Add link"}
-			</Button>
+			<div className="flex gap-2">
+				{onCancel && (
+					<Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="flex-1">
+						Cancel
+					</Button>
+				)}
+				<Button type="submit" disabled={isSaving || isUrlMissing} aria-busy={isSaving} className="flex-1">
+					{isSaving ? "Saving..." : "Save"}
+				</Button>
+			</div>
 		</fetcher.Form>
 	);
 }
