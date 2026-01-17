@@ -6,6 +6,7 @@ import LinkSaveForm from "@/components/page/link-save-form";
 import PageDetailsEditor from "@/components/page/page-details-editor";
 import ProfileImageUploader from "@/components/page/profile-image-uploader";
 import ProfileItemCollapsible from "@/components/page/profile-item-collapsible";
+import { Button } from "@/components/ui/button";
 import type { ItemTypeId } from "@/constants/add-item-flow.data";
 import { useOptimisticDelete } from "@/hooks/use-optimistic-delete";
 import { getSupabaseServerClient } from "@/lib/supabase";
@@ -65,7 +66,7 @@ export async function action(args: Route.ActionArgs) {
 // TODO: AddItemFlow 사용 흐름, UI, UX 변경
 export default function StudioLinksRoute() {
 	const {
-		page: { id, owner_id, title, description, image_url },
+		page: { id, owner_id, title, description, image_url, is_public },
 		handle,
 		profileItems,
 	} = useOutletContext<StudioOutletContext>();
@@ -101,8 +102,16 @@ export default function StudioLinksRoute() {
 								</div>
 							</div>
 						</aside>
-						<aside className="offset-border flex h-full items-center justify-center rounded-2xl border-2 border-border/40 bg-surface/60 p-5 text-foreground/60 text-sm shadow-float">
-							빈 영역
+						<aside className="offset-border flex h-full flex-col rounded-2xl border-2 border-border/40 bg-surface/60 p-5 shadow-float">
+							<div className="flex flex-col">
+								<h2 className="font-jalnan-gothic text-lg">{is_public ? "Public" : "Private"}</h2>
+								<h3 className="text-muted-foreground text-sm/relaxed">
+									{is_public ? "Anyone can view this page" : "Only you can view this page"}
+								</h3>
+							</div>
+							<div className="flex justify-end">
+								<Button>Change</Button>
+							</div>
 						</aside>
 					</div>
 					<main className="relative mt-4 flex min-h-0 min-w-0 basis-full flex-col overflow-hidden">

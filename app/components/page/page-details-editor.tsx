@@ -174,7 +174,7 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 				<Button
 					type="button"
 					variant="ghost"
-					className="h-auto w-full min-w-0 items-start justify-start overflow-hidden whitespace-normal text-left"
+					className="h-auto w-full min-w-0 items-start justify-start overflow-hidden whitespace-normal rounded-md text-left"
 				>
 					{triggerLabel}
 				</Button>
