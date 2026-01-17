@@ -1,14 +1,16 @@
-import { useState } from "react";
-import { useOutletContext } from "react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useActionData, useFetchers, useOutletContext, useParams } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import AddItemPopover from "@/components/page/add-item-popover";
 import LinkSaveForm from "@/components/page/link-save-form";
 import PageDetailsEditor from "@/components/page/page-details-editor";
 import PageVisibilityToggle from "@/components/page/page-visibility-toggle";
+import ProfilePreviewFrame from "@/components/page/profile-preview-frame";
 import ProfileImageUploader from "@/components/page/profile-image-uploader";
 import ProfileItemCollapsible from "@/components/page/profile-item-collapsible";
 import type { ItemTypeId } from "@/constants/add-item-flow.data";
 import { useOptimisticDelete } from "@/hooks/use-optimistic-delete";
+import { PREVIEW_MESSAGE_TYPE } from "@/lib/preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import {
 	handleLinkRemove,
@@ -73,9 +75,47 @@ export default function StudioLinksRoute() {
 		handle,
 		profileItems,
 	} = useOutletContext<StudioOutletContext>();
+	const { lang } = useParams();
+	const actionData = useActionData<ActionData>();
+	const fetchers = useFetchers();
+	const previewFrameRef = useRef<HTMLIFrameElement>(null);
 
 	const [selectedItemType, setSelectedItemType] = useState<ItemTypeId | null>(null);
 	const { items, deleteItem, isDeleting } = useOptimisticDelete(profileItems);
+	const lastPreviewSignalRef = useRef(new Map<string, unknown>());
+
+	const notifyPreviewRefresh = useCallback(() => {
+		const previewWindow = previewFrameRef.current?.contentWindow;
+		if (!previewWindow) {
+			return;
+		}
+		previewWindow.postMessage({ type: PREVIEW_MESSAGE_TYPE }, window.location.origin);
+	}, []);
+
+	useEffect(() => {
+		if (actionData?.success) {
+			notifyPreviewRefresh();
+		}
+	}, [actionData?.success, notifyPreviewRefresh]);
+
+	useEffect(() => {
+		for (const fetcher of fetchers) {
+			if (fetcher.state !== "idle") {
+				continue;
+			}
+			const data = fetcher.data as ActionData | undefined;
+			if (!data?.success) {
+				continue;
+			}
+			const key = fetcher.key;
+			const lastPayload = lastPreviewSignalRef.current.get(key);
+			if (lastPayload === data) {
+				continue;
+			}
+			lastPreviewSignalRef.current.set(key, data);
+			notifyPreviewRefresh();
+		}
+	}, [fetchers, notifyPreviewRefresh]);
 
 	const handleSelectItem = (itemId: ItemTypeId) => {
 		setSelectedItemType(itemId);
@@ -128,8 +168,11 @@ export default function StudioLinksRoute() {
 						</div>
 					</main>
 				</div>
-				<aside className="offset-border hidden h-full min-w-0 rounded-2xl border-2 border-border/40 bg-surface/60 p-6 shadow-float xl:col-span-5 xl:block">
+				<aside className="offset-border hidden h-full min-w-0 flex-col rounded-2xl border-2 border-border/40 bg-surface/60 p-6 shadow-float xl:col-span-5 xl:flex">
 					<h2 className="mb-4 font-semibold text-xl">Preview</h2>
+					<div className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-border/40 bg-background">
+						<ProfilePreviewFrame ref={previewFrameRef} handle={handle} lang={lang} className="h-full w-full" />
+					</div>
 				</aside>
 			</article>
 		</section>

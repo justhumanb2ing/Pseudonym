@@ -1,59 +1,15 @@
 import { getAuth } from "@clerk/react-router/server";
-import { generateMeta } from "@forge42/seo-tools/remix/metadata";
-import { breadcrumbs } from "@forge42/seo-tools/structured-data/breadcrumb";
-import { profile } from "@forge42/seo-tools/structured-data/profile";
-import { redirect } from "react-router";
-import { metadataConfig } from "@/config/metadata";
+import { useEffect } from "react";
+import { useLocation, useRevalidator } from "react-router";
+import { isPreviewMessage, isPreviewRequest, isPreviewSearch } from "@/lib/preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
-import { buildUrl, defaultImageUrl } from "@/lib/url";
-import {
-	handleLinkSave,
-	handleLinkRemove,
-	handlePageDetails,
-	handleRemoveImage,
-	handleUpdateImage,
-	type PageProfileActionData,
-} from "@/service/pages/page-profile.action";
-import { getLocalizedPath } from "@/utils/localized-path";
 import { fetchUmamiVisits, getTodayRange, resolveUmamiConfig, UMAMI_TIMEZONE, UMAMI_UNIT, type UmamiResponse } from "../service/umami";
 import type { Route } from "./+types/($lang).$handle._index";
-
-export const meta = ({ loaderData, params }: Route.MetaArgs) => {
-	const handle = params.handle ?? "user";
-	const url = buildUrl(params.lang, `/${handle}`, metadataConfig.url);
-	const title = loaderData?.page?.title ?? handle;
-	const description = loaderData?.page?.description ?? "Personal profile page on beyondthewave.";
-	const imageUrl = loaderData?.page?.image_url ?? defaultImageUrl;
-
-	return generateMeta(
-		{
-			title,
-			description,
-			url,
-			image: imageUrl,
-			siteName: metadataConfig.title,
-			twitterCard: metadataConfig.twitterCard,
-		},
-		[
-			{
-				"script:ld+json": breadcrumbs(url, ["Home", title]),
-			},
-			{
-				"script:ld+json": profile({
-					"@type": "ProfilePage",
-					name: title,
-					description,
-					image: imageUrl,
-					url,
-				}),
-			},
-		],
-	);
-};
 
 export async function loader(args: Route.LoaderArgs) {
 	const { userId } = await getAuth(args);
 	const { handle } = args.params;
+	const isPreview = isPreviewRequest(args.request);
 
 	if (!handle) {
 		throw new Response("Not Found", { status: 404 });
@@ -77,32 +33,34 @@ export async function loader(args: Route.LoaderArgs) {
 
 	let umamiResult: UmamiResponse | null = null;
 
-	const umamiConfig = resolveUmamiConfig();
+	if (!isPreview) {
+		const umamiConfig = resolveUmamiConfig();
 
-	if (!umamiConfig) {
-		umamiResult = {
-			ok: false,
-			status: 500,
-			error: "Missing Umami environment configuration.",
-		};
-	} else {
-		try {
-			const { startAt, endAt } = getTodayRange(UMAMI_TIMEZONE);
-			umamiResult = await fetchUmamiVisits({
-				...umamiConfig,
-				websiteId: umamiConfig.websiteId,
-				startAt,
-				endAt,
-				unit: UMAMI_UNIT,
-				timezone: UMAMI_TIMEZONE,
-				pageId: page.id,
-			});
-		} catch (error) {
+		if (!umamiConfig) {
 			umamiResult = {
 				ok: false,
 				status: 500,
-				error: error instanceof Error ? error.message : error,
+				error: "Missing Umami environment configuration.",
 			};
+		} else {
+			try {
+				const { startAt, endAt } = getTodayRange(UMAMI_TIMEZONE);
+				umamiResult = await fetchUmamiVisits({
+					...umamiConfig,
+					websiteId: umamiConfig.websiteId,
+					startAt,
+					endAt,
+					unit: UMAMI_UNIT,
+					timezone: UMAMI_TIMEZONE,
+					pageId: page.id,
+				});
+			} catch (error) {
+				umamiResult = {
+					ok: false,
+					status: 500,
+					error: error instanceof Error ? error.message : error,
+				};
+			}
 		}
 	}
 
@@ -114,32 +72,66 @@ export async function loader(args: Route.LoaderArgs) {
 	};
 }
 
-export type ActionData = PageProfileActionData;
-
-export async function action(args: Route.ActionArgs) {
-	const auth = await getAuth(args);
-	if (!auth.userId) {
-		throw redirect(getLocalizedPath(args.params.lang, "/sign-in"));
-	}
-
-	const formData = await args.request.formData();
-	const intent = formData.get("intent");
-	const supabase = await getSupabaseServerClient(args);
-
-	switch (intent) {
-		case "update-image":
-			return handleUpdateImage({ formData, supabase });
-		case "remove-image":
-			return handleRemoveImage({ formData, supabase });
-		case "link-save":
-			return handleLinkSave({ formData, supabase });
-		case "link-remove":
-			return handleLinkRemove({ formData, supabase });
-		default:
-			return handlePageDetails({ formData, supabase });
-	}
-}
-
 export default function UserProfileRoute() {
-	return <main className="container mx-auto h-full max-w-7xl"></main>;
+	const location = useLocation();
+	const revalidator = useRevalidator();
+	const isPreview = isPreviewSearch(location.search);
+
+	useEffect(() => {
+		if (!isPreview) {
+			return;
+		}
+
+		const handleMessage = (event: MessageEvent) => {
+			if (event.origin !== window.location.origin) {
+				return;
+			}
+			if (event.source !== window.parent) {
+				return;
+			}
+			if (!isPreviewMessage(event.data)) {
+				return;
+			}
+			revalidator.revalidate();
+		};
+
+		window.addEventListener("message", handleMessage);
+		return () => window.removeEventListener("message", handleMessage);
+	}, [isPreview, revalidator]);
+
+	useEffect(() => {
+		if (!isPreview) {
+			return;
+		}
+
+		const handleSubmit = (event: Event) => {
+			event.preventDefault();
+			event.stopPropagation();
+		};
+
+		const handleClick = (event: MouseEvent) => {
+			const target = event.target;
+			if (!(target instanceof HTMLElement)) {
+				return;
+			}
+			const button = target.closest("button");
+			if (!button) {
+				return;
+			}
+			const type = button.getAttribute("type") ?? "submit";
+			if (type === "submit") {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		};
+
+		document.addEventListener("submit", handleSubmit, true);
+		document.addEventListener("click", handleClick, true);
+		return () => {
+			document.removeEventListener("submit", handleSubmit, true);
+			document.removeEventListener("click", handleClick, true);
+		};
+	}, [isPreview]);
+
+	return <main className="container mx-auto h-full max-w-xl p-3">Preview Mode</main>;
 }
