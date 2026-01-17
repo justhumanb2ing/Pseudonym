@@ -10,4 +10,22 @@
 
 @theme {
 	--font-pretendard: "Pretendard", sans-serif;
+	--font-jalnan: "Jalnan", sans-serif;
+	--font-jalnan-gothic: "JalnanGothic", sans-serif;
+}
+
+@font-face {
+	font-family: 'Jalnan';
+	src: url('/fonts/Jalnan2TTF.ttf') format("truetype");
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'JalnanGothic';
+	src: url('/fonts/JalnanGothicTTF.ttf') format("truetype");
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
 }

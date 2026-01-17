@@ -7,9 +7,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-}
-
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
