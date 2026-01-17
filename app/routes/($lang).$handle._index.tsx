@@ -8,6 +8,7 @@ import { getSupabaseServerClient } from "@/lib/supabase";
 import { buildUrl, defaultImageUrl } from "@/lib/url";
 import {
 	handleLinkSave,
+	handleLinkRemove,
 	handlePageDetails,
 	handleRemoveImage,
 	handleUpdateImage,
@@ -132,6 +133,8 @@ export async function action(args: Route.ActionArgs) {
 			return handleRemoveImage({ formData, supabase });
 		case "link-save":
 			return handleLinkSave({ formData, supabase });
+		case "link-remove":
+			return handleLinkRemove({ formData, supabase });
 		default:
 			return handlePageDetails({ formData, supabase });
 	}

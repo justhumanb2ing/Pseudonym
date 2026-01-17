@@ -7,8 +7,10 @@ import PageDetailsEditor from "@/components/page/page-details-editor";
 import ProfileImageUploader from "@/components/page/profile-image-uploader";
 import ProfileItemCollapsible from "@/components/page/profile-item-collapsible";
 import type { ItemTypeId } from "@/constants/add-item-flow.data";
+import { useOptimisticDelete } from "@/hooks/use-optimistic-delete";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import {
+	handleLinkRemove,
 	handleLinkSave,
 	handlePageDetails,
 	handleRemoveImage,
@@ -24,7 +26,7 @@ export async function action(args: Route.ActionArgs) {
 	const intent = formData.get("intent")?.toString();
 	const supabase = await getSupabaseServerClient(args);
 	// Intent 타입 검증
-	const validIntents = ["page-details", "update-image", "remove-image", "link-save"] as const;
+	const validIntents = ["page-details", "update-image", "remove-image", "link-save", "link-remove"] as const;
 
 	if (!intent || typeof intent !== "string") {
 		return {
@@ -47,6 +49,8 @@ export async function action(args: Route.ActionArgs) {
 			return handleRemoveImage({ formData, supabase });
 		case "link-save":
 			return handleLinkSave({ formData, supabase });
+		case "link-remove":
+			return handleLinkRemove({ formData, supabase });
 		case "page-details":
 			return handlePageDetails({ formData, supabase });
 		default:
@@ -67,6 +71,7 @@ export default function StudioLinksRoute() {
 	} = useOutletContext<StudioOutletContext>();
 
 	const [selectedItemType, setSelectedItemType] = useState<ItemTypeId | null>(null);
+	const { items, deleteItem, isDeleting } = useOptimisticDelete(profileItems);
 
 	const handleSelectItem = (itemId: ItemTypeId) => {
 		setSelectedItemType(itemId);
@@ -81,9 +86,9 @@ export default function StudioLinksRoute() {
 	};
 
 	return (
-		<section className="flex min-h-0 grow flex-col gap-6 p-2 px-4 pb-6">
-			<header className="flex items-center py-4 font-extrabold text-3xl md:text-5xl">
-				<h1>Link</h1>
+		<section className="flex min-h-0 grow flex-col gap-6 p-2 px-6 pb-6">
+			<header className="flex items-center py-4 text-3xl md:text-5xl">
+				<h1 className="font-jalnan">Link</h1>
 			</header>
 			<article className="flex min-h-0 min-w-0 grow flex-row gap-6">
 				<div className="flex min-h-0 min-w-0 basis-full flex-col gap-4 xl:basis-3/5">
@@ -93,14 +98,11 @@ export default function StudioLinksRoute() {
 							<PageDetailsEditor pageId={id} title={title} description={description} />
 						</div>
 					</aside>
-					<main className="offset-border relative flex min-h-0 min-w-0 basis-full flex-col overflow-hidden rounded-2xl border-2 border-border/40 bg-surface/60 p-6 shadow-float">
-						<h2 className="mb-4 font-semibold text-xl">My Links</h2>
-						<div className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-5 overflow-y-scroll p-5 pb-16">
-							{profileItems.map((item) => (
-								<ProfileItemCollapsible key={item.id} item={item} />
-							))}
-							{profileItems.map((item) => (
-								<ProfileItemCollapsible key={item.id} item={item} />
+					<main className="relative mt-4 flex min-h-0 min-w-0 basis-full flex-col overflow-hidden">
+						<h2 className="mb-4 font-jalnan font-semibold">My Links</h2>
+						<div className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-5 overflow-y-scroll pb-16">
+							{items.map((item) => (
+								<ProfileItemCollapsible key={item.id} item={item} isDeleteDisabled={isDeleting} onDelete={deleteItem} />
 							))}
 						</div>
 

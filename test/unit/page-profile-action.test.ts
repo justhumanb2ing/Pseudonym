@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { handleLinkSave } from "../../app/service/pages/page-profile.action";
+import { handleLinkRemove, handleLinkSave } from "../../app/service/pages/page-profile.action";
 import type { Database } from "../../types/database.types";
 
 describe("handleLinkSave", () => {
@@ -84,12 +84,51 @@ describe("handleLinkSave", () => {
 	});
 });
 
-function createSupabaseStub() {
+describe("handleLinkRemove", () => {
+	it("returns field errors when the item id is missing", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "");
+
+		const result = await handleLinkRemove({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("link-remove");
+		expect(result.fieldErrors?.itemId).toBe("Item id is required.");
+	});
+
+	it("returns success when link remove succeeds", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "item-1");
+
+		const { supabase, calls } = createSupabaseStub();
+		const result = await handleLinkRemove({ formData, supabase });
+
+		expect(result).toEqual({ success: true, intent: "link-remove", itemId: "item-1" });
+		expect(calls.delete).toEqual({
+			table: "profile_items",
+			column: "id",
+			value: "item-1",
+		});
+	});
+});
+
+function createSupabaseStub(options?: { deleteError?: string }) {
 	const calls = {
 		rpc: null as { fn: string; payload: Record<string, unknown> } | null,
+		delete: null as { table: string; column: string; value: string } | null,
 	};
 
 	const supabase = {
+		from: (table: string) => ({
+			delete: () => ({
+				eq: (column: string, value: string) => {
+					calls.delete = { table, column, value };
+					return { error: options?.deleteError ? { message: options.deleteError } : null };
+				},
+			}),
+		}),
 		rpc: (fn: string, payload: Record<string, unknown>) => {
 			calls.rpc = { fn, payload };
 			return { error: null };

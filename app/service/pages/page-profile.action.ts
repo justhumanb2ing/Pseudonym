@@ -5,7 +5,7 @@ import { normalizePageDetails, pageDetailsSchema } from "@/service/pages/page-de
 import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/page-image";
 import type { Database } from "../../../types/database.types";
 
-export type ActionIntent = "page-details" | "update-image" | "remove-image" | "link-save";
+export type ActionIntent = "page-details" | "update-image" | "remove-image" | "link-save" | "link-remove";
 
 export type PageProfileActionData = {
 	formError?: string;
@@ -13,14 +13,20 @@ export type PageProfileActionData = {
 		title?: string;
 		description?: string;
 		url?: string;
+		itemId?: string;
 	};
 	success?: boolean;
 	intent?: ActionIntent;
+	itemId?: string;
 };
 
 const linkSaveSchema = z.object({
 	pageId: z.string().min(1, "Page id is required."),
 	url: z.string().trim().min(1, "URL is required."),
+});
+
+const linkRemoveSchema = z.object({
+	itemId: z.string().min(1, "Item id is required."),
 });
 
 export type PageProfileActionContext = {
@@ -153,4 +159,32 @@ export async function handleLinkSave({ formData, supabase }: PageProfileActionCo
 	}
 
 	return { success: true, intent: "link-save" };
+}
+
+/**
+ * Deletes a link item from the profile page.
+ */
+export async function handleLinkRemove({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = linkRemoveSchema.safeParse({
+		itemId: formData.get("itemId"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			fieldErrors: {
+				itemId: tree.properties?.itemId?.errors[0],
+			},
+			formError: tree.properties?.itemId?.errors[0],
+			intent: "link-remove",
+		};
+	}
+
+	const { error: deleteError } = await supabase.from("profile_items").delete().eq("id", parsed.data.itemId);
+
+	if (deleteError) {
+		return { formError: deleteError.message, intent: "link-remove", itemId: parsed.data.itemId };
+	}
+
+	return { success: true, intent: "link-remove", itemId: parsed.data.itemId };
 }

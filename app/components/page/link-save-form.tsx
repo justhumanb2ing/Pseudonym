@@ -22,8 +22,8 @@ type LinkSaveFormProps = {
 };
 
 export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFormProps) {
-	const fetcher = useFetcher();
-	const actionData = fetcher.data as LinkSaveActionData | undefined;
+	const fetcher = useFetcher<LinkSaveActionData>();
+	const actionData = fetcher.data;
 	const [urlValue, setUrlValue] = useState("");
 	const [hasInteracted, setHasInteracted] = useState(false);
 

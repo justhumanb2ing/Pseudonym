@@ -1,6 +1,17 @@
-import { ALargeSmallIcon } from "lucide-react";
+import { ALargeSmallIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import type { StudioOutletContext } from "types/studio.types";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
@@ -11,11 +22,19 @@ type ProfileItem = StudioOutletContext["profileItems"][number];
 
 type ProfileItemCollapsibleProps = {
 	item: ProfileItem;
+	isDeleteDisabled?: boolean;
+	onDelete?: (item: ProfileItem) => void;
 };
 
-export default function ProfileItemCollapsible({ item }: ProfileItemCollapsibleProps) {
+export default function ProfileItemCollapsible({ item, isDeleteDisabled = false, onDelete }: ProfileItemCollapsibleProps) {
 	const { id, title, url, is_active, config } = item;
 	const [isOpen, setIsOpen] = useState(false);
+	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+	const handleConfirmDelete = () => {
+		setIsDeleteOpen(false);
+		onDelete?.(item);
+	};
 
 	return (
 		<Collapsible
@@ -23,7 +42,7 @@ export default function ProfileItemCollapsible({ item }: ProfileItemCollapsibleP
 			onOpenChange={setIsOpen}
 			className="group/collapsible"
 			render={
-				<div className="group offset-border flex flex-col gap-2 rounded-2xl bg-surface p-2 transition-colors">
+				<div className="group flex flex-col gap-2 rounded-2xl border border-border/60 bg-surface/60 p-2 transition-colors">
 					<div>
 						<div className="flex items-center justify-between p-3">
 							<div className="flex min-w-0 basis-2/3 items-center gap-3">
@@ -35,8 +54,42 @@ export default function ProfileItemCollapsible({ item }: ProfileItemCollapsibleP
 									<p className="line-clamp-1 truncate text-muted-foreground text-xs/relaxed">{config?.site_name}</p>
 								</div>
 							</div>
-							<div>
+							<div className="flex items-center gap-2">
 								<Switch defaultChecked={is_active} />
+								<AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+									<AlertDialogTrigger
+										render={
+											<Button
+												type="button"
+												variant={"ghost"}
+												size={"icon-sm"}
+												aria-label="Delete link"
+												disabled={isDeleteDisabled}
+												className="text-destructive hover:text-destructive"
+											>
+												<Trash2Icon strokeWidth={1.5} />
+											</Button>
+										}
+									/>
+									<AlertDialogContent>
+										<AlertDialogHeader>
+											<AlertDialogTitle>Delete link?</AlertDialogTitle>
+											<AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+										</AlertDialogHeader>
+										<AlertDialogFooter>
+											<AlertDialogCancel disabled={isDeleteDisabled}>Cancel</AlertDialogCancel>
+											<AlertDialogAction
+												type="button"
+												variant="destructive"
+												onClick={handleConfirmDelete}
+												disabled={isDeleteDisabled}
+												aria-busy={isDeleteDisabled}
+											>
+												Delete
+											</AlertDialogAction>
+										</AlertDialogFooter>
+									</AlertDialogContent>
+								</AlertDialog>
 							</div>
 						</div>
 					</div>
