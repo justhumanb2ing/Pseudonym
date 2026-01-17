@@ -27,7 +27,7 @@ export default function ProfileItemCollapsible({ item }: ProfileItemCollapsibleP
 					<div>
 						<div className="flex items-center justify-between p-3">
 							<div className="flex min-w-0 basis-2/3 items-center gap-3">
-								<aside className="size-8 overflow-hidden rounded-sm">
+								<aside className="size-8 shrink-0 overflow-hidden rounded-sm">
 									<img src={config?.icon_url ?? undefined} alt={title} className="h-full w-full object-cover" />
 								</aside>
 								<div className="min-w-0">
@@ -44,7 +44,7 @@ export default function ProfileItemCollapsible({ item }: ProfileItemCollapsibleP
 						<CollapsibleTrigger
 							render={
 								<Button variant={"ghost"} size={"icon-sm"} className={"rounded-md"}>
-									<ALargeSmallIcon strokeWidth={1.5}/>
+									<ALargeSmallIcon strokeWidth={1.5} />
 								</Button>
 							}
 						></CollapsibleTrigger>
