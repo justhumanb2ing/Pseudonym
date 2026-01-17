@@ -90,14 +90,21 @@ export default function StudioLinksRoute() {
 			<header className="flex items-center py-4 text-3xl md:text-5xl">
 				<h1 className="font-jalnan">Link</h1>
 			</header>
-			<article className="flex min-h-0 min-w-0 grow flex-row gap-6">
-				<div className="flex min-h-0 min-w-0 basis-full flex-col gap-4 xl:basis-3/5">
-					<aside className="offset-border flex h-fit items-center rounded-2xl border-2 border-border/40 bg-surface/60 p-5 shadow-float">
-						<div className="flex items-center gap-2">
-							<ProfileImageUploader pageId={id} userId={owner_id} imageUrl={image_url} alt={title ?? handle ?? "Profile image"} />
-							<PageDetailsEditor pageId={id} title={title} description={description} />
-						</div>
-					</aside>
+			<article className="grid min-h-0 min-w-0 grow grid-cols-1 gap-6 xl:grid-cols-12">
+				<div className="flex min-h-0 min-w-0 flex-col gap-4 xl:col-span-7">
+					<div className="grid gap-4 sm:grid-cols-2">
+						<aside className="offset-border flex h-full items-center rounded-2xl border-2 border-border/40 bg-surface/60 p-5 shadow-float">
+							<div className="flex min-w-0 items-center gap-2">
+								<ProfileImageUploader pageId={id} userId={owner_id} imageUrl={image_url} alt={title ?? handle ?? "Profile image"} />
+								<div className="min-w-0 flex-1">
+									<PageDetailsEditor pageId={id} title={title} description={description} />
+								</div>
+							</div>
+						</aside>
+						<aside className="offset-border flex h-full items-center justify-center rounded-2xl border-2 border-border/40 bg-surface/60 p-5 text-foreground/60 text-sm shadow-float">
+							빈 영역
+						</aside>
+					</div>
 					<main className="relative mt-4 flex min-h-0 min-w-0 basis-full flex-col overflow-hidden">
 						<h2 className="mb-4 font-jalnan font-semibold">My Links</h2>
 						<div className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-5 overflow-y-scroll pb-16">
@@ -117,7 +124,7 @@ export default function StudioLinksRoute() {
 						</div>
 					</main>
 				</div>
-				<aside className="offset-border hidden h-full min-w-0 basis-2/5 rounded-2xl border-2 border-border/40 bg-surface/60 p-6 shadow-float xl:block">
+				<aside className="offset-border hidden h-full min-w-0 rounded-2xl border-2 border-border/40 bg-surface/60 p-6 shadow-float xl:col-span-5 xl:block">
 					<h2 className="mb-4 font-semibold text-xl">Preview</h2>
 				</aside>
 			</article>

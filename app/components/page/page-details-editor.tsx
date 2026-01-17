@@ -130,9 +130,9 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 	);
 
 	const triggerLabel = (
-		<div className="flex flex-col items-start p-0">
-			<p className="font-medium text-lg hover:underline">{title}</p>
-			<p className="line-clamp-2 min-w-0 max-w-60 truncate text-wrap text-left font-light text-sm md:max-w-96">{description}</p>
+		<div className="flex min-w-0 flex-1 flex-col items-start gap-1 p-0 text-left">
+			<p className="w-full min-w-0 max-w-full truncate font-medium text-lg hover:underline">{title}</p>
+			<p className="line-clamp-2 w-full min-w-0 max-w-full text-left font-light text-sm leading-6">{description}</p>
 		</div>
 	);
 
@@ -141,7 +141,11 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 			<Dialog open={open} onOpenChange={setOpen}>
 				<DialogTrigger
 					render={
-						<Button type="button" variant="ghost" className={"h-fit w-fit justify-start rounded-md"}>
+						<Button
+							type="button"
+							variant="ghost"
+							className={"h-auto w-full min-w-0 flex-1 items-start justify-start overflow-hidden whitespace-normal rounded-md text-left"}
+						>
 							{triggerLabel}
 						</Button>
 					}
@@ -167,7 +171,11 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 	return (
 		<Drawer open={open} onOpenChange={setOpen}>
 			<DrawerTrigger asChild>
-				<Button type="button" variant="ghost" className="">
+				<Button
+					type="button"
+					variant="ghost"
+					className="h-auto w-full min-w-0 items-start justify-start overflow-hidden whitespace-normal text-left"
+				>
 					{triggerLabel}
 				</Button>
 			</DrawerTrigger>
