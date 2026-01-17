@@ -81,21 +81,24 @@ export default function StudioLinksRoute() {
 	};
 
 	return (
-		<section className="flex grow flex-col gap-6 p-2 px-4 pb-6">
+		<section className="flex min-h-0 grow flex-col gap-6 p-2 px-4 pb-6">
 			<header className="flex items-center py-4 font-extrabold text-3xl md:text-5xl">
 				<h1>Link</h1>
 			</header>
-			<article className="flex min-w-0 grow flex-row gap-6">
-				<div className="flex min-w-0 basis-full flex-col gap-4 xl:basis-3/5">
-					<aside className="flex h-fit items-center rounded-2xl bg-surface p-5 shadow-float">
+			<article className="flex min-h-0 min-w-0 grow flex-row gap-6">
+				<div className="flex min-h-0 min-w-0 basis-full flex-col gap-4 xl:basis-3/5">
+					<aside className="flex h-fit items-center rounded-2xl bg-surface/60 p-5 shadow-float">
 						<div className="flex items-center gap-2">
 							<ProfileImageUploader pageId={id} userId={owner_id} imageUrl={image_url} alt={title ?? handle ?? "Profile image"} />
 							<PageDetailsEditor pageId={id} title={title} description={description} />
 						</div>
 					</aside>
-					<main className="relative min-w-0 basis-full rounded-2xl bg-surface p-6 shadow-float">
+					<main className="relative flex min-h-0 min-w-0 basis-full flex-col overflow-hidden rounded-2xl bg-surface/60 p-6 shadow-float">
 						<h2 className="mb-4 font-semibold text-xl">My Links</h2>
-						<div className="flex flex-col gap-3">
+						<div className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-5 overflow-y-scroll p-5 pb-16">
+							{profileItems.map((item) => (
+								<ProfileItemCollapsible key={item.id} item={item} />
+							))}
 							{profileItems.map((item) => (
 								<ProfileItemCollapsible key={item.id} item={item} />
 							))}
@@ -112,7 +115,7 @@ export default function StudioLinksRoute() {
 						</div>
 					</main>
 				</div>
-				<aside className="hidden h-full min-w-0 basis-2/5 rounded-2xl bg-surface p-6 shadow-float xl:block">
+				<aside className="hidden h-full min-w-0 basis-2/5 rounded-2xl bg-surface/60 p-6 shadow-float xl:block">
 					<h2 className="mb-4 font-semibold text-xl">Preview</h2>
 				</aside>
 			</article>

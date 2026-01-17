@@ -24,13 +24,13 @@ export default function AddItemPopover({ onSelectItem }: AddItemPopoverProps) {
 			<PopoverTrigger
 				render={
 					<Button variant="brand" size="icon-lg">
-						<IconPlus className="size-6" strokeWidth={2.5} />
+						<IconPlus className="size-6 text-white" strokeWidth={2.5} />
 						{/* Add */}
 					</Button>
 				}
 			></PopoverTrigger>
 
-			<PopoverContent className="w-56" align='end' sideOffset={8}>
+			<PopoverContent className="w-56" align="end" sideOffset={8}>
 				<PopoverHeader hidden>
 					<PopoverTitle>Add Item</PopoverTitle>
 					<PopoverDescription>Choose an item type to add</PopoverDescription>

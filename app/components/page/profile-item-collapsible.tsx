@@ -23,7 +23,7 @@ export default function ProfileItemCollapsible({ item }: ProfileItemCollapsibleP
 			onOpenChange={setIsOpen}
 			className="group/collapsible"
 			render={
-				<div className="group offset-border flex flex-col gap-2 rounded-2xl border bg-surface p-2 transition-colors">
+				<div className="group offset-border flex flex-col gap-2 rounded-2xl bg-surface p-2 transition-colors">
 					<div>
 						<div className="flex items-center justify-between p-3">
 							<div className="flex min-w-0 basis-2/3 items-center gap-3">
@@ -32,7 +32,7 @@ export default function ProfileItemCollapsible({ item }: ProfileItemCollapsibleP
 								</aside>
 								<div className="min-w-0">
 									<p className="line-clamp-1 w-full truncate text-sm">{title}</p>
-									<p className="line-clamp-1 truncate text-muted-foreground text-xs/relaxed">{url}</p>
+									<p className="line-clamp-1 truncate text-muted-foreground text-xs/relaxed">{config?.site_name}</p>
 								</div>
 							</div>
 							<div>

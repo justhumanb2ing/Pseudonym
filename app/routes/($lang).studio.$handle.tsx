@@ -73,6 +73,7 @@ export default function StudioHandleLayoutRoute({ loaderData }: Route.ComponentP
 	return (
 		<SidebarProvider>
 			<AppSidebar />
+			{/* TODO: bg-sidebar 고려 */}
 			<main className="relative flex h-dvh w-full flex-col gap-4 bg-sidebar">
 				<aside className="absolute top-2 right-0 flex h-16 items-center justify-between gap-2 px-4">
 					<div className="ml-auto flex items-center gap-2">
