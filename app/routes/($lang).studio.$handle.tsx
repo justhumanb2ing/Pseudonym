@@ -65,7 +65,7 @@ export async function loader(args: Route.LoaderArgs): Promise<StudioOutletContex
 	return {
 		page,
 		handle,
-		profileItems: profileItems ?? [],
+		profileItems: (profileItems as StudioOutletContext["profileItems"]) ?? [],
 	};
 }
 
@@ -76,7 +76,7 @@ export default function StudioHandleLayoutRoute({ loaderData }: Route.ComponentP
 			<main className="relative flex h-dvh w-full flex-col gap-4 bg-sidebar">
 				<aside className="absolute top-2 right-0 flex h-16 items-center justify-between gap-2 px-4">
 					<div className="ml-auto flex items-center gap-2">
-						<SidebarTrigger className="size-9 rounded-md bg-surface" />
+						<SidebarTrigger className="size-9 rounded-md bg-white dark:bg-black" />
 						<ThemeToggle iconSize="size-5" />
 						<LocaleSwitcher />
 					</div>

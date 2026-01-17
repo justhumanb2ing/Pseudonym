@@ -277,7 +277,7 @@ export default function ProfileImageUploader({ pageId, userId, imageUrl, alt }: 
 					onClick={handleSelectFile}
 					aria-label="Change profile image"
 					className={cn(
-						"relative size-18 overflow-hidden rounded-full border border-black bg-muted transition",
+						"relative size-18 overflow-hidden rounded-full border border-foreground bg-muted transition",
 						"hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 					)}
 				>
