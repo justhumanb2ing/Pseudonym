@@ -4,9 +4,9 @@ import type { StudioOutletContext } from "types/studio.types";
 import AddItemPopover from "@/components/page/add-item-popover";
 import LinkSaveForm from "@/components/page/link-save-form";
 import PageDetailsEditor from "@/components/page/page-details-editor";
+import PageVisibilityToggle from "@/components/page/page-visibility-toggle";
 import ProfileImageUploader from "@/components/page/profile-image-uploader";
 import ProfileItemCollapsible from "@/components/page/profile-item-collapsible";
-import { Button } from "@/components/ui/button";
 import type { ItemTypeId } from "@/constants/add-item-flow.data";
 import { useOptimisticDelete } from "@/hooks/use-optimistic-delete";
 import { getSupabaseServerClient } from "@/lib/supabase";
@@ -14,6 +14,7 @@ import {
 	handleLinkRemove,
 	handleLinkSave,
 	handlePageDetails,
+	handlePageVisibility,
 	handleRemoveImage,
 	handleUpdateImage,
 	type PageProfileActionData,
@@ -27,7 +28,7 @@ export async function action(args: Route.ActionArgs) {
 	const intent = formData.get("intent")?.toString();
 	const supabase = await getSupabaseServerClient(args);
 	// Intent 타입 검증
-	const validIntents = ["page-details", "update-image", "remove-image", "link-save", "link-remove"] as const;
+	const validIntents = ["page-details", "page-visibility", "update-image", "remove-image", "link-save", "link-remove"] as const;
 
 	if (!intent || typeof intent !== "string") {
 		return {
@@ -48,6 +49,8 @@ export async function action(args: Route.ActionArgs) {
 			return handleUpdateImage({ formData, supabase });
 		case "remove-image":
 			return handleRemoveImage({ formData, supabase });
+		case "page-visibility":
+			return handlePageVisibility({ formData, supabase });
 		case "link-save":
 			return handleLinkSave({ formData, supabase });
 		case "link-remove":
@@ -103,15 +106,7 @@ export default function StudioLinksRoute() {
 							</div>
 						</aside>
 						<aside className="offset-border flex h-full flex-col rounded-2xl border-2 border-border/40 bg-surface/60 p-5 shadow-float">
-							<div className="flex flex-col">
-								<h2 className="font-jalnan-gothic text-lg">{is_public ? "Public" : "Private"}</h2>
-								<h3 className="text-muted-foreground text-sm/relaxed">
-									{is_public ? "Anyone can view this page" : "Only you can view this page"}
-								</h3>
-							</div>
-							<div className="flex justify-end">
-								<Button>Change</Button>
-							</div>
+							<PageVisibilityToggle pageId={id} isPublic={is_public} />
 						</aside>
 					</div>
 					<main className="relative mt-4 flex min-h-0 min-w-0 basis-full flex-col overflow-hidden">

@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { handleLinkRemove, handleLinkSave } from "../../app/service/pages/page-profile.action";
+import { handleLinkRemove, handleLinkSave, handlePageVisibility } from "../../app/service/pages/page-profile.action";
 import type { Database } from "../../types/database.types";
 
 describe("handleLinkSave", () => {
@@ -114,10 +114,44 @@ describe("handleLinkRemove", () => {
 	});
 });
 
-function createSupabaseStub(options?: { deleteError?: string }) {
+describe("handlePageVisibility", () => {
+	it("returns form errors when the visibility value is missing", async () => {
+		const formData = new FormData();
+		formData.set("pageId", "page-1");
+		formData.set("isPublic", "");
+
+		const result = await handlePageVisibility({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("page-visibility");
+		expect(result.formError).toBe("Visibility value is required.");
+	});
+
+	it("returns success when visibility update succeeds", async () => {
+		const formData = new FormData();
+		formData.set("pageId", "page-1");
+		formData.set("isPublic", "true");
+
+		const { supabase, calls } = createSupabaseStub();
+		const result = await handlePageVisibility({ formData, supabase });
+
+		expect(result).toEqual({ success: true, intent: "page-visibility" });
+		expect(calls.update).toEqual({
+			table: "pages",
+			payload: { is_public: false },
+			column: "id",
+			value: "page-1",
+		});
+	});
+});
+
+function createSupabaseStub(options?: { deleteError?: string; updateError?: string }) {
 	const calls = {
 		rpc: null as { fn: string; payload: Record<string, unknown> } | null,
 		delete: null as { table: string; column: string; value: string } | null,
+		update: null as { table: string; payload: Record<string, unknown>; column: string; value: string } | null,
 	};
 
 	const supabase = {
@@ -126,6 +160,12 @@ function createSupabaseStub(options?: { deleteError?: string }) {
 				eq: (column: string, value: string) => {
 					calls.delete = { table, column, value };
 					return { error: options?.deleteError ? { message: options.deleteError } : null };
+				},
+			}),
+			update: (payload: Record<string, unknown>) => ({
+				eq: (column: string, value: string) => {
+					calls.update = { table, payload, column, value };
+					return { error: options?.updateError ? { message: options.updateError } : null };
 				},
 			}),
 		}),

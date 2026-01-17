@@ -5,7 +5,7 @@ import { normalizePageDetails, pageDetailsSchema } from "@/service/pages/page-de
 import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/page-image";
 import type { Database } from "../../../types/database.types";
 
-export type ActionIntent = "page-details" | "update-image" | "remove-image" | "link-save" | "link-remove";
+export type ActionIntent = "page-details" | "page-visibility" | "update-image" | "remove-image" | "link-save" | "link-remove";
 
 export type PageProfileActionData = {
 	formError?: string;
@@ -27,6 +27,16 @@ const linkSaveSchema = z.object({
 
 const linkRemoveSchema = z.object({
 	itemId: z.string().min(1, "Item id is required."),
+});
+
+const pageVisibilitySchema = z.object({
+	pageId: z.string().min(1, "Page id is required."),
+	isPublic: z
+		.string()
+		.min(1, "Visibility value is required.")
+		.refine((value) => value === "true" || value === "false", {
+			message: "Invalid visibility value.",
+		}),
 });
 
 export type PageProfileActionContext = {
@@ -122,6 +132,33 @@ export async function handlePageDetails({ formData, supabase }: PageProfileActio
 	}
 
 	return { success: true, intent: "page-details" };
+}
+
+/**
+ * Toggles page visibility from the profile page.
+ */
+export async function handlePageVisibility({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = pageVisibilitySchema.safeParse({
+		pageId: formData.get("pageId"),
+		isPublic: formData.get("isPublic"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			formError: tree.properties?.pageId?.errors[0] ?? tree.properties?.isPublic?.errors[0],
+			intent: "page-visibility",
+		};
+	}
+
+	const nextIsPublic = parsed.data.isPublic !== "true";
+	const { error: updateError } = await supabase.from("pages").update({ is_public: nextIsPublic }).eq("id", parsed.data.pageId);
+
+	if (updateError) {
+		return { formError: updateError.message, intent: "page-visibility" };
+	}
+
+	return { success: true, intent: "page-visibility" };
 }
 
 /**
