@@ -1,9 +1,8 @@
 import { useOutletContext } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
-import AddItemFlow from "@/components/page/add-item-flow";
 import PageDetailsEditor from "@/components/page/page-details-editor";
 import ProfileImageUploader from "@/components/page/profile-image-uploader";
-import { Item, ItemContent, ItemMedia, ItemTitle } from "@/components/ui/item";
+import ProfileItemCollapsible from "@/components/page/profile-item-collapsible";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import {
 	handleLinkSave,
@@ -68,34 +67,25 @@ export default function StudioLinksRoute() {
 			<header className="flex items-center py-4 font-extrabold text-3xl md:text-5xl">
 				<h1>Link</h1>
 			</header>
-			<article className="flex grow flex-row gap-6">
-				<div className="flex basis-full flex-col gap-4 xl:basis-3/5">
+			<article className="flex min-w-0 grow flex-row gap-6">
+				<div className="flex min-w-0 basis-full flex-col gap-4 xl:basis-3/5">
 					<aside className="flex h-fit items-center rounded-2xl bg-surface p-5 shadow-float">
 						<div className="flex items-center gap-2">
 							<ProfileImageUploader pageId={id} userId={owner_id} imageUrl={image_url} alt={title ?? handle ?? "Profile image"} />
 							<PageDetailsEditor pageId={id} title={title} description={description} />
 						</div>
 					</aside>
-					<main className="basis-7/8 rounded-2xl bg-surface p-3 shadow-float">
-						<div className="container mx-auto max-w-xl">
-							<AddItemFlow pageId={id} />
-							<div className="flex flex-col gap-2">
-								{profileItems.map(({ id, is_active, sort_key, title, url, config }) => (
-									<Item key={id} variant={"outline"} role="listitem">
-										<ItemMedia variant={"image"} className="relative">
-											<img src={config?.icon_url ?? ""} alt={title} className="h-full w-full object-cover" />
-										</ItemMedia>
-										<ItemContent>
-											<ItemTitle className="line-clamp-1">{title}</ItemTitle>
-										</ItemContent>
-										<div>asdfasdf</div>
-									</Item>
-								))}
-							</div>
+					<main className="min-w-0 basis-full rounded-2xl bg-surface p-6 shadow-float">
+						<h2 className="mb-4 font-medium text-xl">My Links</h2>
+						<div className="flex flex-col gap-3">
+							{profileItems.map((item) => (
+								<ProfileItemCollapsible key={item.id} item={item} />
+							))}
 						</div>
+						{/* <AddItemFlow pageId={id} /> */}
 					</main>
 				</div>
-				<aside className="hidden h-full basis-2/5 rounded-2xl bg-surface p-3 shadow-float xl:block">Preview</aside>
+				<aside className="hidden h-full min-w-0 basis-2/5 rounded-2xl bg-surface p-3 shadow-float xl:block">Preview</aside>
 			</article>
 		</section>
 	);
