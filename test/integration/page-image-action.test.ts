@@ -1,15 +1,10 @@
-import { getAuth } from "@clerk/react-router/server";
-import { describe, expect, it, vi } from "vitest";
-import { getSupabaseServerClient } from "@/lib/supabase";
-import { action } from "@/routes/($lang).$handle._index";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import * as supabaseModule from "@/lib/supabase";
+import { action } from "@/routes/($lang).studio.$handle.links";
 
-vi.mock("@clerk/react-router/server", () => ({
-	getAuth: vi.fn(),
-}));
-
-vi.mock("@/lib/supabase", () => ({
-	getSupabaseServerClient: vi.fn(),
-}));
+afterEach(() => {
+	vi.restoreAllMocks();
+});
 
 type SupabaseStub = {
 	supabase: {
@@ -59,8 +54,9 @@ function createSupabaseStub(): SupabaseStub {
 describe("page image action", () => {
 	it("updates the page image url", async () => {
 		const { supabase, calls } = createSupabaseStub();
-		vi.mocked(getSupabaseServerClient).mockResolvedValueOnce(supabase as unknown as Awaited<ReturnType<typeof getSupabaseServerClient>>);
-		vi.mocked(getAuth).mockResolvedValueOnce({ userId: "user-1" } as Awaited<ReturnType<typeof getAuth>>);
+		vi.spyOn(supabaseModule, "getSupabaseServerClient").mockResolvedValueOnce(
+			supabase as unknown as Awaited<ReturnType<typeof supabaseModule.getSupabaseServerClient>>,
+		);
 
 		const formData = new URLSearchParams();
 		formData.set("intent", "update-image");
@@ -91,8 +87,9 @@ describe("page image action", () => {
 
 	it("clears the page image url", async () => {
 		const { supabase, calls } = createSupabaseStub();
-		vi.mocked(getSupabaseServerClient).mockResolvedValueOnce(supabase as unknown as Awaited<ReturnType<typeof getSupabaseServerClient>>);
-		vi.mocked(getAuth).mockResolvedValueOnce({ userId: "user-1" } as Awaited<ReturnType<typeof getAuth>>);
+		vi.spyOn(supabaseModule, "getSupabaseServerClient").mockResolvedValueOnce(
+			supabase as unknown as Awaited<ReturnType<typeof supabaseModule.getSupabaseServerClient>>,
+		);
 
 		const formData = new URLSearchParams();
 		formData.set("intent", "remove-image");
