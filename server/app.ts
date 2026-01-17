@@ -1,6 +1,5 @@
-import { createRequestHandler, RouterContextProvider } from "react-router";
-
 import * as build from "virtual:react-router/server-build";
+import { createRequestHandler, RouterContextProvider } from "react-router";
 
 const handler = createRequestHandler(build);
 

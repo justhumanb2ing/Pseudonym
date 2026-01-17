@@ -1,13 +1,13 @@
-import { t, type Dictionary } from "intlayer";
+import { type Dictionary, t } from "intlayer";
 
 const changeHandleContent = {
-  key: "changeHandle",
-  content: {
-    changeHandleTooltip: t({
-      en: "Change Handle",
-      ko: "핸들 변경",
-    }),
-  },
+	key: "changeHandle",
+	content: {
+		changeHandleTooltip: t({
+			en: "Change Handle",
+			ko: "핸들 변경",
+		}),
+	},
 } satisfies Dictionary;
 
 export default changeHandleContent;

@@ -1,34 +1,25 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  getLocalizedPathFromPathname,
-  isOnboardingPath,
-  isPublicAuthPath,
-} from "@/service/auth/onboarding-guard";
+import { getLocalizedPathFromPathname, isOnboardingPath, isPublicAuthPath } from "@/service/auth/onboarding-guard";
 
 describe("onboarding-guard utilities", () => {
-  it("returns localized paths when locale is present", () => {
-    expect(getLocalizedPathFromPathname("/en/onboarding", "/studio"))
-      .toBe("/en/studio");
-  });
+	it("returns localized paths when locale is present", () => {
+		expect(getLocalizedPathFromPathname("/en/onboarding", "/studio")).toBe("/en/studio");
+	});
 
-  it("returns non-localized paths when locale is absent", () => {
-    expect(getLocalizedPathFromPathname("/studio", "/onboarding"))
-      .toBe("/onboarding");
-  });
+	it("returns non-localized paths when locale is absent", () => {
+		expect(getLocalizedPathFromPathname("/studio", "/onboarding")).toBe("/onboarding");
+	});
 
-  it("detects public auth paths", () => {
-    expect(isPublicAuthPath("/sign-in")).toBe(true);
-    expect(isPublicAuthPath("/en/sign-up"))
-      .toBe(true);
-    expect(isPublicAuthPath("/profile")).toBe(false);
-  });
+	it("detects public auth paths", () => {
+		expect(isPublicAuthPath("/sign-in")).toBe(true);
+		expect(isPublicAuthPath("/en/sign-up")).toBe(true);
+		expect(isPublicAuthPath("/profile")).toBe(false);
+	});
 
-  it("detects onboarding paths", () => {
-    expect(isOnboardingPath("/onboarding")).toBe(true);
-    expect(isOnboardingPath("/en/onboarding/step"))
-      .toBe(true);
-    expect(isOnboardingPath("/sign-in"))
-      .toBe(false);
-  });
+	it("detects onboarding paths", () => {
+		expect(isOnboardingPath("/onboarding")).toBe(true);
+		expect(isOnboardingPath("/en/onboarding/step")).toBe(true);
+		expect(isOnboardingPath("/sign-in")).toBe(false);
+	});
 });
