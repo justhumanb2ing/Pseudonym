@@ -1,20 +1,19 @@
 import { UnlinkIcon } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
-import { useActionData, useFetchers, useOutletContext, useParams } from "react-router";
+import { useRef } from "react";
+import { useActionData, useOutletContext, useParams } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import { Text } from "@/components/common/typhography";
 import type { ExpandableCardItem } from "@/components/effects/expandable-card";
 import { ExpandableCard } from "@/components/effects/expandable-card";
-import { GlowEffect } from "@/components/effects/glow-effect";
+import Iphone from "@/components/effects/iphone";
 import AddItemDrawer from "@/components/page/add-item-drawer";
+import MobileProfilePreviewButton from "@/components/page/mobile-profile-preview-button";
 import PageDetailsEditor from "@/components/page/page-details-editor";
 import ProfileImageUploader from "@/components/page/profile-image-uploader";
 import { profileItemCardFallbackRenderer, profileItemCardRenderers } from "@/components/page/profile-item-expandable-renderers";
 import ProfilePreviewFrame from "@/components/page/profile-preview-frame";
-import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { Separator } from "@/components/ui/separator";
-import { PREVIEW_MESSAGE_TYPE } from "@/lib/preview";
+import { useIframePreview } from "@/hooks/use-iframe-preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import {
 	handleLinkRemove,
@@ -116,7 +115,6 @@ export async function action(args: Route.ActionArgs) {
 	}
 }
 
-// TODO: AddItemFlow 사용 흐름, UI, UX 변경
 export default function StudioLinksRoute(_props: Route.ComponentProps) {
 	const {
 		page: { id: pageId, owner_id, title, description, image_url },
@@ -125,43 +123,12 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 	} = useOutletContext<StudioOutletContext>();
 	const { lang } = useParams();
 	const actionData = useActionData<ActionData>();
-	const fetchers = useFetchers();
 	const previewFrameRef = useRef<HTMLIFrameElement>(null);
 
-	const lastPreviewSignalRef = useRef(new Map<string, unknown>());
-
-	const notifyPreviewRefresh = useCallback(() => {
-		const previewWindow = previewFrameRef.current?.contentWindow;
-		if (!previewWindow) {
-			return;
-		}
-		previewWindow.postMessage({ type: PREVIEW_MESSAGE_TYPE }, window.location.origin);
-	}, []);
-
-	useEffect(() => {
-		if (actionData?.success) {
-			notifyPreviewRefresh();
-		}
-	}, [actionData?.success, notifyPreviewRefresh]);
-
-	useEffect(() => {
-		for (const fetcher of fetchers) {
-			if (fetcher.state !== "idle") {
-				continue;
-			}
-			const data = fetcher.data as ActionData | undefined;
-			if (!data?.success) {
-				continue;
-			}
-			const key = fetcher.key;
-			const lastPayload = lastPreviewSignalRef.current.get(key);
-			if (lastPayload === data) {
-				continue;
-			}
-			lastPreviewSignalRef.current.set(key, data);
-			notifyPreviewRefresh();
-		}
-	}, [fetchers, notifyPreviewRefresh]);
+	const { handleIframeLoad } = useIframePreview({
+		iframeRef: previewFrameRef,
+		actionData,
+	});
 
 	const expandableItems: ExpandableCardItem<ProfileItem>[] = profileItems.map((item) => ({
 		id: item.id,
@@ -170,10 +137,10 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 	}));
 
 	return (
-		<section className="flex min-h-0 grow flex-col gap-6 p-2 px-6 pb-6">
-			<article className="grid min-h-0 min-w-0 grow grid-cols-1 gap-5 pt-20 pb-8 xl:grid-cols-12">
+		<section className="flex min-h-0 grow flex-col gap-6 px-6">
+			<article className="grid min-h-0 min-w-0 grow grid-cols-1 gap-5 xl:grid-cols-12">
 				{/* Left Column - Profile & Links */}
-				<div className="flex min-h-0 min-w-0 flex-col gap-4 xl:col-span-7">
+				<div className="flex min-h-0 min-w-0 flex-col gap-4 pt-20 pb-8 md:px-8 xl:col-span-7">
 					<div className="overflow-hidden">
 						<div className="flex items-center gap-2 pb-4">
 							{/* Profile Image */}
@@ -184,8 +151,6 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 								<PageDetailsEditor pageId={pageId} title={title} description={description} />
 							</div>
 						</div>
-
-						<Separator />
 					</div>
 
 					<div className="relative flex min-h-0 flex-1 flex-col">
@@ -227,23 +192,18 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 				</div>
 
 				{/* Right Column - Preview */}
-				<aside className="offset-border hidden h-full min-w-0 flex-col rounded-2xl border-2 border-border/40 bg-surface/60 p-6 shadow-float xl:col-span-5 xl:flex">
+				<aside className="hidden h-full min-w-0 flex-col border-l p-6 pt-20 pb-8 xl:col-span-5 xl:flex">
 					<h2 className="mb-4 font-semibold text-xl">Preview</h2>
-					<div className="min-h-0 flex-1 overflow-hidden rounded-2xl">
-						<ProfilePreviewFrame ref={previewFrameRef} handle={handle} lang={lang} className="h-full w-full" />
-					</div>
+					<Iphone>
+						<ProfilePreviewFrame ref={previewFrameRef} handle={handle} lang={lang} className="h-full w-full" onLoad={handleIframeLoad} />
+					</Iphone>
 				</aside>
 			</article>
 
 			<div className="fixed inset-x-0 bottom-0 z-30 bg-background md:hidden">
 				<div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-linear-to-t from-background/90 to-transparent" />
 				<div className="pointer-events-auto relative mx-auto flex w-full items-center gap-3 px-4 pt-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-					<div className="relative flex-1 basis-0">
-						<GlowEffect colors={["#FF5733", "#33FF57", "#3357FF", "#F1C40F"]} mode="colorShift" blur="soft" duration={3} scale={0.9} />
-						<Button type="button" variant={"default"} size={"lg"} className="relative w-full dark:bg-foreground">
-							Preview
-						</Button>
-					</div>
+					<MobileProfilePreviewButton handle={handle} lang={lang} />
 					<aside className="flex-1 basis-0">
 						<AddItemDrawer pageId={pageId} />
 					</aside>

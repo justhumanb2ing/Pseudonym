@@ -6,16 +6,17 @@ type ProfilePreviewFrameProps = {
 	handle: string;
 	lang?: string;
 	className?: string;
+	onLoad?: () => void;
 };
 
 const ProfilePreviewFrame = forwardRef<HTMLIFrameElement, ProfilePreviewFrameProps>(function ProfilePreviewFrame(
-	{ handle, lang, className },
+	{ handle, lang, className, onLoad },
 	ref,
 ) {
 	const localizedPath = getLocalizedPath(lang, `/${handle}`);
 	const src = buildPreviewPath(localizedPath);
 
-	return <iframe ref={ref} src={src} title="Profile preview" loading="lazy" className={className} />;
+	return <iframe ref={ref} src={src} title="Profile preview" className={className} onLoad={onLoad} />;
 });
 
 export default ProfilePreviewFrame;

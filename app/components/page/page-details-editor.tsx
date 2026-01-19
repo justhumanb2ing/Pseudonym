@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +41,7 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 	const [open, setOpen] = useState(false);
 	const [titleValue, setTitleValue] = useState(title ?? "");
 	const [descriptionValue, setDescriptionValue] = useState(description ?? "");
+	const wasSavingRef = useRef(false);
 
 	const descriptionError = actionData?.fieldErrors?.description;
 	const formError = actionData?.formError;
@@ -58,10 +59,12 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 	}, [open, title, description]);
 
 	useEffect(() => {
-		if (actionData?.success) {
+		const isCurrentlySaving = fetcher.state !== "idle";
+		if (wasSavingRef.current && !isCurrentlySaving && actionData?.success) {
 			setOpen(false);
 		}
-	}, [actionData?.success]);
+		wasSavingRef.current = isCurrentlySaving;
+	}, [actionData?.success, fetcher.state]);
 
 	const handleTitleChange = (nextValue: string) => {
 		const nextTitle = nextValue.slice(0, PAGE_TITLE_MAX_LENGTH);

@@ -1,6 +1,6 @@
 import { getAuth } from "@clerk/react-router/server";
 import { useEffect } from "react";
-import { useLocation, useRevalidator } from "react-router";
+import { useLoaderData, useLocation, useRevalidator } from "react-router";
 import { isPreviewMessage, isPreviewRequest, isPreviewSearch } from "@/lib/preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { fetchUmamiVisits, getTodayRange, resolveUmamiConfig, UMAMI_TIMEZONE, UMAMI_UNIT, type UmamiResponse } from "../service/umami";
@@ -26,6 +26,17 @@ export async function loader(args: Route.LoaderArgs) {
 
 	if (!page) {
 		throw new Response("Not Found", { status: 404 });
+	}
+
+	// profile_items 조회
+	const { data: profileItems, error: itemsError } = await supabase
+		.from("profile_items")
+		.select("*")
+		.eq("page_id", page.id)
+		.order("sort_key", { ascending: true });
+
+	if (itemsError) {
+		throw new Response(itemsError.message, { status: 500 });
 	}
 
 	const isOwner = page.owner_id === userId;
@@ -69,10 +80,12 @@ export async function loader(args: Route.LoaderArgs) {
 		handle,
 		isOwner,
 		umamiResult,
+		profileItems,
 	};
 }
 
 export default function UserProfileRoute() {
+	const { page, profileItems } = useLoaderData<typeof loader>();
 	const location = useLocation();
 	const revalidator = useRevalidator();
 	const isPreview = isPreviewSearch(location.search);
@@ -86,9 +99,6 @@ export default function UserProfileRoute() {
 			if (event.origin !== window.location.origin) {
 				return;
 			}
-			if (event.source !== window.parent) {
-				return;
-			}
 			if (!isPreviewMessage(event.data)) {
 				return;
 			}
@@ -96,7 +106,9 @@ export default function UserProfileRoute() {
 		};
 
 		window.addEventListener("message", handleMessage);
-		return () => window.removeEventListener("message", handleMessage);
+		return () => {
+			window.removeEventListener("message", handleMessage);
+		};
 	}, [isPreview, revalidator]);
 
 	useEffect(() => {
@@ -133,5 +145,13 @@ export default function UserProfileRoute() {
 		};
 	}, [isPreview]);
 
-	return <main className="container mx-auto h-full max-w-xl p-3">Preview Mode</main>;
+	return (
+		<main className="container mx-auto h-full max-w-xl p-3">
+			<div>
+				<p>{page.title}</p>
+				<p>{page.description}</p>
+			</div>
+			<div>{profileItems.map((item) => item.is_active && <div key={item.id}>{item.title}</div>)}</div>
+		</main>
+	);
 }
