@@ -1,4 +1,4 @@
-import { UnlinkIcon } from "lucide-react";
+import { SquareArrowOutUpRightIcon, UnlinkIcon } from "lucide-react";
 import { useRef } from "react";
 import { useActionData, useOutletContext, useParams } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
@@ -12,7 +12,9 @@ import PageDetailsEditor from "@/components/page/page-details-editor";
 import ProfileImageUploader from "@/components/page/profile-image-uploader";
 import { profileItemCardFallbackRenderer, profileItemCardRenderers } from "@/components/page/profile-item-expandable-renderers";
 import ProfilePreviewFrame from "@/components/page/profile-preview-frame";
+import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { metadataConfig } from "@/config/metadata";
 import { useIframePreview } from "@/hooks/use-iframe-preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import {
@@ -27,6 +29,7 @@ import {
 	type PageProfileActionData,
 } from "@/service/pages/page-profile.action";
 import type { Route } from "./+types/($lang).studio.$handle.links";
+import { LocalizedLink } from "@/components/i18n/localized-link";
 
 export type ActionData = PageProfileActionData;
 
@@ -137,12 +140,12 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 	}));
 
 	return (
-		<section className="flex min-h-0 grow flex-col gap-6 px-6">
-			<article className="grid min-h-0 min-w-0 grow grid-cols-1 gap-5 xl:grid-cols-12">
+		<section className="flex min-h-0 grow flex-col gap-6">
+			<article className="flex min-h-0 min-w-0 grow flex-col gap-5 xl:flex-row">
 				{/* Left Column - Profile & Links */}
-				<div className="flex min-h-0 min-w-0 flex-col gap-4 pt-20 pb-8 md:px-8 xl:col-span-7">
+				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 px-6 pt-14 pb-8 md:px-8">
 					<div className="overflow-hidden">
-						<div className="flex items-center gap-2 pb-4">
+						<div className="flex items-center gap-2">
 							{/* Profile Image */}
 							<ProfileImageUploader pageId={pageId} userId={owner_id} imageUrl={image_url} alt={title ?? handle ?? "Profile image"} />
 
@@ -192,8 +195,22 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 				</div>
 
 				{/* Right Column - Preview */}
-				<aside className="hidden h-full min-w-0 flex-col border-l p-6 pt-20 pb-8 xl:col-span-5 xl:flex">
-					<h2 className="mb-4 font-semibold text-xl">Preview</h2>
+				<aside className="hidden h-full min-w-0 shrink-0 flex-col items-center gap-8 border-l p-6 pt-20 pb-8 xl:flex xl:w-[520px]">
+					<div className="flex w-[360px] items-center justify-center gap-4 rounded-full border bg-muted/50 p-1.5 px-5">
+						<p className="min-w-0 truncate text-sm">
+							{metadataConfig.url}/{handle}
+						</p>
+						<Button
+							size={"icon-sm"}
+							variant={"ghost"}
+							className={"rounded-md px-2 text-xs"}
+							render={
+								<LocalizedLink to={`/${handle}`}>
+									<SquareArrowOutUpRightIcon />
+								</LocalizedLink>
+							}
+						></Button>
+					</div>
 					<Iphone>
 						<ProfilePreviewFrame ref={previewFrameRef} handle={handle} lang={lang} className="h-full w-full" onLoad={handleIframeLoad} />
 					</Iphone>
