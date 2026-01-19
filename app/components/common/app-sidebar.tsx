@@ -62,6 +62,7 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 			},
 		],
 	};
+	const visibilityActionUrl = getLocalizedPath(lang, `/studio/${handle}/links`);
 
 	return (
 		<Sidebar collapsible="icon" className="group-data-[side=left]:border-r-0" {...props}>
@@ -134,7 +135,9 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 					</SidebarMenu>
 				</SidebarGroup>
 			</SidebarContent>
-			<SidebarFooter>{isCollapsed ? null : <PageVisibilityToggle pageId={pageId} isPublic={isPublic} />}</SidebarFooter>
+			<SidebarFooter>
+				{isCollapsed ? null : <PageVisibilityToggle pageId={pageId} isPublic={isPublic} actionUrl={visibilityActionUrl} />}
+			</SidebarFooter>
 		</Sidebar>
 	);
 }

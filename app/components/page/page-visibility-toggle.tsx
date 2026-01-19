@@ -6,9 +6,10 @@ import type { ActionData } from "@/routes/($lang).studio.$handle.links";
 type PageVisibilityToggleProps = {
 	pageId: string;
 	isPublic: boolean;
+	actionUrl: string;
 };
 
-export default function PageVisibilityToggle({ pageId, isPublic }: PageVisibilityToggleProps) {
+export default function PageVisibilityToggle({ pageId, isPublic, actionUrl }: PageVisibilityToggleProps) {
 	const fetcher = useFetcher<ActionData>();
 	const isSubmitting = fetcher.state !== "idle";
 	const title = isPublic ? "Public" : "Private";
@@ -25,7 +26,7 @@ export default function PageVisibilityToggle({ pageId, isPublic }: PageVisibilit
 				</div>
 			</div>
 
-			<fetcher.Form method="post" className="w-full p-2">
+			<fetcher.Form method="post" action={actionUrl} className="w-full p-2">
 				<input type="hidden" name="intent" value="page-visibility" />
 				<input type="hidden" name="pageId" value={pageId} />
 				<input type="hidden" name="isPublic" value={String(isPublic)} />
