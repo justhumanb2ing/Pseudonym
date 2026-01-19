@@ -2,7 +2,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
-import PageDetailsEditor from "@/components/page/page-details-editor";
+import PageDetailsEditor from "@/components/studio/page-details-editor";
 import { PAGE_DESCRIPTION_MAX_LENGTH, PAGE_TITLE_MAX_LENGTH } from "@/service/pages/page-details";
 
 let isDesktop = true;

@@ -1,6 +1,6 @@
 import { useOutletContext, useParams } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
-import ProfilePreviewFrame from "@/components/page/profile-preview-frame";
+import ProfilePreviewFrame from "@/components/studio/profile-preview-frame";
 
 export default function StudioDesignRoute() {
 	const { handle } = useOutletContext<StudioOutletContext>();

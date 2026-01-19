@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLocalizedPath } from "@/utils/localized-path";
 import UserDropdown from "../auth/user-dropdown";
-import PageVisibilityToggle from "../page/page-visibility-toggle";
+import PageVisibilityToggle from "../studio/page-visibility-toggle";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import Logo from "./logo";
 

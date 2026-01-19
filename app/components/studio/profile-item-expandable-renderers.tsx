@@ -1,7 +1,7 @@
 import type { StudioOutletContext } from "types/studio.types";
 import type { ExpandableCardRenderer } from "@/components/effects/expandable-card";
-import ProfileItemActiveSwitch from "@/components/page/profile-item-active-switch";
-import { ProfileItemExpandedContent } from "@/components/page/profile-item-expanded-content";
+import ProfileItemActiveSwitch from "@/components/studio/profile-item-active-switch";
+import { ProfileItemExpandedContent } from "@/components/studio/profile-item-expanded-content";
 
 type ProfileItem = StudioOutletContext["profileItems"][number];
 

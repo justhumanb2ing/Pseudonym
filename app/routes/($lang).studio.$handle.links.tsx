@@ -6,12 +6,13 @@ import { Text } from "@/components/common/typhography";
 import type { ExpandableCardItem } from "@/components/effects/expandable-card";
 import { ExpandableCard } from "@/components/effects/expandable-card";
 import Iphone from "@/components/effects/iphone";
-import AddItemDrawer from "@/components/page/add-item-drawer";
-import MobileProfilePreviewButton from "@/components/page/mobile-profile-preview-button";
-import PageDetailsEditor from "@/components/page/page-details-editor";
-import ProfileImageUploader from "@/components/page/profile-image-uploader";
-import { profileItemCardFallbackRenderer, profileItemCardRenderers } from "@/components/page/profile-item-expandable-renderers";
-import ProfilePreviewFrame from "@/components/page/profile-preview-frame";
+import { LocalizedLink } from "@/components/i18n/localized-link";
+import AddItemDrawer from "@/components/studio/add-item-drawer";
+import MobileProfilePreviewButton from "@/components/studio/mobile-profile-preview-button";
+import PageDetailsEditor from "@/components/studio/page-details-editor";
+import ProfileImageUploader from "@/components/studio/profile-image-uploader";
+import { profileItemCardFallbackRenderer, profileItemCardRenderers } from "@/components/studio/profile-item-expandable-renderers";
+import ProfilePreviewFrame from "@/components/studio/profile-preview-frame";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { metadataConfig } from "@/config/metadata";
@@ -29,7 +30,6 @@ import {
 	type PageProfileActionData,
 } from "@/service/pages/page-profile.action";
 import type { Route } from "./+types/($lang).studio.$handle.links";
-import { LocalizedLink } from "@/components/i18n/localized-link";
 
 export type ActionData = PageProfileActionData;
 

@@ -2,7 +2,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import ProfileImageUploader from "@/components/page/profile-image-uploader";
+import ProfileImageUploader from "@/components/studio/profile-image-uploader";
 import { toastManager } from "@/components/ui/toast";
 import { PAGE_IMAGE_MAX_BYTES } from "@/service/pages/page-image";
 

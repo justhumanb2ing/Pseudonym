@@ -159,7 +159,7 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 							type="button"
 							variant="ghost"
 							className={
-								"h-auto w-full min-w-0 flex-1 items-start justify-start overflow-hidden whitespace-normal rounded-md text-left hover:bg-muted/80"
+								"h-auto w-full min-w-0 flex-1 items-start justify-start overflow-hidden whitespace-normal rounded-md text-left hover:bg-muted/80 focus-visible:border-0 focus-visible:ring-0"
 							}
 						>
 							{triggerLabel}
@@ -194,7 +194,7 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 				<Button
 					type="button"
 					variant="ghost"
-					className="h-auto w-full min-w-0 items-start justify-start overflow-hidden whitespace-normal rounded-md text-left"
+					className="h-auto w-full min-w-0 items-start justify-start overflow-hidden whitespace-normal rounded-md text-left focus-visible:border-0 focus-visible:ring-0"
 				>
 					{triggerLabel}
 				</Button>

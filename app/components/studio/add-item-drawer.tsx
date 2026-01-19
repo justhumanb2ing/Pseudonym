@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Activity } from "@/components/common/activity";
-import LinkSaveForm from "@/components/page/link-save-form";
+import LinkSaveForm from "@/components/studio/link-save-form";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { ITEM_TYPES, type ItemTypeId } from "@/constants/add-item-flow.data";
 import { useMediaQuery } from "@/hooks/use-media-query";
