@@ -53,6 +53,7 @@ export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFo
 							id="link-url"
 							name="url"
 							value={urlValue}
+							autoFocus
 							autoComplete="off"
 							aria-label="Link URL"
 							onChange={(event) => setUrlValue(event.target.value)}
