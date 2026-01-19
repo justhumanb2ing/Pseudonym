@@ -1,7 +1,7 @@
 import { useMediaQuery } from "./use-media-query";
 
-const MOBILE_BREAKPOINT = 768;
+const MOBILE_BREAKPOINT = 767;
 
-export function useIsMobile() {
-	return useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+export function useIsMobile(breakpoint: number = MOBILE_BREAKPOINT) {
+	return useMediaQuery(`(max-width: ${breakpoint ?? MOBILE_BREAKPOINT - 1}px)`);
 }
