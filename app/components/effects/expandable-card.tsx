@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { type ReactNode, type RefObject, useEffect, useId, useRef, useState } from "react";
+import { type ReactNode, type RefObject, createContext, useContext, useEffect, useId, useRef, useState } from "react";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { Button } from "../ui/button";
 
@@ -28,6 +28,17 @@ type ExpandableCardProps<T> = {
 	fallbackRenderer?: ExpandableCardRenderer<T>;
 };
 
+type ExpandableCardContextValue = {
+	close: () => void;
+	activeId: string | null;
+};
+
+const ExpandableCardContext = createContext<ExpandableCardContextValue | null>(null);
+
+export function useExpandableCardContext() {
+	return useContext(ExpandableCardContext);
+}
+
 export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: ExpandableCardProps<T>) {
 	const [active, setActive] = useState<ExpandableCardItem<T> | null>(null);
 	const ref = useRef<HTMLDivElement | null>(null);
@@ -52,6 +63,12 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 
 	useOutsideClick(ref as RefObject<HTMLDivElement>, () => setActive(null));
 
+	useEffect(() => {
+		if (active?.id === item.id && active !== item) {
+			setActive(item);
+		}
+	}, [active, item]);
+
 	const getRenderer = (itemType: string): ExpandableCardRenderer<T> => {
 		const renderer = renderers[itemType];
 		if (renderer) {
@@ -67,9 +84,13 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 
 	const activeExpanded = active ? getRenderer(active.type).expanded(active) : null;
 	const summary = getRenderer(item.type).summary(item);
+	const contextValue: ExpandableCardContextValue = {
+		close: () => setActive(null),
+		activeId: active?.id ?? null,
+	};
 
 	return (
-		<>
+		<ExpandableCardContext.Provider value={contextValue}>
 			<AnimatePresence>
 				{active && typeof active === "object" && (
 					<motion.div
@@ -181,6 +202,6 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 					</motion.div>
 				) : null}
 			</motion.div>
-		</>
+		</ExpandableCardContext.Provider>
 	);
 }

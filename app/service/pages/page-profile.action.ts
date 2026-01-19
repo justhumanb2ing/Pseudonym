@@ -1,11 +1,20 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { normalizeLinkUrl } from "@/service/links/link-crawl";
 import { createLinkSaver } from "@/service/links/save-link";
 import { normalizePageDetails, pageDetailsSchema } from "@/service/pages/page-details";
 import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/page-image";
 import type { Database } from "../../../types/database.types";
 
-export type ActionIntent = "page-details" | "page-visibility" | "update-image" | "remove-image" | "link-save" | "link-remove";
+export type ActionIntent =
+	| "page-details"
+	| "page-visibility"
+	| "update-image"
+	| "remove-image"
+	| "link-save"
+	| "link-remove"
+	| "link-update"
+	| "link-toggle";
 
 export type PageProfileActionData = {
 	formError?: string;
@@ -14,6 +23,7 @@ export type PageProfileActionData = {
 		description?: string;
 		url?: string;
 		itemId?: string;
+		isActive?: string;
 	};
 	success?: boolean;
 	intent?: ActionIntent;
@@ -27,6 +37,22 @@ const linkSaveSchema = z.object({
 
 const linkRemoveSchema = z.object({
 	itemId: z.string().min(1, "Item id is required."),
+});
+
+const linkUpdateSchema = z.object({
+	itemId: z.string().min(1, "Item id is required."),
+	title: z.string().trim().optional(),
+	url: z.string().trim().min(1, "URL is required."),
+});
+
+const linkToggleSchema = z.object({
+	itemId: z.string().min(1, "Item id is required."),
+	isActive: z
+		.string()
+		.min(1, "Active value is required.")
+		.refine((value) => value === "true" || value === "false", {
+			message: "Invalid active value.",
+		}),
 });
 
 const pageVisibilitySchema = z.object({
@@ -224,4 +250,76 @@ export async function handleLinkRemove({ formData, supabase }: PageProfileAction
 	}
 
 	return { success: true, intent: "link-remove", itemId: parsed.data.itemId };
+}
+
+/**
+ * Updates a link item title/url from the profile page.
+ */
+export async function handleLinkUpdate({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = linkUpdateSchema.safeParse({
+		itemId: formData.get("itemId"),
+		title: formData.get("title"),
+		url: formData.get("url"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			fieldErrors: {
+				itemId: tree.properties?.itemId?.errors[0],
+				title: tree.properties?.title?.errors[0],
+				url: tree.properties?.url?.errors[0],
+			},
+			formError: tree.properties?.itemId?.errors[0] ?? tree.properties?.url?.errors[0],
+			intent: "link-update",
+		};
+	}
+
+	const normalizedTitle = parsed.data.title?.trim() || null;
+	const normalizedUrl = normalizeLinkUrl(parsed.data.url);
+
+	const { error: updateError } = await supabase
+		.from("profile_items")
+		.update({ title: normalizedTitle, url: normalizedUrl })
+		.eq("id", parsed.data.itemId);
+
+	if (updateError) {
+		return { formError: updateError.message, intent: "link-update", itemId: parsed.data.itemId };
+	}
+
+	return { success: true, intent: "link-update", itemId: parsed.data.itemId };
+}
+
+/**
+ * Toggles a link item active state from the profile page.
+ */
+export async function handleLinkToggle({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = linkToggleSchema.safeParse({
+		itemId: formData.get("itemId"),
+		isActive: formData.get("isActive"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			fieldErrors: {
+				itemId: tree.properties?.itemId?.errors[0],
+				isActive: tree.properties?.isActive?.errors[0],
+			},
+			formError: tree.properties?.itemId?.errors[0] ?? tree.properties?.isActive?.errors[0],
+			intent: "link-toggle",
+		};
+	}
+
+	const nextIsActive = parsed.data.isActive === "true";
+	const { error: updateError } = await supabase
+		.from("profile_items")
+		.update({ is_active: nextIsActive })
+		.eq("id", parsed.data.itemId);
+
+	if (updateError) {
+		return { formError: updateError.message, intent: "link-toggle", itemId: parsed.data.itemId };
+	}
+
+	return { success: true, intent: "link-toggle", itemId: parsed.data.itemId };
 }

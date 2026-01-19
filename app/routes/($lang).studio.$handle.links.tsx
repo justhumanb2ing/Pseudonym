@@ -19,6 +19,8 @@ import { getSupabaseServerClient } from "@/lib/supabase";
 import {
 	handleLinkRemove,
 	handleLinkSave,
+	handleLinkToggle,
+	handleLinkUpdate,
 	handlePageDetails,
 	handlePageVisibility,
 	handleRemoveImage,
@@ -57,7 +59,16 @@ export async function action(args: Route.ActionArgs) {
 	const intent = formData.get("intent")?.toString();
 	const supabase = await getSupabaseServerClient(args);
 	// Intent 타입 검증
-	const validIntents = ["page-details", "page-visibility", "update-image", "remove-image", "link-save", "link-remove"] as const;
+	const validIntents = [
+		"page-details",
+		"page-visibility",
+		"update-image",
+		"remove-image",
+		"link-save",
+		"link-remove",
+		"link-update",
+		"link-toggle",
+	] as const;
 	type ValidIntent = (typeof validIntents)[number];
 
 	// Type guard 함수
@@ -90,6 +101,10 @@ export async function action(args: Route.ActionArgs) {
 			return handleLinkSave({ formData, supabase });
 		case "link-remove":
 			return handleLinkRemove({ formData, supabase });
+		case "link-update":
+			return handleLinkUpdate({ formData, supabase });
+		case "link-toggle":
+			return handleLinkToggle({ formData, supabase });
 		case "page-details":
 			return handlePageDetails({ formData, supabase });
 		default:
@@ -170,7 +185,6 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 							</div>
 						</div>
 
-						{/* Visibility Toggle */}
 						<Separator />
 					</div>
 

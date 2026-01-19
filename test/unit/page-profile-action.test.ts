@@ -1,7 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { handleLinkRemove, handleLinkSave, handlePageVisibility } from "../../app/service/pages/page-profile.action";
+import {
+	handleLinkRemove,
+	handleLinkSave,
+	handleLinkToggle,
+	handleLinkUpdate,
+	handlePageVisibility,
+} from "../../app/service/pages/page-profile.action";
 import type { Database } from "../../types/database.types";
 
 describe("handleLinkSave", () => {
@@ -108,6 +114,101 @@ describe("handleLinkRemove", () => {
 		expect(result).toEqual({ success: true, intent: "link-remove", itemId: "item-1" });
 		expect(calls.delete).toEqual({
 			table: "profile_items",
+			column: "id",
+			value: "item-1",
+		});
+	});
+});
+
+describe("handleLinkUpdate", () => {
+	it("returns field errors when the url is missing", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "item-1");
+		formData.set("url", "");
+
+		const result = await handleLinkUpdate({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("link-update");
+		expect(result.fieldErrors?.url).toBe("URL is required.");
+	});
+
+	it("returns field errors when the item id is missing", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "");
+		formData.set("url", "example.com");
+
+		const result = await handleLinkUpdate({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("link-update");
+		expect(result.fieldErrors?.itemId).toBe("Item id is required.");
+	});
+
+	it("returns success when link update succeeds", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "item-1");
+		formData.set("title", "New Title");
+		formData.set("url", "example.com");
+
+		const { supabase, calls } = createSupabaseStub();
+		const result = await handleLinkUpdate({ formData, supabase });
+
+		expect(result).toEqual({ success: true, intent: "link-update", itemId: "item-1" });
+		expect(calls.update).toEqual({
+			table: "profile_items",
+			payload: { title: "New Title", url: "https://example.com" },
+			column: "id",
+			value: "item-1",
+		});
+	});
+});
+
+describe("handleLinkToggle", () => {
+	it("returns field errors when the active value is missing", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "item-1");
+		formData.set("isActive", "");
+
+		const result = await handleLinkToggle({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("link-toggle");
+		expect(result.fieldErrors?.isActive).toBe("Active value is required.");
+	});
+
+	it("returns field errors when the item id is missing", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "");
+		formData.set("isActive", "true");
+
+		const result = await handleLinkToggle({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("link-toggle");
+		expect(result.fieldErrors?.itemId).toBe("Item id is required.");
+	});
+
+	it("returns success when link toggle succeeds", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "item-1");
+		formData.set("isActive", "false");
+
+		const { supabase, calls } = createSupabaseStub();
+		const result = await handleLinkToggle({ formData, supabase });
+
+		expect(result).toEqual({ success: true, intent: "link-toggle", itemId: "item-1" });
+		expect(calls.update).toEqual({
+			table: "profile_items",
+			payload: { is_active: false },
 			column: "id",
 			value: "item-1",
 		});
