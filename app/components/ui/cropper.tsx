@@ -33,7 +33,7 @@ function CropperCropArea({ className, ...props }: React.ComponentProps<typeof Cr
 	return (
 		<CropperPrimitive.CropArea
 			className={cn(
-				"pointer-events-none absolute border-3 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.3)] in-[[data-slot=cropper]:focus-visible]:ring-[3px] in-[[data-slot=cropper]:focus-visible]:ring-white/50",
+				"pointer-events-none absolute border-3 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.1)] in-[[data-slot=cropper]:focus-visible]:ring-[3px] in-[[data-slot=cropper]:focus-visible]:ring-white/50",
 				className,
 			)}
 			data-slot="cropper-crop-area"

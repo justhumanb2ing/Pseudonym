@@ -5,6 +5,8 @@
 
 @import "@clerk/themes/shadcn.css";
 
+@plugin '@tailwindcss/typography';
+
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
@@ -122,6 +124,10 @@
 	--color-test: var(--test);
 	--color-surface: var(--surface);
 	--color-surface-light: var(--surface-light);
+	--color-toss-blue: var(--toss-blue);
+	--color-toss-blue-light: var(--toss-blue-light);
+	--color-toss-gray: var(--toss-gray);
+	--color-toss-gray-light: var(--toss-gray-light);
 }
 
 :root {
@@ -149,10 +155,10 @@
 	--chart-4: oklch(0.488 0.243 264.376);
 	--chart-5: oklch(0.424 0.199 265.638);
 	--radius: 0.625rem;
-	--sidebar: oklch(0.985 0 0);
+	--sidebar: oklch(0.9851 0 0);
 	--sidebar-foreground: oklch(0.145 0 0);
 	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
+	--sidebar-primary-foreground: oklch(0.9851 0 0);
 	--sidebar-accent: oklch(0.97 0 0);
 	--sidebar-accent-foreground: oklch(0.205 0 0);
 	--sidebar-border: oklch(0.922 0 0);
@@ -165,7 +171,7 @@
 }
 
 .dark {
-	--background: oklch(0.1955 0.0043 264.47);
+	--background: oklch(0.2046 0 23.75);
 	--foreground: oklch(0.985 0 0);
 	--card: oklch(0.205 0 0);
 	--card-foreground: oklch(0.985 0 0);

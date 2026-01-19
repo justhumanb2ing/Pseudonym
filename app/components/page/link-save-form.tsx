@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldContent, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldContent, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { shouldShowUrlRequiredError } from "@/utils/link-save-form.utils";
 
@@ -43,30 +43,32 @@ export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFo
 	}, [actionData?.success, actionData?.intent, onSuccess]);
 
 	return (
-		<fetcher.Form method="post" className="flex flex-col gap-3" noValidate>
+		<fetcher.Form method="post" className="flex flex-col justify-between gap-3" noValidate>
 			<input type="hidden" name="intent" value="link-save" />
 			<input type="hidden" name="pageId" value={pageId} />
 			<Field data-invalid={showRequiredError || !!urlError}>
 				<FieldContent>
-					<div className="relative">
-						<FieldLabel htmlFor="link-url" className="pointer-events-none absolute top-2 left-3 text-muted-foreground text-sm">
-							Link URL
-						</FieldLabel>
+					<div className="relative px-2">
 						<Input
 							id="link-url"
 							name="url"
 							value={urlValue}
 							autoComplete="off"
+							aria-label="Link URL"
 							onChange={(event) => setUrlValue(event.target.value)}
 							onBlur={() => setHasInteracted(true)}
-							placeholder="example.com"
+							placeholder="Link..."
 							disabled={isSaving}
 							aria-invalid={showRequiredError || !!urlError}
 							aria-describedby={urlError ? "link-url-error" : undefined}
-							className="h-16 rounded-lg px-3 pt-8"
+							className="h-12 rounded-none border-0 border-brand/60 border-b-2 bg-transparent text-sm shadow-none focus-visible:border-brand focus-visible:ring-0 aria-invalid:ring-0"
 						/>
 					</div>
-					<FieldError id="link-url-error" errors={urlError || urlErrorMessage ? [{ message: urlError ?? urlErrorMessage ?? "" }] : []} />
+					<FieldError
+						id="link-url-error"
+						className="mt-1 text-xs/relaxed"
+						errors={urlError || urlErrorMessage ? [{ message: urlError ?? urlErrorMessage ?? "" }] : []}
+					/>
 				</FieldContent>
 			</Field>
 			{formError ? (
@@ -76,11 +78,18 @@ export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFo
 			) : null}
 			<div className="flex gap-2">
 				{onCancel && (
-					<Button type="button" variant="outline" onClick={onCancel} disabled={isSaving} className="flex-1">
+					<Button type="button" size={"lg"} variant="secondary" onClick={onCancel} disabled={isSaving} className="flex-1 rounded-2xl">
 						Cancel
 					</Button>
 				)}
-				<Button type="submit" disabled={isSaving || isUrlMissing} aria-busy={isSaving} className="flex-1">
+				<Button
+					type="submit"
+					size={"lg"}
+					variant={"brand"}
+					disabled={isSaving || isUrlMissing}
+					aria-busy={isSaving}
+					className="flex-1 rounded-2xl"
+				>
 					{isSaving ? "Saving..." : "Save"}
 				</Button>
 			</div>

@@ -1,14 +1,23 @@
-import { IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Field, FieldContent, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { PAGE_DESCRIPTION_MAX_LENGTH, PAGE_TITLE_MAX_LENGTH } from "@/service/pages/page-details";
+import { Text } from "../common/typhography";
 
 type PageDetailsActionData = {
 	fieldErrors?: {
@@ -85,7 +94,7 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 							disabled={isSaving}
 							aria-invalid={isTitleMissing}
 							placeholder="Add a title"
-							className="h-16 rounded-lg px-3 pt-8"
+							className="h-16 rounded-lg border-0 px-3 pt-8"
 						/>
 					</div>
 					<div className={fieldCountClassName}>
@@ -109,7 +118,7 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 							disabled={isSaving}
 							aria-invalid={!!descriptionError}
 							placeholder="Add a bio"
-							className="min-h-32 rounded-lg px-3 pt-8"
+							className="min-h-32 rounded-lg border-0 px-3 pt-8"
 						/>
 					</div>
 					<div className={fieldCountClassName}>
@@ -123,16 +132,18 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 					{formError}
 				</p>
 			) : null}
-			<Button type="submit" disabled={isSaving || isTitleMissing} className={"mt-2 h-12 text-base"}>
+			<Button type="submit" size={"lg"} disabled={isSaving || isTitleMissing} variant={"brand"} className={"mt-2 h-12 text-base"}>
 				{isSaving ? "Saving..." : "Save"}
 			</Button>
 		</fetcher.Form>
 	);
 
 	const triggerLabel = (
-		<div className="flex min-w-0 flex-1 flex-col items-start gap-1 p-0 text-left">
-			<p className="w-full min-w-0 max-w-full truncate font-medium text-lg hover:underline">{title}</p>
-			<p className="line-clamp-2 w-full min-w-0 max-w-full text-left font-light text-sm leading-6">{description}</p>
+		<div className="flex min-w-0 flex-1 flex-col items-start gap-1 p-2 py-3 text-left">
+			<Text.H2 className="w-full min-w-0 truncate text-2xl hover:underline md:text-3xl">{title}</Text.H2>
+			<Text.Muted className="not-first:mt-0 line-clamp-2 w-full min-w-0 max-w-full text-wrap font-light text-base text-primary leading-6">
+				{description}
+			</Text.Muted>
 		</div>
 	);
 
@@ -144,25 +155,31 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 						<Button
 							type="button"
 							variant="ghost"
-							className={"h-auto w-full min-w-0 flex-1 items-start justify-start overflow-hidden whitespace-normal rounded-md text-left"}
+							className={
+								"h-auto w-full min-w-0 flex-1 items-start justify-start overflow-hidden whitespace-normal rounded-md text-left hover:bg-muted/80"
+							}
 						>
 							{triggerLabel}
 						</Button>
 					}
 				></DialogTrigger>
-				<DialogContent className="sm:max-w-lg" showCloseButton={false}>
+				<DialogContent className="sm:max-w-md" showCloseButton={false}>
 					<DialogHeader>
 						<DialogTitle className={"text-lg"}>Title & Bio</DialogTitle>
 						<DialogDescription hidden></DialogDescription>
 					</DialogHeader>
-					<DialogClose
-						render={
-							<Button variant={"ghost"} size={"icon-lg"} className={"absolute top-3 right-3 rounded-full"}>
-								<IconX className="size-5" />
-							</Button>
-						}
-					/>
-					{editorContent}
+					<div className="space-y-2">
+						{editorContent}
+						<DialogFooter>
+							<DialogClose
+								render={
+									<Button variant={"secondary"} className={"h-12 w-full"}>
+										Cancel
+									</Button>
+								}
+							/>
+						</DialogFooter>
+					</div>
 				</DialogContent>
 			</Dialog>
 		);

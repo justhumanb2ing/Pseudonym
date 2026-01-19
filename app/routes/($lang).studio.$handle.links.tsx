@@ -1,15 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { UnlinkIcon } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
 import { useActionData, useFetchers, useOutletContext, useParams } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
-import AddItemPopover from "@/components/page/add-item-popover";
-import LinkSaveForm from "@/components/page/link-save-form";
+import { Text } from "@/components/common/typhography";
+import type { ExpandableCardItem } from "@/components/effects/expandable-card";
+import { ExpandableCard } from "@/components/effects/expandable-card";
+import { GlowEffect } from "@/components/effects/glow-effect";
+import AddItemDrawer from "@/components/page/add-item-drawer";
 import PageDetailsEditor from "@/components/page/page-details-editor";
-import PageVisibilityToggle from "@/components/page/page-visibility-toggle";
 import ProfileImageUploader from "@/components/page/profile-image-uploader";
-import ProfileItemCollapsible from "@/components/page/profile-item-collapsible";
+import { profileItemCardFallbackRenderer, profileItemCardRenderers } from "@/components/page/profile-item-expandable-renderers";
 import ProfilePreviewFrame from "@/components/page/profile-preview-frame";
-import type { ItemTypeId } from "@/constants/add-item-flow.data";
-import { useOptimisticDelete } from "@/hooks/use-optimistic-delete";
+import { Button } from "@/components/ui/button";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { Separator } from "@/components/ui/separator";
 import { PREVIEW_MESSAGE_TYPE } from "@/lib/preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import {
@@ -25,12 +29,41 @@ import type { Route } from "./+types/($lang).studio.$handle.links";
 
 export type ActionData = PageProfileActionData;
 
+type ProfileItem = StudioOutletContext["profileItems"][number];
+
+export async function loader(args: Route.LoaderArgs) {
+	const { handle } = args.params;
+
+	if (!handle) {
+		throw new Response("Not Found", { status: 404 });
+	}
+
+	const supabase = await getSupabaseServerClient(args);
+	const { data: page, error } = await supabase.from("pages").select("id").eq("handle", handle).maybeSingle();
+
+	if (error) {
+		throw new Response(error.message, { status: 500 });
+	}
+
+	if (!page) {
+		throw new Response("Not Found", { status: 404 });
+	}
+
+	return { pageId: page.id };
+}
+
 export async function action(args: Route.ActionArgs) {
 	const formData = await args.request.formData();
 	const intent = formData.get("intent")?.toString();
 	const supabase = await getSupabaseServerClient(args);
 	// Intent 타입 검증
 	const validIntents = ["page-details", "page-visibility", "update-image", "remove-image", "link-save", "link-remove"] as const;
+	type ValidIntent = (typeof validIntents)[number];
+
+	// Type guard 함수
+	const isValidIntent = (value: string): value is ValidIntent => {
+		return (validIntents as readonly string[]).includes(value);
+	};
 
 	if (!intent || typeof intent !== "string") {
 		return {
@@ -39,7 +72,7 @@ export async function action(args: Route.ActionArgs) {
 		} satisfies ActionData;
 	}
 
-	if (!validIntents.includes(intent as any)) {
+	if (!isValidIntent(intent)) {
 		return {
 			formError: "Invalid action intent",
 			success: false,
@@ -69,9 +102,9 @@ export async function action(args: Route.ActionArgs) {
 }
 
 // TODO: AddItemFlow 사용 흐름, UI, UX 변경
-export default function StudioLinksRoute() {
+export default function StudioLinksRoute(_props: Route.ComponentProps) {
 	const {
-		page: { id, owner_id, title, description, image_url, is_public },
+		page: { id: pageId, owner_id, title, description, image_url },
 		handle,
 		profileItems,
 	} = useOutletContext<StudioOutletContext>();
@@ -80,8 +113,6 @@ export default function StudioLinksRoute() {
 	const fetchers = useFetchers();
 	const previewFrameRef = useRef<HTMLIFrameElement>(null);
 
-	const [selectedItemType, setSelectedItemType] = useState<ItemTypeId | null>(null);
-	const { items, deleteItem, isDeleting } = useOptimisticDelete(profileItems);
 	const lastPreviewSignalRef = useRef(new Map<string, unknown>());
 
 	const notifyPreviewRefresh = useCallback(() => {
@@ -117,64 +148,93 @@ export default function StudioLinksRoute() {
 		}
 	}, [fetchers, notifyPreviewRefresh]);
 
-	const handleSelectItem = (itemId: ItemTypeId) => {
-		setSelectedItemType(itemId);
-	};
-
-	const handleLinkSaveSuccess = () => {
-		setSelectedItemType(null);
-	};
-
-	const handleCancel = () => {
-		setSelectedItemType(null);
-	};
+	const expandableItems: ExpandableCardItem<ProfileItem>[] = profileItems.map((item) => ({
+		id: item.id,
+		type: item.type,
+		data: item,
+	}));
 
 	return (
 		<section className="flex min-h-0 grow flex-col gap-6 p-2 px-6 pb-6">
-			<header className="flex items-center py-4 text-3xl md:text-5xl">
-				<h1 className="font-jalnan">Link</h1>
-			</header>
-			<article className="grid min-h-0 min-w-0 grow grid-cols-1 gap-6 xl:grid-cols-12">
+			<article className="grid min-h-0 min-w-0 grow grid-cols-1 gap-5 pt-20 pb-8 xl:grid-cols-12">
+				{/* Left Column - Profile & Links */}
 				<div className="flex min-h-0 min-w-0 flex-col gap-4 xl:col-span-7">
-					<div className="grid gap-4 sm:grid-cols-2">
-						<aside className="offset-border flex h-full items-center rounded-2xl border-2 border-border/40 bg-surface/60 p-5 shadow-float">
-							<div className="flex min-w-0 items-center gap-2">
-								<ProfileImageUploader pageId={id} userId={owner_id} imageUrl={image_url} alt={title ?? handle ?? "Profile image"} />
-								<div className="min-w-0 flex-1">
-									<PageDetailsEditor pageId={id} title={title} description={description} />
-								</div>
+					<div className="overflow-hidden">
+						<div className="flex items-center gap-2 pb-4">
+							{/* Profile Image */}
+							<ProfileImageUploader pageId={pageId} userId={owner_id} imageUrl={image_url} alt={title ?? handle ?? "Profile image"} />
+
+							{/* Profile Details */}
+							<div className="min-w-0 flex-1">
+								<PageDetailsEditor pageId={pageId} title={title} description={description} />
 							</div>
-						</aside>
-						<aside className="offset-border flex h-full flex-col rounded-2xl border-2 border-border/40 bg-surface/60 p-5 shadow-float">
-							<PageVisibilityToggle pageId={id} isPublic={is_public} />
-						</aside>
+						</div>
+
+						{/* Visibility Toggle */}
+						<Separator />
 					</div>
-					<main className="relative mt-4 flex min-h-0 min-w-0 basis-full flex-col overflow-hidden">
-						<h2 className="mb-4 font-jalnan font-semibold">My Links</h2>
-						<div className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-5 overflow-y-scroll pb-16">
-							{items.map((item) => (
-								<ProfileItemCollapsible key={item.id} item={item} isDeleteDisabled={isDeleting} onDelete={deleteItem} />
-							))}
+
+					<div className="relative flex min-h-0 flex-1 flex-col">
+						{/* Section Header */}
+						<div className="mb-3 flex items-center justify-between px-1">
+							<Text.H4>My Links</Text.H4>
+
+							<aside className="hidden md:block">
+								<AddItemDrawer pageId={pageId} />
+							</aside>
 						</div>
 
-						{selectedItemType === "link" && (
-							<div className="mt-4 rounded-2xl border border-border bg-background p-4">
-								<LinkSaveForm pageId={id} onSuccess={handleLinkSaveSuccess} onCancel={handleCancel} />
-							</div>
-						)}
-
-						<div className="absolute right-5 bottom-5">
-							<AddItemPopover onSelectItem={handleSelectItem} />
+						{/* Links List */}
+						<div className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-5 overflow-y-scroll md:pb-16">
+							{profileItems.length === 0 ? (
+								<Empty>
+									<EmptyHeader className="gap-1">
+										<EmptyMedia variant="icon" className="size-5 bg-transparent">
+											<UnlinkIcon className="size-full" />
+										</EmptyMedia>
+										<EmptyTitle className="text-base">No Links</EmptyTitle>
+										<EmptyDescription className="text-xs/relaxed">There's no link yet. Add yours!</EmptyDescription>
+									</EmptyHeader>
+									<EmptyContent className="w-fit">
+										<AddItemDrawer pageId={pageId} />
+									</EmptyContent>
+								</Empty>
+							) : (
+								<div className="space-y-1">
+									{expandableItems.map((item) => (
+										<div key={item.id} className="fade-in slide-in-from-bottom-1 animate-in">
+											<ExpandableCard item={item} renderers={profileItemCardRenderers} fallbackRenderer={profileItemCardFallbackRenderer} />
+										</div>
+									))}
+								</div>
+							)}
 						</div>
-					</main>
+					</div>
 				</div>
+
+				{/* Right Column - Preview */}
 				<aside className="offset-border hidden h-full min-w-0 flex-col rounded-2xl border-2 border-border/40 bg-surface/60 p-6 shadow-float xl:col-span-5 xl:flex">
 					<h2 className="mb-4 font-semibold text-xl">Preview</h2>
-					<div className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-border/40 bg-background">
+					<div className="min-h-0 flex-1 overflow-hidden rounded-2xl">
 						<ProfilePreviewFrame ref={previewFrameRef} handle={handle} lang={lang} className="h-full w-full" />
 					</div>
 				</aside>
 			</article>
+
+			<div className="fixed inset-x-0 bottom-0 z-30 bg-background md:hidden">
+				<div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-linear-to-t from-background/90 to-transparent" />
+				<div className="pointer-events-auto relative mx-auto flex w-full items-center gap-3 px-4 pt-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+					<div className="relative flex-1 basis-0">
+						<GlowEffect colors={["#FF5733", "#33FF57", "#3357FF", "#F1C40F"]} mode="colorShift" blur="soft" duration={3} scale={0.9} />
+						<Button type="button" variant={"default"} size={"lg"} className="relative w-full dark:bg-foreground">
+							Preview
+						</Button>
+					</div>
+					<aside className="flex-1 basis-0">
+						<AddItemDrawer pageId={pageId} />
+					</aside>
+				</div>
+			</div>
 		</section>
 	);
 }

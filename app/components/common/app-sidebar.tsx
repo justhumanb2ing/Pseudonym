@@ -12,15 +12,24 @@ import {
 	SidebarMenuSub,
 	SidebarMenuSubButton,
 	SidebarMenuSubItem,
+	useSidebar,
 } from "@/components/ui/sidebar";
 import { getLocalizedPath } from "@/utils/localized-path";
 import UserDropdown from "../auth/user-dropdown";
+import PageVisibilityToggle from "../page/page-visibility-toggle";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import Logo from "./logo";
 
-export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+	pageId: string;
+	isPublic: boolean;
+};
+
+export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarProps) {
 	const { lang, handle } = useParams();
 	const location = useLocation();
+	const { state } = useSidebar();
+	const isCollapsed = state === "collapsed";
 
 	const data = {
 		main: [
@@ -56,8 +65,11 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
 
 	return (
 		<Sidebar collapsible="icon" className="group-data-[side=left]:border-r-0" {...props}>
-			<SidebarHeader className="flex justify-center">
+			<SidebarHeader className="flex justify-center group-data-[collapsible=icon]:items-center">
 				<Logo />
+				<div className="group-data-[collapsible=icon]:items-center">
+					<UserDropdown />
+				</div>
 			</SidebarHeader>
 			<SidebarContent className="gap-1 p-2 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-2">
 				<SidebarGroup className="p-0">
@@ -122,9 +134,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
 					</SidebarMenu>
 				</SidebarGroup>
 			</SidebarContent>
-			<SidebarFooter className="group-data-[collapsible=icon]:items-center">
-				<UserDropdown />
-			</SidebarFooter>
+			<SidebarFooter>{isCollapsed ? null : <PageVisibilityToggle pageId={pageId} isPublic={isPublic} />}</SidebarFooter>
 		</Sidebar>
 	);
 }

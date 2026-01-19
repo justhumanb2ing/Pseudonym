@@ -27,7 +27,7 @@ export default function UserDropdown() {
 		<DropdownMenu>
 			<DropdownMenuTrigger
 				render={
-					<Button variant="ghost" className="flex justify-start gap-2 rounded-lg px-2 py-6 hover:bg-accent">
+					<Button variant="ghost" size={"sm"} className="flex w-full justify-start gap-2 rounded-lg px-2 py-4 hover:bg-accent">
 						<Avatar size="sm">
 							<AvatarImage src={user.imageUrl} alt={name} />
 							<AvatarFallback>{fallback}</AvatarFallback>

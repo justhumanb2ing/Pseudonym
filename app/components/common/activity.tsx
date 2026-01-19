@@ -13,25 +13,29 @@ type ActivityProps = {
 	activeKey: string;
 	direction: Direction;
 	children: React.ReactNode;
-	className?: ClassValue;
+	className?: React.ComponentProps<"div">["className"];
+	contentClassName?: React.ComponentProps<"div">["className"];
 };
 
-export function Activity({ activeKey, direction, children, className }: ActivityProps) {
+export function Activity({ activeKey, direction, children, className, contentClassName }: ActivityProps) {
 	return (
-		<AnimatePresence custom={direction} mode="wait" initial={false}>
-			<ActivityContent key={activeKey} className={className}>
-				{children}
-			</ActivityContent>
-		</AnimatePresence>
+		<motion.div className={cn(className)} layout="size" transition={{ type: "spring", bounce: 0.2, duration: 0.35 }}>
+			<AnimatePresence custom={direction} mode="sync" initial={false}>
+				<ActivityContent key={activeKey} className={contentClassName}>
+					{children}
+				</ActivityContent>
+			</AnimatePresence>
+		</motion.div>
 	);
 }
 
-function ActivityContent({ children, className }: { children: React.ReactNode; className?: ClassValue }) {
+function ActivityContent({ children, className }: { children: React.ReactNode; className?: React.ComponentProps<"div">["className"] }) {
 	const direction = (usePresenceData() ?? 1) as Direction;
 
 	return (
 		<motion.div
 			className={cn(className)}
+			layout="size"
 			initial={{ opacity: 0, x: direction * 50 }}
 			animate={{
 				opacity: 1,

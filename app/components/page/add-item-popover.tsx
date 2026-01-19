@@ -1,9 +1,9 @@
-import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitle, PopoverTrigger } from "@/components/ui/popover";
 import { ITEM_TYPES, type ItemTypeId } from "@/constants/add-item-flow.data";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 type AddItemPopoverProps = {
 	onSelectItem: (itemId: ItemTypeId) => void;
@@ -11,6 +11,11 @@ type AddItemPopoverProps = {
 
 export default function AddItemPopover({ onSelectItem }: AddItemPopoverProps) {
 	const [open, setOpen] = useState(false);
+	const isMobile = useMediaQuery("(max-width: 767px)");
+
+	if (isMobile) {
+		return null;
+	}
 
 	const handleItemClick = (itemId: ItemTypeId) => {
 		if (itemId === "link") {
@@ -23,14 +28,13 @@ export default function AddItemPopover({ onSelectItem }: AddItemPopoverProps) {
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger
 				render={
-					<Button variant="brand" size="icon-lg">
-						<IconPlus className="size-6 text-white" strokeWidth={2.5} />
-						{/* Add */}
+					<Button variant="brand" className={"rounded-xl px-6 text-base text-white"}>
+						Add
 					</Button>
 				}
 			></PopoverTrigger>
 
-			<PopoverContent className="w-56" align="end" sideOffset={8}>
+			<PopoverContent className="w-40 p-2 ring-0" align="end" sideOffset={8}>
 				<PopoverHeader hidden>
 					<PopoverTitle>Add Item</PopoverTitle>
 					<PopoverDescription>Choose an item type to add</PopoverDescription>
@@ -44,7 +48,7 @@ export default function AddItemPopover({ onSelectItem }: AddItemPopoverProps) {
 							size="default"
 							disabled={item.id !== "link"}
 							onClick={() => handleItemClick(item.id)}
-							className="justify-start rounded-lg py-5 font-normal text-lg"
+							className="justify-start rounded-lg py-5 font-normal text-base"
 						>
 							{item.title}
 						</Button>

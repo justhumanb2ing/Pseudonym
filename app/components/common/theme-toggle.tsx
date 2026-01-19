@@ -57,7 +57,7 @@ export const ThemeToggle = ({ className, duration = 400, iconSize, ...props }: T
 					</button>
 				}
 			/>
-			<TooltipContent side="bottom" sideOffset={12}>
+			<TooltipContent side="bottom" sideOffset={8}>
 				<p>{themeTooltip.value}</p>
 			</TooltipContent>
 		</Tooltip>

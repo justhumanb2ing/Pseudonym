@@ -36,7 +36,7 @@ export default function LocaleSwitcher() {
 						{...props}
 						type="button"
 						variant={"ghost"}
-						className="group h-9.5 w-16 overflow-hidden rounded-md bg-white dark:bg-black"
+						className="group h-8.5 w-16 overflow-hidden rounded-md bg-white dark:bg-black"
 						onClick={(event) => {
 							props.onClick?.(event);
 							if (event.defaultPrevented) return;

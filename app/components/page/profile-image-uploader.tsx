@@ -1,10 +1,9 @@
-import { XIcon } from "@phosphor-icons/react";
 import { IconX } from "@tabler/icons-react";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Cropper, CropperCropArea, CropperDescription, CropperImage } from "@/components/ui/cropper";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toastManager } from "@/components/ui/toast";
 import { usePageImageUploader } from "@/hooks/use-page-image-uploader";
 import { cn } from "@/lib/utils";
@@ -277,8 +276,8 @@ export default function ProfileImageUploader({ pageId, userId, imageUrl, alt }: 
 					onClick={handleSelectFile}
 					aria-label="Change profile image"
 					className={cn(
-						"relative size-18 overflow-hidden rounded-full border border-foreground bg-muted transition",
-						"hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+						"relative size-24 overflow-hidden rounded-full border bg-muted transition md:size-40",
+						"hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 					)}
 				>
 					{currentImageUrl ? (
@@ -296,11 +295,11 @@ export default function ProfileImageUploader({ pageId, userId, imageUrl, alt }: 
 						}}
 						aria-label="Remove profile image"
 						className={cn(
-							"absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full border border-border bg-background p-2 shadow-sm transition",
+							"absolute top-0 right-0 rounded-full border bg-background p-1 shadow-sm transition md:top-3 md:right-3",
 							"opacity-0 focus-visible:opacity-100 group-hover:opacity-100",
 						)}
 					>
-						<XIcon className="size-4" weight="bold" />
+						<IconX size={16} />
 					</button>
 				) : null}
 				<input
@@ -324,35 +323,28 @@ export default function ProfileImageUploader({ pageId, userId, imageUrl, alt }: 
 						handleCancelCrop();
 					}}
 				>
-					<DialogContent className="max-w-lg" showCloseButton={false}>
-						<DialogHeader>
+					<DialogContent className="max-w-lg p-4" showCloseButton={false}>
+						<DialogHeader hidden>
 							<DialogTitle hidden>Crop profile image</DialogTitle>
 							<DialogDescription hidden>Drag to reposition, then upload.</DialogDescription>
 						</DialogHeader>
-						<DialogClose
-							render={
-								<Button variant={"ghost"} size={"icon-lg"} className={"absolute top-3 right-3 rounded-full"} disabled={isUploading}>
-									<IconX className="size-5" />
-								</Button>
-							}
-						/>
-						<div className="flex w-full flex-col gap-3 pt-3">
-							<Cropper
-								className="h-72 rounded-xl border-2 border-black bg-transparent"
-								image={previewUrl}
-								aspectRatio={1}
-								zoom={1}
-								onCropChange={setCropArea}
-							>
+						<div className="flex w-full flex-col gap-3">
+							<Cropper className="h-72 rounded-xl bg-transparent" image={previewUrl} aspectRatio={1} zoom={1} onCropChange={setCropArea}>
 								<CropperDescription />
 								<CropperImage />
 								<CropperCropArea className="rounded-full border-black" />
 							</Cropper>
 							<DialogFooter className="sm:justify-center">
-								<Button type="button" variant="outline" className={"grow"} onClick={handleCancelCrop}>
+								<Button type="button" variant="secondary" className={"h-12 grow rounded-lg text-base"} onClick={handleCancelCrop}>
 									Cancel
 								</Button>
-								<Button type="button" className={"grow"} onClick={handleUpload} disabled={isUploading}>
+								<Button
+									type="button"
+									variant={"brand"}
+									className={"h-12 grow rounded-lg text-base"}
+									onClick={handleUpload}
+									disabled={isUploading}
+								>
 									{isUploading ? "Uploading..." : "Upload"}
 								</Button>
 							</DialogFooter>

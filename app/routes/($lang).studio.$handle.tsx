@@ -4,7 +4,7 @@ import type { StudioOutletContext } from "types/studio.types";
 import AppSidebar from "@/components/common/app-sidebar";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import LocaleSwitcher from "@/components/i18n/locale-switcher";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard";
 import { getLocalizedPath } from "@/utils/localized-path";
@@ -72,18 +72,20 @@ export async function loader(args: Route.LoaderArgs): Promise<StudioOutletContex
 export default function StudioHandleLayoutRoute({ loaderData }: Route.ComponentProps) {
 	return (
 		<SidebarProvider>
-			<AppSidebar />
+			<AppSidebar pageId={loaderData.page.id} isPublic={loaderData.page.is_public} />
 			{/* TODO: bg-sidebar 고려 */}
-			<main className="relative flex h-dvh w-full flex-col gap-4 bg-sidebar">
-				<aside className="absolute top-2 right-0 flex h-16 items-center justify-between gap-2 px-4">
-					<div className="ml-auto flex items-center gap-2">
-						<SidebarTrigger className="size-9 rounded-md bg-white dark:bg-black" />
-						<ThemeToggle iconSize="size-5" />
-						<LocaleSwitcher />
-					</div>
-				</aside>
-				<Outlet context={loaderData} />
-			</main>
+			<SidebarInset>
+				<main className="relative flex h-dvh w-full flex-col gap-4 bg-background">
+					<aside className="absolute top-0 right-0 flex h-16 items-center justify-between gap-2 px-4">
+						<div className="ml-auto flex items-center gap-2">
+							<SidebarTrigger className="size-8 rounded-md bg-white dark:bg-black" />
+							<ThemeToggle iconSize="size-4" />
+							<LocaleSwitcher />
+						</div>
+					</aside>
+					<Outlet context={loaderData} />
+				</main>
+			</SidebarInset>
 		</SidebarProvider>
 	);
 }
