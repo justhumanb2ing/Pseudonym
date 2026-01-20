@@ -5,10 +5,8 @@ import "./app.css";
 import { ClerkProvider } from "@clerk/react-router";
 import { clerkMiddleware, rootAuthLoader } from "@clerk/react-router/server";
 import { shadcn } from "@clerk/themes";
-import { HouseSimpleIcon } from "@phosphor-icons/react";
-import { LocalizedLink } from "@/components/i18n/localized-link";
 import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard";
-import { Button } from "./components/ui/button";
+import NotFound from "./components/error/not-found";
 import { Spinner } from "./components/ui/spinner";
 import Providers from "./providers";
 
@@ -168,24 +166,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	return (
 		<main className="container mx-auto h-dvh p-4 pt-16">
 			{is404 ? (
-				<section className="flex h-full flex-col items-center justify-center">
-					<div>
-						<img src="/404.png" alt="404" className="h-full min-h-[600px] w-full object-cover" />
-					</div>
-					<div className="flex flex-col items-center gap-8">
-						<div className="font-light text-lg">It seems you got a little bit lost...</div>
-						<Button
-							size={"lg"}
-							className={"h-10 rounded-xl px-4 text-sm"}
-							render={
-								<LocalizedLink to={"/"}>
-									<HouseSimpleIcon weight="fill" className="size-6" />
-									Go to home
-								</LocalizedLink>
-							}
-						/>
-					</div>
-				</section>
+				<NotFound />
 			) : (
 				<>
 					<h1>{message}</h1>

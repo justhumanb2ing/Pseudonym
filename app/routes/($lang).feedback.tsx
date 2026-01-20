@@ -36,14 +36,17 @@ export default function IssueRoute() {
 	const { fetcher, isSubmitting, fieldErrors, formError, senderEmailErrors, subjectErrors, contentErrors } = useFeedbackForm();
 
 	return (
-		<FeedbackForm
-			fetcher={fetcher}
-			isSubmitting={isSubmitting}
-			fieldErrors={fieldErrors}
-			formError={formError}
-			senderEmailErrors={senderEmailErrors}
-			subjectErrors={subjectErrors}
-			contentErrors={contentErrors}
-		/>
+		<main className="container mx-auto flex h-full max-w-2xl flex-col justify-center gap-6 p-4">
+			<header className="font-medium text-xl">Report an issue or share feedback.</header>
+			<FeedbackForm
+				fetcher={fetcher}
+				isSubmitting={isSubmitting}
+				fieldErrors={fieldErrors}
+				formError={formError}
+				senderEmailErrors={senderEmailErrors}
+				subjectErrors={subjectErrors}
+				contentErrors={contentErrors}
+			/>
+		</main>
 	);
 }

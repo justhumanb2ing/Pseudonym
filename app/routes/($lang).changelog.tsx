@@ -1,8 +1,8 @@
 import { generateMeta } from "@forge42/seo-tools/remix/metadata";
 import { breadcrumbs } from "@forge42/seo-tools/structured-data/breadcrumb";
-import type { MetaFunction } from "react-router";
-import Logo from "@/components/common/logo";
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { Link, type MetaFunction } from "react-router";
+import { Button } from "@/components/ui/button";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { metadataConfig } from "@/config/metadata";
 import { getLocalizedPath } from "@/utils/localized-path";
 
@@ -33,16 +33,16 @@ export const meta: MetaFunction = ({ params }) => {
 
 export default function ChangeLogRoute() {
 	return (
-		<main className="container mx-auto flex h-full max-w-2xl flex-col gap-6 p-8">
-			<header>
-				<Logo />
-			</header>
+		<main className="container mx-auto flex h-full max-w-2xl flex-col gap-6 p-4">
 			<section className="grow rounded-lg">
 				<Empty className="h-full">
 					<EmptyHeader>
-						<EmptyTitle>Changelog</EmptyTitle>
+						<EmptyTitle>Nothing has changed</EmptyTitle>
 						<EmptyDescription>Everything remains the same for the time being.</EmptyDescription>
 					</EmptyHeader>
+					<EmptyContent>
+						<Button variant={"brand"} className={'px-6'} render={<Link to={"/"}>Go Home</Link>}></Button>
+					</EmptyContent>
 				</Empty>
 			</section>
 		</main>

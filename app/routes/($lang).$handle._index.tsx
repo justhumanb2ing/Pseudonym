@@ -25,7 +25,7 @@ export async function loader(args: Route.LoaderArgs) {
 	const pageSelectQuery = "id, owner_id, handle, title, description, image_url, is_public, is_primary";
 
 	const { data: page, error } = await supabase.from("pages").select(pageSelectQuery).eq("handle", handle).maybeSingle();
-
+	
 	if (error) {
 		throw new Response(error.message, { status: 500 });
 	}
@@ -35,7 +35,9 @@ export async function loader(args: Route.LoaderArgs) {
 	}
 
 	const isOwner = page.owner_id === userId;
-	if (!page.is_public && !isOwner) throw new Response("Not Found", { status: 404 });
+	if (!page.is_public && !isOwner) {
+		throw new Response("Forbidden", { status: 403 });
+	}
 
 	// profile_items 조회
 	const { data: profileItems, error: itemsError } = await supabase
