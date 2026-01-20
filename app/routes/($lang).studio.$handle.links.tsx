@@ -141,9 +141,9 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 
 	return (
 		<section className="flex min-h-0 grow flex-col gap-6">
-			<article className="flex min-h-0 min-w-0 grow flex-col gap-5 xl:flex-row">
+			<article className="flex min-h-0 min-w-0 grow flex-col gap-5 xl:flex-row xl:justify-between">
 				{/* Left Column - Profile & Links */}
-				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 px-6 pt-14 pb-8 md:px-8">
+				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 px-6 pt-14 pb-8 md:container md:mx-auto md:max-w-6xl md:px-8">
 					<div className="overflow-hidden">
 						<div className="flex items-center gap-2">
 							{/* Profile Image */}
@@ -211,8 +211,14 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 							}
 						></Button>
 					</div>
-					<Iphone>
-						<ProfilePreviewFrame ref={previewFrameRef} handle={handle} lang={lang} className="h-full w-full" onLoad={handleIframeLoad} />
+					<Iphone className="">
+						<ProfilePreviewFrame
+							ref={previewFrameRef}
+							handle={handle}
+							lang={lang}
+							className="h-full w-full"
+							onLoad={handleIframeLoad}
+						/>
 					</Iphone>
 				</aside>
 			</article>

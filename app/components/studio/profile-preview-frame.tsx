@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import { buildPreviewPath } from "@/lib/preview";
+import { cn } from "@/lib/utils";
 import { getLocalizedPath } from "@/utils/localized-path";
 
 type ProfilePreviewFrameProps = {
@@ -16,7 +17,16 @@ const ProfilePreviewFrame = forwardRef<HTMLIFrameElement, ProfilePreviewFramePro
 	const localizedPath = getLocalizedPath(lang, `/${handle}`);
 	const src = buildPreviewPath(localizedPath);
 
-	return <iframe ref={ref} src={src} title="Profile preview" className={className} onLoad={onLoad} />;
+	return (
+		<iframe
+			ref={ref}
+			src={src}
+			title="Profile preview"
+			className={cn("scrollbar-hide", className)}
+			onLoad={onLoad}
+			style={{ overflow: "hidden" }}
+		/>
+	);
 });
 
 export default ProfilePreviewFrame;

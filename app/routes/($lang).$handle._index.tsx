@@ -1,8 +1,14 @@
 import { getAuth } from "@clerk/react-router/server";
 import { useEffect } from "react";
 import { useLoaderData, useLocation, useRevalidator } from "react-router";
+import type { StudioOutletContext } from "types/studio.types";
+import LinkItem from "@/components/page/link-item";
+import Watermark from "@/components/page/watermark";
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { isPreviewMessage, isPreviewRequest, isPreviewSearch } from "@/lib/preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 import { fetchUmamiVisits, getTodayRange, resolveUmamiConfig, UMAMI_TIMEZONE, UMAMI_UNIT, type UmamiResponse } from "../service/umami";
 import type { Route } from "./+types/($lang).$handle._index";
 
@@ -28,6 +34,9 @@ export async function loader(args: Route.LoaderArgs) {
 		throw new Response("Not Found", { status: 404 });
 	}
 
+	const isOwner = page.owner_id === userId;
+	if (!page.is_public && !isOwner) throw new Response("Not Found", { status: 404 });
+
 	// profile_items 조회
 	const { data: profileItems, error: itemsError } = await supabase
 		.from("profile_items")
@@ -38,9 +47,6 @@ export async function loader(args: Route.LoaderArgs) {
 	if (itemsError) {
 		throw new Response(itemsError.message, { status: 500 });
 	}
-
-	const isOwner = page.owner_id === userId;
-	if (!page.is_public && !isOwner) throw new Response("Not Found", { status: 404 });
 
 	let umamiResult: UmamiResponse | null = null;
 
@@ -80,7 +86,7 @@ export async function loader(args: Route.LoaderArgs) {
 		handle,
 		isOwner,
 		umamiResult,
-		profileItems,
+		profileItems: (profileItems as StudioOutletContext["profileItems"]) ?? [],
 	};
 }
 
@@ -89,6 +95,11 @@ export default function UserProfileRoute() {
 	const location = useLocation();
 	const revalidator = useRevalidator();
 	const isPreview = isPreviewSearch(location.search);
+	const activeProfileItems = profileItems.filter((item) => item.is_active) ?? [];
+	const isMobile = useIsMobile();
+	const mainClassName = isMobile
+		? "h-[100dvh] w-full gap-2 overflow-hidden"
+		: "container mx-auto flex h-[calc(100dvh-8rem)] max-w-md flex-col gap-2 overflow-hidden rounded-[64px] border-[0.5px] shadow-float";
 
 	useEffect(() => {
 		if (!isPreview) {
@@ -104,17 +115,6 @@ export default function UserProfileRoute() {
 			}
 			revalidator.revalidate();
 		};
-
-		window.addEventListener("message", handleMessage);
-		return () => {
-			window.removeEventListener("message", handleMessage);
-		};
-	}, [isPreview, revalidator]);
-
-	useEffect(() => {
-		if (!isPreview) {
-			return;
-		}
 
 		const handleSubmit = (event: Event) => {
 			event.preventDefault();
@@ -137,21 +137,48 @@ export default function UserProfileRoute() {
 			}
 		};
 
+		window.addEventListener("message", handleMessage);
 		document.addEventListener("submit", handleSubmit, true);
 		document.addEventListener("click", handleClick, true);
 		return () => {
+			window.removeEventListener("message", handleMessage);
 			document.removeEventListener("submit", handleSubmit, true);
 			document.removeEventListener("click", handleClick, true);
 		};
-	}, [isPreview]);
+	}, [isPreview, revalidator]);
 
 	return (
-		<main className="container mx-auto h-full max-w-xl p-3">
-			<div>
-				<p>{page.title}</p>
-				<p>{page.description}</p>
-			</div>
-			<div>{profileItems.map((item) => item.is_active && <div key={item.id}>{item.title}</div>)}</div>
-		</main>
+		<div className={cn("box-border h-dvh overflow-hidden", !isMobile && "py-10")}>
+			<main className={cn(mainClassName, "scrollbar-hide box-border overflow-y-auto bg-white pb-10 dark:bg-black")}>
+				<div className="flex flex-col gap-4 p-10 py-12 pb-4 md:pb-8">
+					<div className="size-30 overflow-hidden rounded-full md:size-36">
+						<img src={page.image_url ?? ""} alt={page.handle} className="h-full w-full object-cover" />
+					</div>
+					<div className="flex min-w-0 flex-col gap-2">
+						<p className="font-bold text-3xl md:text-4xl">{page.title}</p>
+						<p className="line-clamp-6 text-pretty font-light">{page.description}</p>
+					</div>
+				</div>
+
+				<section className="flex flex-col gap-3 p-6">
+					{activeProfileItems.length === 0 && (
+						<Empty className="p-0">
+							<EmptyHeader>
+								<EmptyMedia className="size-52 overflow-hidden">
+									<img src={"/cat-blunge.png"} alt="empty" className="h-full w-full object-cover grayscale-75" />
+								</EmptyMedia>
+								<EmptyTitle className="text-base">Something is coming together here.</EmptyTitle>
+							</EmptyHeader>
+						</Empty>
+					)}
+					{activeProfileItems.map((item) => (
+						<LinkItem key={item.id} item={item} />
+					))}
+				</section>
+				<footer className="flex justify-center py-8">
+					<Watermark />
+				</footer>
+			</main>
+		</div>
 	);
 }
