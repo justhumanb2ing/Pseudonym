@@ -41,7 +41,7 @@
 		"intlayer": "^7.5.7",
 		"isbot": "^5.1.31",
 		"lucide-react": "^0.562.0",
-		"motion": "^12.23.26",
+		"motion": "^12.27.1",
 		"next-themes": "^0.4.6",
 		"pg": "^8.16.3",
 		"radix-ui": "^1.4.3",

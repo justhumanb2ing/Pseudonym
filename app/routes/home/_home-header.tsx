@@ -1,10 +1,7 @@
-import { SignedIn, SignedOut } from "@clerk/react-router";
-import UserButton from "@/components/auth/user-button";
-import Logo from "@/components/common/logo";
+import { useUser } from "@clerk/react-router";
 import LocaleSwitcher from "@/components/i18n/locale-switcher";
 import { LocalizedLink } from "@/components/i18n/localized-link";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
 import { getUmamiEventAttributes } from "@/lib/umami";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
 
@@ -14,33 +11,28 @@ type HomeHeaderProps = {
 };
 
 export default function HomeHeader({ primaryHandle, startForFreeLabel }: HomeHeaderProps) {
+	const { isSignedIn, isLoaded } = useUser();
+
+	if (!isLoaded) return <Spinner />;
+
 	return (
 		<header className="mx-auto flex max-w-7xl items-center justify-between gap-1 px-4 py-4">
-			<Logo />
+			{/* <Logo />
 			<aside className="flex items-center gap-1">
-				<SignedOut>
-					<Button
-						variant={"brand"}
-						size={"lg"}
-						className={"text-sm md:h-10 md:rounded-xl md:px-4"}
-						{...getUmamiEventAttributes(UMAMI_EVENTS.auth.signIn.start, {
-							[UMAMI_PROP_KEYS.ctx.source]: "home_cta",
-						})}
-					>
-						<LocalizedLink to={"/sign-in"}>{startForFreeLabel}</LocalizedLink>
-					</Button>
-				</SignedOut>
-				<SignedIn>
-					<UserButton primaryHandle={primaryHandle} />
-				</SignedIn>
-				<Separator
-					orientation="vertical"
-					className={"my-1.5 rounded-full data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:bg-muted"}
-				/>
+				<Button
+					variant={"brand"}
+					size={"sm"}
+					className={"rounded-lg text-sm md:h-10 md:rounded-xl md:px-4"}
+					{...getUmamiEventAttributes(UMAMI_EVENTS.auth.signIn.start, {
+						[UMAMI_PROP_KEYS.ctx.source]: "home_cta",
+					})}
+				>
+					<LocalizedLink to={isSignedIn ? `/studio/${primaryHandle}` : "/sign-in"}>{startForFreeLabel}</LocalizedLink>
+				</Button> */}
 				<nav className="flex items-center justify-end gap-1">
 					<LocaleSwitcher />
 				</nav>
-			</aside>
+			{/* </aside> */}
 		</header>
 	);
 }
