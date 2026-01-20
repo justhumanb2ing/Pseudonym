@@ -1,6 +1,5 @@
 import { SignOutButton, useUser } from "@clerk/react-router";
 import { IconLogout } from "@tabler/icons-react";
-import { useLocation } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -10,7 +9,6 @@ import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
 
 export default function UserDropdown() {
 	const { user, isLoaded } = useUser();
-	const location = useLocation();
 
 	if (!isLoaded) {
 		return <Spinner />;
