@@ -39,7 +39,7 @@ export default function UserDropdown() {
 				}
 			></DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-52">
-				<SignOutButton redirectUrl={`${location.pathname}${location.search}${location.hash}`}>
+				<SignOutButton redirectUrl={`/`}>
 					<DropdownMenuItem
 						className="cursor-pointer"
 						render={
@@ -51,12 +51,10 @@ export default function UserDropdown() {
 									[UMAMI_PROP_KEYS.ctx.source]: "bottom_action_bar",
 								})}
 								render={
-									<SignOutButton>
-										<div>
-											<IconLogout className="size-4" />
-											<span>Log out</span>
-										</div>
-									</SignOutButton>
+									<div>
+										<IconLogout className="size-4" />
+										<span>Log out</span>
+									</div>
 								}
 							></Button>
 						}

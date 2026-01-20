@@ -1,21 +1,44 @@
+import { getAuth } from "@clerk/react-router/server";
 import { SignIn } from "@clerk/react-router";
 import { generateMeta } from "@forge42/seo-tools/remix/metadata";
 import { breadcrumbs } from "@forge42/seo-tools/structured-data/breadcrumb";
 import { XIcon } from "@phosphor-icons/react";
 import type { MetaFunction } from "react-router";
-import { useNavigate, useParams } from "react-router";
+import { redirect, useParams } from "react-router";
+import { LocalizedLink } from "@/components/i18n/localized-link";
 import { Button } from "@/components/ui/button";
 import { metadataConfig } from "@/config/metadata";
 import { useUmamiPageView } from "@/hooks/use-umami-page-view";
+import { getSupabaseServerClient } from "@/lib/supabase";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
 import { getLocalizedPath } from "@/utils/localized-path";
+import type { Route } from "./+types/($lang)._auth.sign-in";
 
 const buildUrl = (lang: string | undefined, pathname: string) => new URL(getLocalizedPath(lang, pathname), metadataConfig.url).toString();
 
 const defaultImageUrl = new URL(metadataConfig.defaultImage, metadataConfig.url).toString();
 
+export async function loader(args: Route.LoaderArgs) {
+	const { userId } = await getAuth(args);
+
+	// 비로그인 사용자는 로그인 폼 표시
+	if (!userId) {
+		return null;
+	}
+
+	// 로그인 사용자: handle 조회 후 studio로 리다이렉트
+	const supabase = await getSupabaseServerClient(args);
+	const { data } = await supabase.from("pages").select("handle").eq("owner_id", userId).eq("is_primary", true).maybeSingle();
+
+	if (data?.handle) {
+		throw redirect(getLocalizedPath(args.params.lang, `/studio/${data.handle}`));
+	}
+
+	// handle이 없으면 (온보딩 미완료) onboarding-guard에서 처리
+	return null;
+}
+
 export const meta: MetaFunction = ({ params }) => {
-	const _homeUrl = buildUrl(params.lang, "/");
 	const signInUrl = buildUrl(params.lang, "/sign-in");
 
 	return generateMeta(
@@ -39,7 +62,6 @@ export default function SignInRoute() {
 	const { lang } = useParams();
 	const signInPath = lang ? `/${lang}/sign-in` : "/sign-in";
 	const signUpUrl = lang ? `/${lang}/sign-up` : "/sign-up";
-	const navigate = useNavigate();
 
 	useUmamiPageView({
 		eventName: UMAMI_EVENTS.page.signInView,
@@ -51,9 +73,16 @@ export default function SignInRoute() {
 	return (
 		<main className="relative flex h-full grow flex-col justify-center">
 			<header className="fixed top-5 left-5">
-				<Button variant={"ghost"} size={"icon-lg"} className={"rounded-full p-6"} onClick={() => navigate(-1)}>
-					<XIcon className="size-6" weight="bold" />
-				</Button>
+				<Button
+					variant={"ghost"}
+					size={"icon-lg"}
+					className={"rounded-full p-6"}
+					render={
+						<LocalizedLink to={"/"}>
+							<XIcon className="size-6" weight="bold" />
+						</LocalizedLink>
+					}
+				></Button>
 			</header>
 			<section className="flex h-full w-full items-center justify-center">
 				<div className="flex justify-center lg:flex-5">

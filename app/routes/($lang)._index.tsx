@@ -1,14 +1,11 @@
-import { getAuth } from "@clerk/react-router/server";
 import { generateMeta } from "@forge42/seo-tools/remix/metadata";
 import { breadcrumbs } from "@forge42/seo-tools/structured-data/breadcrumb";
 import { organization } from "@forge42/seo-tools/structured-data/organization";
 import type { MetaFunction } from "react-router";
 import { metadataConfig } from "@/config/metadata";
 import { useUmamiPageView } from "@/hooks/use-umami-page-view";
-import { getSupabaseServerClient } from "@/lib/supabase";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
 import { getLocalizedPath } from "@/utils/localized-path";
-import type { Route } from "./+types/($lang)._index";
 import HomeFooter from "./home/_home-footer";
 import HomeHero from "./home/_home-hero";
 
@@ -44,23 +41,7 @@ export const meta: MetaFunction = ({ params }) => {
 	);
 };
 
-export async function loader(args: Route.LoaderArgs) {
-	const { userId } = await getAuth(args);
-
-	if (!userId) return { primaryHandle: null };
-
-	const supabase = await getSupabaseServerClient(args);
-
-	const { data, error } = await supabase.from("pages").select("handle").eq("owner_id", userId).eq("is_primary", true).maybeSingle();
-
-	if (error || !data?.handle) {
-		return { primaryHandle: null };
-	}
-
-	return { primaryHandle: data.handle };
-}
-
-export default function Home({ loaderData }: Route.ComponentProps) {
+export default function Home() {
 	useUmamiPageView({
 		eventName: UMAMI_EVENTS.page.homeView,
 		props: {

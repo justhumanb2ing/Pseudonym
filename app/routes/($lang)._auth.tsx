@@ -1,14 +1,8 @@
 import { getAuth } from "@clerk/react-router/server";
 import { Outlet, redirect } from "react-router";
+import { isPublicAuthPath } from "@/service/auth/onboarding-guard";
 import { getLocalizedPath } from "@/utils/localized-path";
 import type { Route } from "./+types/($lang)._auth";
-
-function isPublicAuthPath(pathname: string) {
-	const normalizedPathname = pathname.replace(/\/+$/, "");
-	const authSegmentPattern = /(^|\/)(sign-in|sign-up)(\/|$)/;
-
-	return authSegmentPattern.test(normalizedPathname);
-}
 
 export async function loader(args: Route.LoaderArgs) {
 	const { pathname } = new URL(args.request.url);

@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { useIntlayer } from "react-intlayer";
 import UserButton from "@/components/auth/user-button";
+
 export default function HomeHero() {
 	const content = useIntlayer("home-hero");
 

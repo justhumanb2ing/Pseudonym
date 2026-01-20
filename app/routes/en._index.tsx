@@ -1,1 +1,1 @@
-export { default, loader, meta } from "./($lang)._index";
+export { default, meta } from "./($lang)._index";

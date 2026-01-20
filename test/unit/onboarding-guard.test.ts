@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getLocalizedPathFromPathname, isOnboardingPath, isPublicAuthPath } from "@/service/auth/onboarding-guard";
+import { getLocalizedPathFromPathname, isOnboardingPath, isPublicAuthPath, isPublicRoute } from "@/service/auth/onboarding-guard";
 
 describe("onboarding-guard utilities", () => {
 	it("returns localized paths when locale is present", () => {
@@ -15,6 +15,14 @@ describe("onboarding-guard utilities", () => {
 		expect(isPublicAuthPath("/sign-in")).toBe(true);
 		expect(isPublicAuthPath("/en/sign-up")).toBe(true);
 		expect(isPublicAuthPath("/profile")).toBe(false);
+	});
+
+	it("detects public routes", () => {
+		expect(isPublicRoute("/")).toBe(true);
+		expect(isPublicRoute("/en")).toBe(true);
+		expect(isPublicRoute("/feedback")).toBe(true);
+		expect(isPublicRoute("/en/changelog")).toBe(true);
+		expect(isPublicRoute("/studio")).toBe(false);
 	});
 
 	it("detects onboarding paths", () => {

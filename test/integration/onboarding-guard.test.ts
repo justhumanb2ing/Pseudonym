@@ -28,7 +28,7 @@ describe("resolveOnboardingRedirect", () => {
 
 	const createArgs = (overrides: Partial<GuardArgs> = {}): GuardArgs =>
 		({
-			pathname: "/dashboard",
+			pathname: "/dashboard/overview",
 			request: {
 				auth: {
 					userId: "user-1",
@@ -42,9 +42,31 @@ describe("resolveOnboardingRedirect", () => {
 			...overrides,
 		}) as GuardArgs;
 
-	it("returns null when unauthenticated", async () => {
+	it("redirects unauthenticated users away from protected routes", async () => {
 		const result = await resolveOnboardingRedirect(
 			createArgs({
+				request: { auth: { userId: null, sessionClaims: null } } as GuardArgs["request"],
+			}),
+		);
+
+		expect(result?.headers.get("Location")).toBe("/sign-in");
+	});
+
+	it("allows unauthenticated users on public routes", async () => {
+		const result = await resolveOnboardingRedirect(
+			createArgs({
+				pathname: "/en",
+				request: { auth: { userId: null, sessionClaims: null } } as GuardArgs["request"],
+			}),
+		);
+
+		expect(result).toBeNull();
+	});
+
+	it("allows unauthenticated users on profile routes", async () => {
+		const result = await resolveOnboardingRedirect(
+			createArgs({
+				pathname: "/alice",
 				request: { auth: { userId: null, sessionClaims: null } } as GuardArgs["request"],
 			}),
 		);
@@ -55,7 +77,7 @@ describe("resolveOnboardingRedirect", () => {
 	it("redirects completed users away from onboarding", async () => {
 		const result = await resolveOnboardingRedirect(
 			createArgs({
-				pathname: "/en/onboarding",
+			pathname: "/en/onboarding",
 				request: {
 					auth: {
 						userId: "user-1",
