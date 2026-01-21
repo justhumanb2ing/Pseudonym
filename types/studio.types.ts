@@ -1,10 +1,14 @@
 import type { Json, Tables } from "./database.types";
 
 type ProfileItemConfig = {
-	icon_url?: string | null;
-	image_url?: string | null;
-	site_name?: string | null;
-	description?: string | null;
+	data?: {
+		url?: string | null;
+		title?: string | null;
+		description?: string | null;
+		site_name?: string | null;
+		icon_url?: string | null;
+		image_url?: string | null;
+	} | null;
 	[key: string]: Json | undefined;
 };
 

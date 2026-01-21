@@ -36,14 +36,16 @@ export function createLinkSaver(supabasePromise: Promise<SupabaseClient<Database
 		const { error } = await supabase.rpc("add_page_item", {
 			p_page_id: payload.pageId,
 			p_type: "link",
-			p_title: data.title ?? undefined,
-			p_url: normalizedUrl,
 			p_is_active: payload.isActive ?? true,
 			p_config: {
-				description: data.description,
-				site_name: data.site_name,
-				icon_url: data.favicon,
-				image_url: data.image,
+				data: {
+					url: normalizedUrl,
+					title: data.title ?? null,
+					description: data.description,
+					site_name: data.site_name,
+					icon_url: data.favicon,
+					image_url: data.image,
+				},
 			},
 		});
 

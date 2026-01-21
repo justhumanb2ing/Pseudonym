@@ -76,14 +76,16 @@ describe("handleLinkSave", () => {
 			payload: {
 				p_page_id: "page-1",
 				p_type: "link",
-				p_title: "Example",
-				p_url: "https://example.com",
 				p_is_active: true,
 				p_config: {
-					description: "Desc",
-					site_name: "Example",
-					icon_url: null,
-					image_url: null,
+					data: {
+						title: "Example",
+						url: "https://example.com",
+						description: "Desc",
+						site_name: "Example",
+						icon_url: null,
+						image_url: null,
+					},
 				},
 			},
 		});
@@ -155,13 +157,29 @@ describe("handleLinkUpdate", () => {
 		formData.set("title", "New Title");
 		formData.set("url", "example.com");
 
-		const { supabase, calls } = createSupabaseStub();
+		const { supabase, calls } = createSupabaseStub({
+			config: {
+				data: {
+					title: "Old Title",
+					url: "https://old.example.com",
+					site_name: "Example",
+				},
+			},
+		});
 		const result = await handleLinkUpdate({ formData, supabase });
 
 		expect(result).toEqual({ success: true, intent: "link-update", itemId: "item-1" });
 		expect(calls.update).toEqual({
 			table: "profile_items",
-			payload: { title: "New Title", url: "https://example.com" },
+			payload: {
+				config: {
+					data: {
+						title: "New Title",
+						url: "https://example.com",
+						site_name: "Example",
+					},
+				},
+			},
 			column: "id",
 			value: "item-1",
 		});
@@ -248,15 +266,32 @@ describe("handlePageVisibility", () => {
 	});
 });
 
-function createSupabaseStub(options?: { deleteError?: string; updateError?: string }) {
+function createSupabaseStub(options?: {
+	deleteError?: string;
+	updateError?: string;
+	selectError?: string;
+	config?: Record<string, unknown> | null;
+}) {
 	const calls = {
 		rpc: null as { fn: string; payload: Record<string, unknown> } | null,
 		delete: null as { table: string; column: string; value: string } | null,
 		update: null as { table: string; payload: Record<string, unknown>; column: string; value: string } | null,
+		select: null as { table: string; column: string; value: string } | null,
 	};
 
 	const supabase = {
 		from: (table: string) => ({
+			select: (_columns: string) => ({
+				eq: (column: string, value: string) => ({
+					maybeSingle: () => {
+						calls.select = { table, column, value };
+						return {
+							data: { config: options?.config ?? null },
+							error: options?.selectError ? { message: options.selectError } : null,
+						};
+					},
+				}),
+			}),
 			delete: () => ({
 				eq: (column: string, value: string) => {
 					calls.delete = { table, column, value };

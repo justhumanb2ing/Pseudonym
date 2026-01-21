@@ -278,9 +278,37 @@ export async function handleLinkUpdate({ formData, supabase }: PageProfileAction
 	const normalizedTitle = parsed.data.title?.trim() || null;
 	const normalizedUrl = normalizeLinkUrl(parsed.data.url);
 
+	const { data: profileItem, error: itemError } = await supabase
+		.from("profile_items")
+		.select("config")
+		.eq("id", parsed.data.itemId)
+		.maybeSingle();
+
+	if (itemError) {
+		return { formError: itemError.message, intent: "link-update", itemId: parsed.data.itemId };
+	}
+
+	const rawConfig = profileItem?.config;
+	const configObject =
+		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
+	const rawConfigData = configObject.data;
+	const configData =
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
+			? (rawConfigData as Record<string, unknown>)
+			: {};
+
 	const { error: updateError } = await supabase
 		.from("profile_items")
-		.update({ title: normalizedTitle, url: normalizedUrl })
+		.update({
+			config: {
+				...configObject,
+				data: {
+					...configData,
+					title: normalizedTitle,
+					url: normalizedUrl,
+				},
+			},
+		})
 		.eq("id", parsed.data.itemId);
 
 	if (updateError) {

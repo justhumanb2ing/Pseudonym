@@ -51,14 +51,16 @@ describe("createLinkSaver", () => {
 		expect(calls.payload).toEqual({
 			p_page_id: "page-1",
 			p_type: "link",
-			p_title: "Example",
-			p_url: "https://example.com",
 			p_is_active: true,
 			p_config: {
-				description: "Desc",
-				site_name: "Example",
-				icon_url: "https://example.com/favicon.ico",
-				image_url: "https://example.com/og.png",
+				data: {
+					title: "Example",
+					url: "https://example.com",
+					description: "Desc",
+					site_name: "Example",
+					icon_url: "https://example.com/favicon.ico",
+					image_url: "https://example.com/og.png",
+				},
 			},
 		});
 	});

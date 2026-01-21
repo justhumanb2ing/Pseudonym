@@ -26,6 +26,9 @@ export function ProfileItemExpandedContent({ item }: { item: ProfileItem }) {
 	const isDeleting = deleteFetcher.state !== "idle";
 	const isSaving = updateFetcher.state !== "idle";
 	const formId = `profile-item-edit-${item.id}`;
+	const configData = item.config?.data;
+	const defaultTitle = configData?.title ?? "";
+	const defaultUrl = configData?.url ?? "";
 	const updateError =
 		updateFetcher.data?.intent === "link-update" && !updateFetcher.data?.success ? updateFetcher.data.formError : undefined;
 
@@ -56,7 +59,7 @@ export function ProfileItemExpandedContent({ item }: { item: ProfileItem }) {
 							<Input
 								id={`profile-item-title-${item.id}`}
 								name="title"
-								defaultValue={item.title ?? ""}
+								defaultValue={defaultTitle}
 								autoComplete="off"
 								placeholder="Title"
 								className="h-16 rounded-lg border-0 px-3 pt-8"
@@ -76,7 +79,7 @@ export function ProfileItemExpandedContent({ item }: { item: ProfileItem }) {
 							<Input
 								id={`profile-item-url-${item.id}`}
 								name="url"
-								defaultValue={item.url ?? ""}
+								defaultValue={defaultUrl}
 								autoComplete="off"
 								required
 								placeholder="example.com"

@@ -8,20 +8,24 @@ type ProfileItem = StudioOutletContext["profileItems"][number];
 export const profileItemCardRenderers: Record<string, ExpandableCardRenderer<ProfileItem>> = {
 	link: {
 		summary: (item) => {
-			const imageUrl = item.data.config?.icon_url ?? item.data.config?.image_url ?? undefined;
-			const descriptionText = item.data.config?.site_name ?? undefined;
+			const configData = item.data.config?.data;
+			const imageUrl = configData?.icon_url ?? configData?.image_url ?? undefined;
+			const descriptionText = configData?.site_name ?? undefined;
+			const title = configData?.title ?? item.data.type ?? "Untitled";
 			return {
-				title: item.data.title ?? item.data.type ?? "Untitled",
+				title,
 				description: descriptionText,
 				imageUrl,
 				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
 			};
 		},
 		expanded: (item) => {
-			const imageUrl = item.data.config?.icon_url ?? item.data.config?.image_url ?? undefined;
-			const descriptionText = item.data.config?.site_name ?? undefined;
+			const configData = item.data.config?.data;
+			const imageUrl = configData?.icon_url ?? configData?.image_url ?? undefined;
+			const descriptionText = configData?.site_name ?? undefined;
+			const title = configData?.title ?? item.data.type ?? "Untitled";
 			return {
-				title: item.data.title ?? item.data.type ?? "Untitled",
+				title,
 				description: descriptionText,
 				imageUrl,
 				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
