@@ -3,8 +3,6 @@ import { type RefObject, useRef } from "react";
 import { useActionData, useOutletContext, useParams } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import { Text } from "@/components/common/typhography";
-import type { ExpandableCardItem } from "@/components/effects/expandable-card";
-import { ExpandableCard } from "@/components/effects/expandable-card";
 import Iphone from "@/components/effects/iphone";
 import { LocalizedLink } from "@/components/i18n/localized-link";
 import AddItemDrawer from "@/components/studio/add-item-drawer";
@@ -13,20 +11,22 @@ import PageDetailsEditor from "@/components/studio/page-details-editor";
 import ProfileImageUploader from "@/components/studio/profile-image-uploader";
 import { profileItemCardFallbackRenderer, profileItemCardRenderers } from "@/components/studio/profile-item-expandable-renderers";
 import ProfilePreviewFrame from "@/components/studio/profile-preview-frame";
+import SortableProfileItemList from "@/components/studio/sortable-profile-item-list";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { metadataConfig } from "@/config/metadata";
 import { useIframePreview } from "@/hooks/use-iframe-preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import {
+	handleItemsReorder,
 	handleLinkRemove,
 	handleLinkSave,
 	handleLinkToggle,
 	handleLinkUpdate,
-	handlePageDetails,
-	handlePageVisibility,
 	handleMediaSave,
 	handleMediaUpdate,
+	handlePageDetails,
+	handlePageVisibility,
 	handleRemoveImage,
 	handleSectionSave,
 	handleSectionUpdate,
@@ -38,8 +38,6 @@ import {
 import type { Route } from "./+types/($lang).studio.$handle.links";
 
 export type ActionData = PageProfileActionData;
-
-type ProfileItem = StudioOutletContext["profileItems"][number];
 
 export async function loader(args: Route.LoaderArgs) {
 	const { handle } = args.params;
@@ -82,6 +80,7 @@ export async function action(args: Route.ActionArgs) {
 		"section-update",
 		"media-save",
 		"media-update",
+		"items-reorder",
 	] as const;
 	type ValidIntent = (typeof validIntents)[number];
 
@@ -133,6 +132,8 @@ export async function action(args: Route.ActionArgs) {
 			return handleMediaSave({ formData, supabase });
 		case "media-update":
 			return handleMediaUpdate({ formData, supabase });
+		case "items-reorder":
+			return handleItemsReorder({ formData, supabase });
 		default:
 			// 타입 시스템에서 도달 불가능한 코드
 			return {
@@ -157,17 +158,11 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 		actionData,
 	});
 
-	const expandableItems: ExpandableCardItem<ProfileItem>[] = profileItems.map((item) => ({
-		id: item.id,
-		type: item.type,
-		data: item,
-	}));
-
 	return (
 		<section className="flex min-h-0 min-w-0 grow flex-col gap-6">
 			<article className="flex min-h-0 min-w-0 grow flex-col gap-5 xl:flex-row xl:justify-between">
 				{/* Left Column - Profile & Links */}
-				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 px-6 pt-14 pb-8 md:container md:mx-auto md:max-w-6xl md:px-8">
+				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 px-4 pt-14 pb-8 md:container md:mx-auto md:max-w-6xl md:px-4">
 					<div className="overflow-hidden">
 						<div className="flex items-center gap-2">
 							{/* Profile Image */}
@@ -182,7 +177,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 
 					<div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
 						{/* Section Header */}
-						<div className="mb-3 flex items-center justify-between px-1">
+						<div className="mb-3 flex items-center justify-between px-3">
 							<Text.H4>My Links</Text.H4>
 
 							<aside className="hidden md:block">
@@ -191,7 +186,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 						</div>
 
 						{/* Links List */}
-						<div className="scrollbar-hide flex min-h-0 min-w-0 flex-1 flex-col gap-5 overflow-y-scroll md:pb-16">
+						<div className="scrollbar-hide flex min-h-0 min-w-0 flex-1 flex-col gap-5 overflow-y-scroll px-2 md:pb-16">
 							{profileItems.length === 0 ? (
 								<Empty>
 									<EmptyHeader className="gap-1">
@@ -206,13 +201,12 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 									</EmptyContent>
 								</Empty>
 							) : (
-								<div className="min-w-0 space-y-1">
-									{expandableItems.map((item) => (
-										<div key={item.id} className="fade-in slide-in-from-bottom-1 min-w-0 animate-in">
-											<ExpandableCard item={item} renderers={profileItemCardRenderers} fallbackRenderer={profileItemCardFallbackRenderer} />
-										</div>
-									))}
-								</div>
+								<SortableProfileItemList
+									items={profileItems}
+									pageId={pageId}
+									renderers={profileItemCardRenderers}
+									fallbackRenderer={profileItemCardFallbackRenderer}
+								/>
 							)}
 						</div>
 					</div>

@@ -6,6 +6,7 @@ import {
 	handleLinkSave,
 	handleLinkToggle,
 	handleLinkUpdate,
+	handleItemsReorder,
 	handlePageVisibility,
 	handleSectionSave,
 	handleSectionUpdate,
@@ -351,6 +352,50 @@ describe("handleSectionUpdate", () => {
 			},
 			column: "id",
 			value: "item-1",
+		});
+	});
+});
+
+describe("handleItemsReorder", () => {
+	it("returns form error when page id is missing", async () => {
+		const formData = new FormData();
+		formData.append("orderedIds", "item-1");
+
+		const result = await handleItemsReorder({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("items-reorder");
+		expect(result.formError).toBe("Page id is required.");
+	});
+
+	it("returns form error when ordered ids are missing", async () => {
+		const formData = new FormData();
+		formData.set("pageId", "page-1");
+
+		const result = await handleItemsReorder({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("items-reorder");
+		expect(result.formError).toBe("At least one item is required.");
+	});
+
+	it("returns success when reorder succeeds", async () => {
+		const formData = new FormData();
+		formData.set("pageId", "page-1");
+		formData.append("orderedIds", "item-1");
+		formData.append("orderedIds", "item-2");
+
+		const { supabase, calls } = createSupabaseStub();
+		const result = await handleItemsReorder({ formData, supabase });
+
+		expect(result).toEqual({ success: true, intent: "items-reorder" });
+		expect(calls.rpc).toEqual({
+			fn: "reorder_page_items",
+			payload: { p_page_id: "page-1", p_ordered_ids: ["item-1", "item-2"] },
 		});
 	});
 });

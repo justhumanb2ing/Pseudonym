@@ -24,7 +24,8 @@ export type ActionIntent =
 	| "section-save"
 	| "section-update"
 	| "media-save"
-	| "media-update";
+	| "media-update"
+	| "items-reorder";
 
 export type PageProfileActionData = {
 	formError?: string;
@@ -102,6 +103,11 @@ const pageVisibilitySchema = z.object({
 		.refine((value) => value === "true" || value === "false", {
 			message: "Invalid visibility value.",
 	}),
+});
+
+const itemsReorderSchema = z.object({
+	pageId: z.string().min(1, "Page id is required."),
+	orderedIds: z.array(z.string().min(1, "Item id is required.")).min(1, "At least one item is required."),
 });
 
 export type PageProfileActionContext = {
@@ -224,6 +230,41 @@ export async function handlePageVisibility({ formData, supabase }: PageProfileAc
 	}
 
 	return { success: true, intent: "page-visibility" };
+}
+
+/**
+ * Persists profile item order updates from the profile page.
+ */
+export async function handleItemsReorder({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const orderedIds = formData
+		.getAll("orderedIds")
+		.map((value) => value.toString().trim())
+		.filter((value) => value.length > 0);
+
+	const pageIdValue = formData.get("pageId");
+	const parsed = itemsReorderSchema.safeParse({
+		pageId: typeof pageIdValue === "string" ? pageIdValue : "",
+		orderedIds,
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			formError: tree.properties?.pageId?.errors[0] ?? tree.properties?.orderedIds?.errors[0],
+			intent: "items-reorder",
+		};
+	}
+
+	const { error } = await supabase.rpc("reorder_page_items", {
+		p_page_id: parsed.data.pageId,
+		p_ordered_ids: parsed.data.orderedIds,
+	});
+
+	if (error) {
+		return { formError: error.message, intent: "items-reorder" };
+	}
+
+	return { success: true, intent: "items-reorder" };
 }
 
 /**
