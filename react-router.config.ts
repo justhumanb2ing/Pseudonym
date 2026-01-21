@@ -7,18 +7,18 @@ export default {
 		v8_middleware: true,
 	},
 	presets: [vercelPreset()],
-	prerender: [
-		// 홈페이지
-		"/",
-		// "/en",
-		// "/ko",
-		// // Changelog
-		// "/changelog",
-		// "/en/changelog",
-		// "/ko/changelog",
-		// // Feedback
-		// "/feedback",
-		// "/en/feedback",
-		// "/ko/feedback",
-	],
+	// prerender: [
+	// 	// 홈페이지
+	// 	// "/",
+	// 	// "/en",
+	// 	// "/ko",
+	// 	// // Changelog
+	// 	// "/changelog",
+	// 	// "/en/changelog",
+	// 	// "/ko/changelog",
+	// 	// // Feedback
+	// 	// "/feedback",
+	// 	// "/en/feedback",
+	// 	// "/ko/feedback",
+	// ],
 } satisfies Config;
