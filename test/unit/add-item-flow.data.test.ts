@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ITEM_TYPES } from "@/constants/add-item-flow.data";
+import { ITEM_TYPES } from "@/constants/item-types";
 
 describe("ITEM_TYPES", () => {
 	it("exposes unique item ids for tabs", () => {

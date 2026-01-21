@@ -42,10 +42,12 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 					{
 						title: "Links",
 						url: getLocalizedPath(lang, `/studio/${handle}/links`),
+						isEnabled: true,
 					},
 					{
 						title: "Design",
 						url: getLocalizedPath(lang, `/studio/${handle}/design`),
+						isEnabled: false,
 					},
 				],
 			},
@@ -55,11 +57,13 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 				title: "Insights",
 				url: getLocalizedPath(lang, `/studio/${handle}/insights`),
 				icon: ChartColumnIcon,
+				isEnabled: false,
 			},
 			{
 				title: "Settings",
 				url: getLocalizedPath(lang, `/studio/${handle}/settings`),
 				icon: SettingsIcon,
+				isEnabled: true,
 			},
 		],
 	};
@@ -101,10 +105,16 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 													<SidebarMenuSubItem key={subItem.title}>
 														<SidebarMenuSubButton
 															isActive={location.pathname === subItem.url}
+															aria-disabled={!subItem.isEnabled}
+															tabIndex={subItem.isEnabled ? 0 : -1}
 															render={
-																<LocalizedLink to={subItem.url}>
-																	<span>{subItem.title}</span>
-																</LocalizedLink>
+																subItem.isEnabled ? (
+																	<LocalizedLink to={subItem.url}>
+																		<span>{subItem.title}</span>
+																	</LocalizedLink>
+																) : (
+																	<span aria-disabled="true">{subItem.title}</span>
+																)
 															}
 														></SidebarMenuSubButton>
 													</SidebarMenuSubItem>
@@ -124,11 +134,20 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 								<SidebarMenuButton
 									isActive={location.pathname === item.url}
 									className="group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:[&_svg]:size-6"
+									aria-disabled={!item.isEnabled}
+									tabIndex={item.isEnabled ? 0 : -1}
 									render={
-										<LocalizedLink to={item.url}>
-											<item.icon />
-											<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
-										</LocalizedLink>
+										item.isEnabled ? (
+											<LocalizedLink to={item.url}>
+												<item.icon />
+												<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+											</LocalizedLink>
+										) : (
+											<span aria-disabled="true" className="flex items-center gap-2">
+												<item.icon />
+												<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+											</span>
+										)
 									}
 								></SidebarMenuButton>
 							</SidebarMenuItem>

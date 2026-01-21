@@ -7,7 +7,7 @@ import MediaSaveForm from "@/components/studio/media-save-form";
 import SectionSaveForm from "@/components/studio/section-save-form";
 import TextSaveForm from "@/components/studio/text-save-form";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { ITEM_TYPES, type ItemTypeId } from "@/constants/add-item-flow.data";
+import { ITEM_TYPES, type ItemTypeId } from "@/constants/item-types";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -58,11 +58,7 @@ export default function AddItemDrawer({ pageId, userId }: AddItemDrawerProps) {
 	return (
 		<Drawer open={open} onOpenChange={handleOpenChange}>
 			<DrawerTrigger asChild>
-				<Button
-					variant={"brand"}
-					size={isDesktop ? "default" : "lg"}
-					className={cn("w-full rounded-xl px-6 text-base text-white")}
-				>
+				<Button variant={"brand"} size={isDesktop ? "default" : "lg"} className={cn("w-full rounded-xl px-6 text-base text-white")}>
 					Add
 				</Button>
 			</DrawerTrigger>
@@ -123,10 +119,7 @@ export default function AddItemDrawer({ pageId, userId }: AddItemDrawerProps) {
 											)}
 										</div>
 									) : (
-										<ul
-											data-vaul-scrollable
-											className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
-										>
+										<ul data-vaul-scrollable className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
 											{ITEM_TYPES.map((item) => (
 												<li key={item.id}>
 													<Button variant="ghost" size="lg" onClick={() => handleSelectItem(item.id)} className="w-full justify-start">
