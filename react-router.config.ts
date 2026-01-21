@@ -10,15 +10,15 @@ export default {
 	prerender: [
 		// 홈페이지
 		"/",
-		"/en",
-		"/ko",
-		// Changelog
-		"/changelog",
-		"/en/changelog",
-		"/ko/changelog",
-		// Feedback
-		"/feedback",
-		"/en/feedback",
-		"/ko/feedback",
+		// "/en",
+		// "/ko",
+		// // Changelog
+		// "/changelog",
+		// "/en/changelog",
+		// "/ko/changelog",
+		// // Feedback
+		// "/feedback",
+		// "/en/feedback",
+		// "/ko/feedback",
 	],
 } satisfies Config;
