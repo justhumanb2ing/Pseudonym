@@ -60,12 +60,7 @@ export function SectionItemExpandedContent({ item }: { item: ProfileItem }) {
 				<Field>
 					<FieldContent>
 						<div className="relative">
-							<FieldLabel
-								htmlFor={`section-item-headline-${item.id}`}
-								className="pointer-events-none absolute top-0 left-0 z-10 w-full rounded-lg bg-muted pt-2 pl-3 text-muted-foreground text-sm"
-							>
-								Section
-							</FieldLabel>
+							
 							<Input
 								id={`section-item-headline-${item.id}`}
 								name="headline"
@@ -75,7 +70,7 @@ export function SectionItemExpandedContent({ item }: { item: ProfileItem }) {
 								required
 								maxLength={MAX_HEADLINE_LENGTH}
 								placeholder="Enter headline..."
-								className="h-12 rounded-lg border-0 px-3 pt-6"
+								className="h-12 rounded-lg border-0 px-3"
 								aria-invalid={isHeadlineMissing || isHeadlineTooLong}
 							/>
 						</div>
