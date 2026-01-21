@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useLoaderData, useLocation, useRevalidator } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import LinkItem from "@/components/page/link-item";
+import MapItem from "@/components/page/map-item";
 import MediaItem from "@/components/page/media-item";
 import SectionItem from "@/components/page/section-item";
 import TextItem from "@/components/page/text-item";
@@ -185,6 +186,9 @@ export default function UserProfileRoute() {
 						}
 						if (item.type === "media") {
 							return <MediaItem key={item.id} item={item} />;
+						}
+						if (item.type === "map") {
+							return <MapItem key={item.id} item={item} />;
 						}
 						return <LinkItem key={item.id} item={item} />;
 					})}

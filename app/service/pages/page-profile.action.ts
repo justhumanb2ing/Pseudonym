@@ -2,12 +2,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { normalizeLinkUrl } from "@/service/links/link-crawl";
 import { createLinkSaver } from "@/service/links/save-link";
+import { createMapSaver } from "@/service/maps/save-map";
 import { createMediaSaver } from "@/service/media/save-media";
 import { createSectionSaver } from "@/service/sections/save-section";
 import { createTextSaver } from "@/service/texts/save-text";
 import { normalizePageDetails, pageDetailsSchema } from "@/service/pages/page-details";
 import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/page-image";
 import { normalizeOptionalText, pageMediaSaveSchema, pageMediaUpdateSchema } from "@/service/pages/page-media";
+import { buildGoogleMapsHref } from "@/lib/map";
 import type { Database } from "../../../types/database.types";
 
 export type ActionIntent =
@@ -19,6 +21,8 @@ export type ActionIntent =
 	| "link-remove"
 	| "link-update"
 	| "link-toggle"
+	| "map-save"
+	| "map-update"
 	| "text-save"
 	| "text-update"
 	| "section-save"
@@ -45,6 +49,22 @@ export type PageProfileActionData = {
 const linkSaveSchema = z.object({
 	pageId: z.string().min(1, "Page id is required."),
 	url: z.string().trim().min(1, "URL is required."),
+});
+
+const mapSaveSchema = z.object({
+	pageId: z.string().min(1, "Page id is required."),
+	lat: z.coerce.number().min(-90).max(90),
+	lng: z.coerce.number().min(-180).max(180),
+	zoom: z.coerce.number().min(0).max(22),
+	caption: z.string().trim().optional().nullable(),
+});
+
+const mapUpdateSchema = z.object({
+	itemId: z.string().min(1, "Item id is required."),
+	lat: z.coerce.number().min(-90).max(90),
+	lng: z.coerce.number().min(-180).max(180),
+	zoom: z.coerce.number().min(0).max(22),
+	caption: z.string().trim().optional().nullable(),
 });
 
 const textSaveSchema = z.object({
@@ -544,6 +564,117 @@ export async function handleMediaSave({ formData, supabase }: PageProfileActionC
 	}
 
 	return { success: true, intent: "media-save" };
+}
+
+/**
+ * Saves a map item from the profile page.
+ */
+export async function handleMapSave({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = mapSaveSchema.safeParse({
+		pageId: formData.get("pageId"),
+		lat: formData.get("lat"),
+		lng: formData.get("lng"),
+		zoom: formData.get("zoom"),
+		caption: formData.get("caption"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			formError:
+				tree.properties?.pageId?.errors[0] ??
+				tree.properties?.lat?.errors[0] ??
+				tree.properties?.lng?.errors[0] ??
+				tree.properties?.zoom?.errors[0],
+			intent: "map-save",
+		};
+	}
+
+	const saveMap = createMapSaver(Promise.resolve(supabase));
+
+	try {
+		await saveMap({
+			pageId: parsed.data.pageId,
+			center: [parsed.data.lng, parsed.data.lat],
+			zoom: parsed.data.zoom,
+			caption: normalizeOptionalText(parsed.data.caption ?? null),
+		});
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to save map.",
+			intent: "map-save",
+		};
+	}
+
+	return { success: true, intent: "map-save" };
+}
+
+/**
+ * Updates a map item from the profile page.
+ */
+export async function handleMapUpdate({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = mapUpdateSchema.safeParse({
+		itemId: formData.get("itemId"),
+		lat: formData.get("lat"),
+		lng: formData.get("lng"),
+		zoom: formData.get("zoom"),
+		caption: formData.get("caption"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			formError:
+				tree.properties?.itemId?.errors[0] ??
+				tree.properties?.lat?.errors[0] ??
+				tree.properties?.lng?.errors[0] ??
+				tree.properties?.zoom?.errors[0],
+			intent: "map-update",
+		};
+	}
+
+	const { data: profileItem, error: itemError } = await supabase
+		.from("profile_items")
+		.select("config")
+		.eq("id", parsed.data.itemId)
+		.maybeSingle();
+
+	if (itemError) {
+		return { formError: itemError.message, intent: "map-update", itemId: parsed.data.itemId };
+	}
+
+	const rawConfig = profileItem?.config;
+	const configObject =
+		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
+	const rawConfigData = configObject.data;
+	const configData =
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
+			? (rawConfigData as Record<string, unknown>)
+			: {};
+	const nextCenter: [number, number] = [parsed.data.lng, parsed.data.lat];
+
+	const { error: updateError } = await supabase
+		.from("profile_items")
+		.update({
+			config: {
+				...configObject,
+				data: {
+					...configData,
+					url: buildGoogleMapsHref(nextCenter, parsed.data.zoom),
+					caption: normalizeOptionalText(parsed.data.caption ?? null),
+					lat: parsed.data.lat,
+					lng: parsed.data.lng,
+					zoom: parsed.data.zoom,
+				},
+			},
+		})
+		.eq("id", parsed.data.itemId);
+
+	if (updateError) {
+		return { formError: updateError.message, intent: "map-update", itemId: parsed.data.itemId };
+	}
+
+	return { success: true, intent: "map-update", itemId: parsed.data.itemId };
 }
 
 /**

@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Activity } from "@/components/common/activity";
 import LinkSaveForm from "@/components/studio/link-save-form";
+import MapSaveForm from "@/components/studio/map-save-form";
 import MediaSaveForm from "@/components/studio/media-save-form";
 import SectionSaveForm from "@/components/studio/section-save-form";
 import TextSaveForm from "@/components/studio/text-save-form";
@@ -62,7 +63,7 @@ export default function AddItemDrawer({ pageId, userId }: AddItemDrawerProps) {
 					Add
 				</Button>
 			</DrawerTrigger>
-			<DrawerContent className="max-h-[560px] overflow-hidden">
+			<DrawerContent className="max-h-[100dvh] overflow-hidden data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:max-h-[100dvh]">
 				<motion.div
 					layout="size"
 					className="flex min-h-0 flex-col overflow-hidden"
@@ -114,6 +115,8 @@ export default function AddItemDrawer({ pageId, userId }: AddItemDrawerProps) {
 												<TextSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
 											) : selectedItemType === "image/video" ? (
 												<MediaSaveForm pageId={pageId} userId={userId} onSuccess={handleSuccess} onCancel={handleBack} />
+											) : selectedItemType === "map" ? (
+												<MapSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
 											) : (
 												<ItemTypePlaceholder title={detailTitle} description={selectedItem?.description} />
 											)}

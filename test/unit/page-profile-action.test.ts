@@ -7,6 +7,8 @@ import {
 	handleLinkToggle,
 	handleLinkUpdate,
 	handleItemsReorder,
+	handleMapSave,
+	handleMapUpdate,
 	handlePageVisibility,
 	handleSectionSave,
 	handleSectionUpdate,
@@ -265,6 +267,107 @@ describe("handlePageVisibility", () => {
 			payload: { is_public: false },
 			column: "id",
 			value: "page-1",
+		});
+	});
+});
+
+describe("handleMapSave", () => {
+	it("returns form errors when required values are missing", async () => {
+		const formData = new FormData();
+		formData.set("pageId", "");
+
+		const result = await handleMapSave({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("map-save");
+		expect(result.formError).toBe("Page id is required.");
+	});
+
+	it("returns success when map save succeeds", async () => {
+		const formData = new FormData();
+		formData.set("pageId", "page-1");
+		formData.set("lat", "37.571728994548224");
+		formData.set("lng", "126.99115832321161");
+		formData.set("zoom", "10.1");
+		formData.set("caption", "City Center");
+
+		const { supabase, calls } = createSupabaseStub();
+		const result = await handleMapSave({ formData, supabase });
+
+		expect(result).toEqual({ success: true, intent: "map-save" });
+		expect(calls.rpc).toEqual({
+			fn: "add_page_item",
+			payload: {
+				p_page_id: "page-1",
+				p_type: "map",
+				p_is_active: true,
+				p_config: {
+					data: {
+						url: "https://www.google.com/maps/@37.571728994548224,126.99115832321161,10.1z",
+						caption: "City Center",
+						lat: 37.571728994548224,
+						lng: 126.99115832321161,
+						zoom: 10.1,
+					},
+				},
+			},
+		});
+	});
+});
+
+describe("handleMapUpdate", () => {
+	it("returns form errors when required values are missing", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "");
+
+		const result = await handleMapUpdate({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("map-update");
+		expect(result.formError).toBe("Item id is required.");
+	});
+
+	it("returns success when map update succeeds", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "item-1");
+		formData.set("lat", "34.048051");
+		formData.set("lng", "-118.254187");
+		formData.set("zoom", "13");
+		formData.set("caption", "Los Angeles");
+
+		const { supabase, calls } = createSupabaseStub({
+			config: {
+				data: {
+					caption: "Old",
+					lat: 0,
+					lng: 0,
+					zoom: 1,
+					url: "https://example.com",
+				},
+			},
+		});
+		const result = await handleMapUpdate({ formData, supabase });
+
+		expect(result).toEqual({ success: true, intent: "map-update", itemId: "item-1" });
+		expect(calls.update).toEqual({
+			table: "profile_items",
+			payload: {
+				config: {
+					data: {
+						caption: "Los Angeles",
+						lat: 34.048051,
+						lng: -118.254187,
+						zoom: 13,
+						url: "https://www.google.com/maps/@34.048051,-118.254187,13z",
+					},
+				},
+			},
+			column: "id",
+			value: "item-1",
 		});
 	});
 });

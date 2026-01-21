@@ -2,6 +2,7 @@ import type { StudioOutletContext } from "types/studio.types";
 import type { ExpandableCardRenderer } from "@/components/effects/expandable-card";
 import ProfileItemActiveSwitch from "@/components/studio/profile-item-active-switch";
 import { MediaItemExpandedContent } from "@/components/studio/media-item-expanded-content";
+import { MapItemExpandedContent } from "@/components/studio/map-item-expanded-content";
 import { ProfileItemExpandedContent } from "@/components/studio/profile-item-expanded-content";
 import { SectionItemExpandedContent } from "@/components/studio/section-item-expanded-content";
 import { TextItemExpandedContent } from "@/components/studio/text-item-expanded-content";
@@ -101,6 +102,27 @@ export const profileItemCardRenderers: Record<string, ExpandableCardRenderer<Pro
 				imageUrl: mediaType === "image" ? (configData?.media_url ?? undefined) : undefined,
 				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
 				content: <MediaItemExpandedContent item={item.data} />,
+			};
+		},
+	},
+	map: {
+		summary: (item) => {
+			const configData = item.data.config?.data;
+			const caption = configData?.caption?.trim();
+			const title = caption ? `${caption}` : "Location";
+			return {
+				title,
+				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
+			};
+		},
+		expanded: (item) => {
+			const configData = item.data.config?.data;
+			const caption = configData?.caption?.trim();
+			const title = caption ? `Location (${caption})` : "Location";
+			return {
+				title,
+				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
+				content: <MapItemExpandedContent item={item.data} />,
 			};
 		},
 	},

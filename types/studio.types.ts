@@ -12,6 +12,9 @@ type ProfileItemConfig = {
 		media_type?: "image" | "video";
 		media_url?: string | null;
 		caption?: string | null;
+		lat?: number;
+		lng?: number;
+		zoom?: number;
 	} | null;
 	[key: string]: Json | undefined;
 };

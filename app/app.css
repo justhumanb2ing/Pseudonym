@@ -78,6 +78,14 @@
 		0 0.5px 2.125px rgba(0, 0, 0, 0.01);
 }
 
+.mapboxgl-ctrl-logo {
+  display: hidden;
+}
+
+.map-wrapper .mapboxgl-control-container {
+  display: none !important;
+}
+
 @theme inline {
 	--font-sans: var(--font-sans);
 	--font-mono: var(--font-mono);
@@ -207,13 +215,4 @@
 	--brand: oklch(0.61 0.2285 9.73);
 	--surface: oklch(0.209 0 0);
 	--destructive-foreground: var(--color-red-400);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-	}
-  body {
-    @apply bg-background text-foreground;
-	}
 }

@@ -23,6 +23,8 @@ import {
 	handleLinkSave,
 	handleLinkToggle,
 	handleLinkUpdate,
+	handleMapSave,
+	handleMapUpdate,
 	handleMediaSave,
 	handleMediaUpdate,
 	handlePageDetails,
@@ -74,6 +76,8 @@ export async function action(args: Route.ActionArgs) {
 		"link-remove",
 		"link-update",
 		"link-toggle",
+		"map-save",
+		"map-update",
 		"text-save",
 		"text-update",
 		"section-save",
@@ -120,6 +124,10 @@ export async function action(args: Route.ActionArgs) {
 			return handleLinkToggle({ formData, supabase });
 		case "page-details":
 			return handlePageDetails({ formData, supabase });
+		case "map-save":
+			return handleMapSave({ formData, supabase });
+		case "map-update":
+			return handleMapUpdate({ formData, supabase });
 		case "text-save":
 			return handleTextSave({ formData, supabase });
 		case "text-update":
