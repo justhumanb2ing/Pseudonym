@@ -81,10 +81,10 @@ export default function AddItemDrawer({ pageId, userId }: AddItemDrawerProps) {
 								>
 									<ChevronLeft className="size-6" />
 								</Button>
-								<DrawerTitle className="font-semibold text-base md:text-xl">{detailTitle}</DrawerTitle>
+								<DrawerTitle className="font-semibold text-lg md:text-xl">{detailTitle}</DrawerTitle>
 							</div>
 						) : (
-							<DrawerTitle className="font-semibold text-base md:text-xl">Select type</DrawerTitle>
+							<DrawerTitle className="font-semibold text-lg md:text-xl">Select type</DrawerTitle>
 						)}
 					</DrawerHeader>
 					<section className="flex min-h-0 flex-1 flex-col overflow-hidden p-2">
@@ -119,12 +119,14 @@ export default function AddItemDrawer({ pageId, userId }: AddItemDrawerProps) {
 											)}
 										</div>
 									) : (
-										<ul data-vaul-scrollable className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
+										<ul data-vaul-scrollable className="scrollbar-hide grid min-h-0 flex-1 grid-cols-2 gap-2 overflow-y-auto">
 											{ITEM_TYPES.map((item) => (
 												<li key={item.id}>
-													<Button variant="ghost" size="lg" onClick={() => handleSelectItem(item.id)} className="w-full justify-start">
-														{item.title}
-													</Button>
+													<motion.div whileTap={{ scale: 0.95 }}>
+														<Button variant="ghost" size="lg" onClick={() => handleSelectItem(item.id)} className="w-full justify-start">
+															{item.title}
+														</Button>
+													</motion.div>
 												</li>
 											))}
 										</ul>
