@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLocalizedPath } from "@/utils/localized-path";
 import UserDropdown from "../auth/user-dropdown";
+import { LocalizedLink } from "../i18n/localized-link";
 import PageVisibilityToggle from "../studio/page-visibility-toggle";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import Logo from "./logo";
@@ -101,9 +102,9 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 														<SidebarMenuSubButton
 															isActive={location.pathname === subItem.url}
 															render={
-																<a href={subItem.url}>
+																<LocalizedLink to={subItem.url}>
 																	<span>{subItem.title}</span>
-																</a>
+																</LocalizedLink>
 															}
 														></SidebarMenuSubButton>
 													</SidebarMenuSubItem>
