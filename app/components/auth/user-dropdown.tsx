@@ -6,12 +6,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Spinner } from "@/components/ui/spinner";
 import { getUmamiEventAttributes } from "@/lib/umami";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
+import { Skeleton } from "../ui/skeleton";
 
 export default function UserDropdown() {
 	const { user, isLoaded } = useUser();
 
 	if (!isLoaded) {
-		return <Spinner />;
+		return <Skeleton className="h-8 w-full rounded-lg" />;
 	}
 
 	if (!user) {
