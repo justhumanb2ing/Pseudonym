@@ -18,7 +18,7 @@ export default function Providers({ children }: Readonly<{ children: React.React
 
 	return (
 		<IntlayerProvider>
-			<ToastProvider position="bottom-center" timeout={5000}>
+			<ToastProvider position="top-center" timeout={5000}>
 				<AnchoredToastProvider>
 					<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 						{children}

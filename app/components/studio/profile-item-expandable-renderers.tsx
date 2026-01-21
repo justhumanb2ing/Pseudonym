@@ -1,6 +1,7 @@
 import type { StudioOutletContext } from "types/studio.types";
 import type { ExpandableCardRenderer } from "@/components/effects/expandable-card";
 import ProfileItemActiveSwitch from "@/components/studio/profile-item-active-switch";
+import { MediaItemExpandedContent } from "@/components/studio/media-item-expanded-content";
 import { ProfileItemExpandedContent } from "@/components/studio/profile-item-expanded-content";
 import { SectionItemExpandedContent } from "@/components/studio/section-item-expanded-content";
 import { TextItemExpandedContent } from "@/components/studio/text-item-expanded-content";
@@ -75,6 +76,31 @@ export const profileItemCardRenderers: Record<string, ExpandableCardRenderer<Pro
 				expandedTitleClassName: "font-bold",
 				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
 				content: <SectionItemExpandedContent item={item.data} />,
+			};
+		},
+	},
+	media: {
+		summary: (item) => {
+			const configData = item.data.config?.data;
+			const mediaType = configData?.media_type ?? "image";
+			const title = configData?.caption?.trim() || (mediaType === "video" ? "Video" : "Image");
+			return {
+				title,
+				description: configData?.url ?? undefined,
+				imageUrl: mediaType === "image" ? (configData?.media_url ?? undefined) : undefined,
+				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
+			};
+		},
+		expanded: (item) => {
+			const configData = item.data.config?.data;
+			const mediaType = configData?.media_type ?? "image";
+			const title = configData?.caption?.trim() || (mediaType === "video" ? "Video" : "Image");
+			return {
+				title,
+				description: configData?.url ?? undefined,
+				imageUrl: mediaType === "image" ? (configData?.media_url ?? undefined) : undefined,
+				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
+				content: <MediaItemExpandedContent item={item.data} />,
 			};
 		},
 	},

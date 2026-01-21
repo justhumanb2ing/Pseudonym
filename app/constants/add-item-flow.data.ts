@@ -24,7 +24,7 @@ export const ITEM_TYPES: ItemType[] = [
 	},
 	{
 		id: "image/video",
-		title: "Image / Viedo",
+		title: "Image & Video",
 		description: "Upload a visual highlight.",
 	},
 	{

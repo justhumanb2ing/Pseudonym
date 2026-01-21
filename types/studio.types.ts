@@ -9,6 +9,9 @@ type ProfileItemConfig = {
 		site_name?: string | null;
 		icon_url?: string | null;
 		image_url?: string | null;
+		media_type?: "image" | "video";
+		media_url?: string | null;
+		caption?: string | null;
 	} | null;
 	[key: string]: Json | undefined;
 };

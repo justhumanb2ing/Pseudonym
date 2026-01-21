@@ -25,6 +25,8 @@ import {
 	handleLinkUpdate,
 	handlePageDetails,
 	handlePageVisibility,
+	handleMediaSave,
+	handleMediaUpdate,
 	handleRemoveImage,
 	handleSectionSave,
 	handleSectionUpdate,
@@ -78,6 +80,8 @@ export async function action(args: Route.ActionArgs) {
 		"text-update",
 		"section-save",
 		"section-update",
+		"media-save",
+		"media-update",
 	] as const;
 	type ValidIntent = (typeof validIntents)[number];
 
@@ -125,6 +129,10 @@ export async function action(args: Route.ActionArgs) {
 			return handleSectionSave({ formData, supabase });
 		case "section-update":
 			return handleSectionUpdate({ formData, supabase });
+		case "media-save":
+			return handleMediaSave({ formData, supabase });
+		case "media-update":
+			return handleMediaUpdate({ formData, supabase });
 		default:
 			// 타입 시스템에서 도달 불가능한 코드
 			return {
@@ -178,7 +186,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 							<Text.H4>My Links</Text.H4>
 
 							<aside className="hidden md:block">
-								<AddItemDrawer pageId={pageId} />
+								<AddItemDrawer pageId={pageId} userId={owner_id} />
 							</aside>
 						</div>
 
@@ -194,7 +202,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 										<EmptyDescription className="text-xs/relaxed">There's no link yet. Add yours!</EmptyDescription>
 									</EmptyHeader>
 									<EmptyContent className="w-fit">
-										<AddItemDrawer pageId={pageId} />
+										<AddItemDrawer pageId={pageId} userId={owner_id} />
 									</EmptyContent>
 								</Empty>
 							) : (
@@ -244,7 +252,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 				<div className="pointer-events-auto relative mx-auto flex w-full items-center gap-3 px-4 pt-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
 					<MobileProfilePreviewButton handle={handle} lang={lang} />
 					<aside className="flex-1 basis-0">
-						<AddItemDrawer pageId={pageId} />
+						<AddItemDrawer pageId={pageId} userId={owner_id} />
 					</aside>
 				</div>
 			</div>

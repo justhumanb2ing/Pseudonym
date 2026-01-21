@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Activity } from "@/components/common/activity";
 import LinkSaveForm from "@/components/studio/link-save-form";
+import MediaSaveForm from "@/components/studio/media-save-form";
 import SectionSaveForm from "@/components/studio/section-save-form";
 import TextSaveForm from "@/components/studio/text-save-form";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
@@ -13,10 +14,11 @@ import { Button } from "../ui/button";
 
 type AddItemDrawerProps = {
 	pageId: string;
+	userId: string;
 };
 
 const DEFAULT_DIRECTION = 1;
-export default function AddItemDrawer({ pageId }: AddItemDrawerProps) {
+export default function AddItemDrawer({ pageId, userId }: AddItemDrawerProps) {
 	const [open, setOpen] = useState(false);
 	const [selectedItemType, setSelectedItemType] = useState<ItemTypeId | null>(null);
 	const [direction, setDirection] = useState<1 | -1>(DEFAULT_DIRECTION);
@@ -114,6 +116,8 @@ export default function AddItemDrawer({ pageId }: AddItemDrawerProps) {
 												<SectionSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
 											) : selectedItemType === "text" ? (
 												<TextSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
+											) : selectedItemType === "image/video" ? (
+												<MediaSaveForm pageId={pageId} userId={userId} onSuccess={handleSuccess} onCancel={handleBack} />
 											) : (
 												<ItemTypePlaceholder title={detailTitle} description={selectedItem?.description} />
 											)}

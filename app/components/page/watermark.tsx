@@ -2,7 +2,7 @@ export default function Watermark({ isWatermarkEnabled = true }: { isWatermarkEn
 	if (!isWatermarkEnabled) return null;
 
 	return (
-		<p className="text-base/relaxed">
+		<p className="text-sm/relaxed">
 			Made with{" "}
 			<a href="/" className="font-medium hover:underline">
 				Venus

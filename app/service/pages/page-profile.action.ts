@@ -2,10 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { normalizeLinkUrl } from "@/service/links/link-crawl";
 import { createLinkSaver } from "@/service/links/save-link";
+import { createMediaSaver } from "@/service/media/save-media";
 import { createSectionSaver } from "@/service/sections/save-section";
 import { createTextSaver } from "@/service/texts/save-text";
 import { normalizePageDetails, pageDetailsSchema } from "@/service/pages/page-details";
 import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/page-image";
+import { normalizeOptionalText, pageMediaSaveSchema, pageMediaUpdateSchema } from "@/service/pages/page-media";
 import type { Database } from "../../../types/database.types";
 
 export type ActionIntent =
@@ -20,7 +22,9 @@ export type ActionIntent =
 	| "text-save"
 	| "text-update"
 	| "section-save"
-	| "section-update";
+	| "section-update"
+	| "media-save"
+	| "media-update";
 
 export type PageProfileActionData = {
 	formError?: string;
@@ -97,7 +101,7 @@ const pageVisibilitySchema = z.object({
 		.min(1, "Visibility value is required.")
 		.refine((value) => value === "true" || value === "false", {
 			message: "Invalid visibility value.",
-		}),
+	}),
 });
 
 export type PageProfileActionContext = {
@@ -462,6 +466,46 @@ export async function handleSectionSave({ formData, supabase }: PageProfileActio
 }
 
 /**
+ * Saves an image/video item from the profile page.
+ */
+export async function handleMediaSave({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = pageMediaSaveSchema.safeParse({
+		pageId: formData.get("pageId"),
+		mediaUrl: formData.get("mediaUrl"),
+		mediaType: formData.get("mediaType"),
+		caption: formData.get("caption"),
+		url: formData.get("url"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			formError: tree.properties?.pageId?.errors[0] ?? tree.properties?.mediaUrl?.errors[0] ?? tree.properties?.mediaType?.errors[0],
+			intent: "media-save",
+		};
+	}
+
+	const saveMedia = createMediaSaver(Promise.resolve(supabase));
+
+	try {
+		await saveMedia({
+			pageId: parsed.data.pageId,
+			mediaUrl: parsed.data.mediaUrl,
+			mediaType: parsed.data.mediaType,
+			caption: normalizeOptionalText(formData.get("caption")),
+			url: normalizeOptionalText(formData.get("url")),
+		});
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to save media.",
+			intent: "media-save",
+		};
+	}
+
+	return { success: true, intent: "media-save" };
+}
+
+/**
  * Updates a text item title from the profile page.
  */
 export async function handleTextUpdate({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
@@ -519,6 +563,64 @@ export async function handleTextUpdate({ formData, supabase }: PageProfileAction
 	}
 
 	return { success: true, intent: "text-update", itemId: parsed.data.itemId };
+}
+
+/**
+ * Updates a media item caption/url from the profile page.
+ */
+export async function handleMediaUpdate({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = pageMediaUpdateSchema.safeParse({
+		itemId: formData.get("itemId"),
+		caption: formData.get("caption"),
+		url: formData.get("url"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			formError: tree.properties?.itemId?.errors[0],
+			intent: "media-update",
+		};
+	}
+
+	const { data: profileItem, error: itemError } = await supabase
+		.from("profile_items")
+		.select("config")
+		.eq("id", parsed.data.itemId)
+		.maybeSingle();
+
+	if (itemError) {
+		return { formError: itemError.message, intent: "media-update", itemId: parsed.data.itemId };
+	}
+
+	const rawConfig = profileItem?.config;
+	const configObject =
+		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
+	const rawConfigData = configObject.data;
+	const configData =
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
+			? (rawConfigData as Record<string, unknown>)
+			: {};
+
+	const { error: updateError } = await supabase
+		.from("profile_items")
+		.update({
+			config: {
+				...configObject,
+				data: {
+					...configData,
+					caption: normalizeOptionalText(formData.get("caption")),
+					url: normalizeOptionalText(formData.get("url")),
+				},
+			},
+		})
+		.eq("id", parsed.data.itemId);
+
+	if (updateError) {
+		return { formError: updateError.message, intent: "media-update", itemId: parsed.data.itemId };
+	}
+
+	return { success: true, intent: "media-update", itemId: parsed.data.itemId };
 }
 
 /**
