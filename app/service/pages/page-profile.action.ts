@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { normalizeLinkUrl } from "@/service/links/link-crawl";
 import { createLinkSaver } from "@/service/links/save-link";
+import { createSectionSaver } from "@/service/sections/save-section";
 import { createTextSaver } from "@/service/texts/save-text";
 import { normalizePageDetails, pageDetailsSchema } from "@/service/pages/page-details";
 import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/page-image";
@@ -17,12 +18,15 @@ export type ActionIntent =
 	| "link-update"
 	| "link-toggle"
 	| "text-save"
-	| "text-update";
+	| "text-update"
+	| "section-save"
+	| "section-update";
 
 export type PageProfileActionData = {
 	formError?: string;
 	fieldErrors?: {
 		title?: string;
+		headline?: string;
 		description?: string;
 		url?: string;
 		itemId?: string;
@@ -43,9 +47,27 @@ const textSaveSchema = z.object({
 	title: z.string().trim().min(1, "Text is required."),
 });
 
+const sectionSaveSchema = z.object({
+	pageId: z.string().min(1, "Page id is required."),
+	headline: z
+		.string()
+		.trim()
+		.min(1, "Headline is required.")
+		.max(50, "Headline must be 50 characters or less."),
+});
+
 const textUpdateSchema = z.object({
 	itemId: z.string().min(1, "Item id is required."),
 	title: z.string().trim().min(1, "Text is required."),
+});
+
+const sectionUpdateSchema = z.object({
+	itemId: z.string().min(1, "Item id is required."),
+	headline: z
+		.string()
+		.trim()
+		.min(1, "Headline is required.")
+		.max(50, "Headline must be 50 characters or less."),
 });
 
 const linkRemoveSchema = z.object({
@@ -403,6 +425,43 @@ export async function handleTextSave({ formData, supabase }: PageProfileActionCo
 }
 
 /**
+ * Saves a section item from the profile page.
+ */
+export async function handleSectionSave({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = sectionSaveSchema.safeParse({
+		pageId: formData.get("pageId"),
+		headline: formData.get("headline"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			fieldErrors: {
+				headline: tree.properties?.headline?.errors[0],
+			},
+			formError: tree.properties?.pageId?.errors[0],
+			intent: "section-save",
+		};
+	}
+
+	const saveSection = createSectionSaver(Promise.resolve(supabase));
+
+	try {
+		await saveSection({
+			pageId: parsed.data.pageId,
+			headline: parsed.data.headline,
+		});
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to save section.",
+			intent: "section-save",
+		};
+	}
+
+	return { success: true, intent: "section-save" };
+}
+
+/**
  * Updates a text item title from the profile page.
  */
 export async function handleTextUpdate({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
@@ -460,4 +519,64 @@ export async function handleTextUpdate({ formData, supabase }: PageProfileAction
 	}
 
 	return { success: true, intent: "text-update", itemId: parsed.data.itemId };
+}
+
+/**
+ * Updates a section item headline from the profile page.
+ */
+export async function handleSectionUpdate({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = sectionUpdateSchema.safeParse({
+		itemId: formData.get("itemId"),
+		headline: formData.get("headline"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			fieldErrors: {
+				itemId: tree.properties?.itemId?.errors[0],
+				headline: tree.properties?.headline?.errors[0],
+			},
+			formError: tree.properties?.itemId?.errors[0] ?? tree.properties?.headline?.errors[0],
+			intent: "section-update",
+		};
+	}
+
+	const { data: profileItem, error: itemError } = await supabase
+		.from("profile_items")
+		.select("config")
+		.eq("id", parsed.data.itemId)
+		.maybeSingle();
+
+	if (itemError) {
+		return { formError: itemError.message, intent: "section-update", itemId: parsed.data.itemId };
+	}
+
+	const rawConfig = profileItem?.config;
+	const configObject =
+		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
+	const rawConfigData = configObject.data;
+	const configData =
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
+			? (rawConfigData as Record<string, unknown>)
+			: {};
+
+	const { error: updateError } = await supabase
+		.from("profile_items")
+		.update({
+			config: {
+				...configObject,
+				data: {
+					...configData,
+					headline: parsed.data.headline,
+				},
+			},
+		})
+		.eq("id", parsed.data.itemId);
+
+	if (updateError) {
+		return { formError: updateError.message, intent: "section-update", itemId: parsed.data.itemId };
+	}
+
+	return { success: true, intent: "section-update", itemId: parsed.data.itemId };
 }

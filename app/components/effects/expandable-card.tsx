@@ -13,6 +13,7 @@ export type ExpandableCardItem<T = unknown> = {
 export type ExpandableCardView = {
 	title?: string;
 	titleClassName?: string;
+	expandedTitleClassName?: string;
 	description?: string;
 	imageUrl?: string;
 	ctaContent?: ReactNode;
@@ -46,6 +47,8 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 	const [active, setActive] = useState<ExpandableCardItem<T> | null>(null);
 	const ref = useRef<HTMLDivElement | null>(null);
 	const id = useId();
+	const isSectionItem = item.type === "section";
+	const isActiveSectionItem = active?.type === "section";
 
 	useEffect(() => {
 		function onKeyDown(event: KeyboardEvent) {
@@ -121,7 +124,14 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 											</motion.div>
 										) : null}
 										<div className="flex min-w-0 flex-col">
-											<motion.h3 layoutId={`title-${active.id}-${id}`} className="w-full truncate font-medium text-sm md:text-base">
+											<motion.h3
+												layoutId={`title-${active.id}-${id}`}
+												className={cn(
+													"w-full truncate font-medium",
+													isActiveSectionItem ? "text-xl" : "text-sm md:text-base",
+													activeExpanded?.expandedTitleClassName,
+												)}
+											>
 												{activeExpanded?.title}
 											</motion.h3>
 											{activeExpanded?.description ? (
@@ -186,7 +196,11 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 					<div className="min-w-0 flex-1 overflow-hidden">
 						<motion.h3
 							layoutId={`title-${item.id}-${id}`}
-							className={cn("w-full font-medium text-sm md:text-base", summary.titleClassName ?? "truncate")}
+							className={cn(
+								"w-full font-medium",
+								isSectionItem ? "text-lg" : "text-sm md:text-base",
+								summary.titleClassName ?? "truncate",
+							)}
 						>
 							{summary.title}
 						</motion.h3>

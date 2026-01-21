@@ -1,4 +1,4 @@
-export type ItemTypeId = "link" | "image" | "map" | "video" | "playlist" | "text";
+export type ItemTypeId = "link" | "image/video" | "map" | "playlist" | "text" | "section";
 
 export type ItemType = {
 	id: ItemTypeId;
@@ -13,8 +13,18 @@ export const ITEM_TYPES: ItemType[] = [
 		description: "Add a website or resource.",
 	},
 	{
-		id: "image",
-		title: "Image",
+		id: "text",
+		title: "Note",
+		description: "Add a simple text note.",
+	},
+	{
+		id: "section",
+		title: "Section",
+		description: "Add a section headline.",
+	},
+	{
+		id: "image/video",
+		title: "Image / Viedo",
 		description: "Upload a visual highlight.",
 	},
 	{
@@ -23,18 +33,8 @@ export const ITEM_TYPES: ItemType[] = [
 		description: "Pin a location.",
 	},
 	{
-		id: "video",
-		title: "Video",
-		description: "Embed a video.",
-	},
-	{
 		id: "playlist",
 		title: "Playlist",
 		description: "Share a collection.",
-	},
-	{
-		id: "text",
-		title: "Note",
-		description: "Add a simple text note.",
 	},
 ];

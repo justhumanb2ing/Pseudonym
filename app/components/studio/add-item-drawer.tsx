@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Activity } from "@/components/common/activity";
 import LinkSaveForm from "@/components/studio/link-save-form";
+import SectionSaveForm from "@/components/studio/section-save-form";
 import TextSaveForm from "@/components/studio/text-save-form";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { ITEM_TYPES, type ItemTypeId } from "@/constants/add-item-flow.data";
@@ -15,7 +16,6 @@ type AddItemDrawerProps = {
 };
 
 const DEFAULT_DIRECTION = 1;
-
 export default function AddItemDrawer({ pageId }: AddItemDrawerProps) {
 	const [open, setOpen] = useState(false);
 	const [selectedItemType, setSelectedItemType] = useState<ItemTypeId | null>(null);
@@ -89,12 +89,12 @@ export default function AddItemDrawer({ pageId }: AddItemDrawerProps) {
 							<DrawerTitle className="font-semibold text-base md:text-xl">Select type</DrawerTitle>
 						)}
 					</DrawerHeader>
-					<section className="min-h-0 flex-1 overflow-hidden p-2">
+					<section className="flex min-h-0 flex-1 flex-col overflow-hidden p-2">
 						<AnimatePresence mode="wait" initial={false}>
 							<motion.div
 								key={isDetailView ? `detail-${selectedItemType ?? "unknown"}` : "item-select"}
 								layout
-								className="h-full"
+								className="flex min-h-0 flex-1 flex-col"
 								initial={{ opacity: 0, y: 8 }}
 								animate={{ opacity: 1, y: 0 }}
 								exit={{ opacity: 0, y: -8 }}
@@ -103,13 +103,15 @@ export default function AddItemDrawer({ pageId }: AddItemDrawerProps) {
 								<Activity
 									activeKey={isDetailView ? (selectedItemType ?? "detail") : "item-select"}
 									direction={direction}
-									className="h-full"
-									contentClassName="h-full"
+									className="flex min-h-0 flex-1 flex-col overflow-hidden"
+									contentClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
 								>
 									{isDetailView ? (
 										<div className="flex h-full flex-col gap-4">
 											{selectedItemType === "link" ? (
 												<LinkSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
+											) : selectedItemType === "section" ? (
+												<SectionSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
 											) : selectedItemType === "text" ? (
 												<TextSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
 											) : (
@@ -117,7 +119,10 @@ export default function AddItemDrawer({ pageId }: AddItemDrawerProps) {
 											)}
 										</div>
 									) : (
-										<ul className="scrollbar-hide flex max-h-full flex-col gap-1 overflow-y-auto">
+										<ul
+											data-vaul-scrollable
+											className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
+										>
 											{ITEM_TYPES.map((item) => (
 												<li key={item.id}>
 													<Button variant="ghost" size="lg" onClick={() => handleSelectItem(item.id)} className="w-full justify-start">

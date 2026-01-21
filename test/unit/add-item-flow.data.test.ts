@@ -8,5 +8,8 @@ describe("ITEM_TYPES", () => {
 
 		expect(new Set(ids).size).toBe(ids.length);
 		expect(ids).toContain("link");
+		expect(ids).toContain("image/video");
+		expect(ids).not.toContain("image");
+		expect(ids).not.toContain("video");
 	});
 });

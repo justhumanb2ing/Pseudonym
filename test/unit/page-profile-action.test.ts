@@ -7,6 +7,8 @@ import {
 	handleLinkToggle,
 	handleLinkUpdate,
 	handlePageVisibility,
+	handleSectionSave,
+	handleSectionUpdate,
 } from "../../app/service/pages/page-profile.action";
 import type { Database } from "../../types/database.types";
 
@@ -262,6 +264,93 @@ describe("handlePageVisibility", () => {
 			payload: { is_public: false },
 			column: "id",
 			value: "page-1",
+		});
+	});
+});
+
+describe("handleSectionSave", () => {
+	it("returns field errors when the headline is missing", async () => {
+		const formData = new FormData();
+		formData.set("pageId", "page-1");
+		formData.set("headline", "");
+
+		const result = await handleSectionSave({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("section-save");
+		expect(result.fieldErrors?.headline).toBe("Headline is required.");
+	});
+
+	it("returns success when section save succeeds", async () => {
+		const formData = new FormData();
+		formData.set("pageId", "page-1");
+		formData.set("headline", "About");
+
+		const { supabase, calls } = createSupabaseStub();
+		const result = await handleSectionSave({ formData, supabase });
+
+		expect(result).toEqual({ success: true, intent: "section-save" });
+		expect(calls.rpc).toEqual({
+			fn: "add_page_item",
+			payload: {
+				p_page_id: "page-1",
+				p_type: "section",
+				p_is_active: true,
+				p_config: {
+					data: {
+						headline: "About",
+					},
+				},
+			},
+		});
+	});
+});
+
+describe("handleSectionUpdate", () => {
+	it("returns field errors when the headline is missing", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "item-1");
+		formData.set("headline", "");
+
+		const result = await handleSectionUpdate({
+			formData,
+			supabase: createSupabaseStub().supabase,
+		});
+
+		expect(result.intent).toBe("section-update");
+		expect(result.fieldErrors?.headline).toBe("Headline is required.");
+	});
+
+	it("returns success when section update succeeds", async () => {
+		const formData = new FormData();
+		formData.set("itemId", "item-1");
+		formData.set("headline", "New Headline");
+
+		const { supabase, calls } = createSupabaseStub({
+			config: {
+				data: {
+					headline: "Old Headline",
+					title: "Other",
+				},
+			},
+		});
+		const result = await handleSectionUpdate({ formData, supabase });
+
+		expect(result).toEqual({ success: true, intent: "section-update", itemId: "item-1" });
+		expect(calls.update).toEqual({
+			table: "profile_items",
+			payload: {
+				config: {
+					data: {
+						headline: "New Headline",
+						title: "Other",
+					},
+				},
+			},
+			column: "id",
+			value: "item-1",
 		});
 	});
 });

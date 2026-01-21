@@ -26,6 +26,8 @@ import {
 	handlePageDetails,
 	handlePageVisibility,
 	handleRemoveImage,
+	handleSectionSave,
+	handleSectionUpdate,
 	handleTextSave,
 	handleTextUpdate,
 	handleUpdateImage,
@@ -74,6 +76,8 @@ export async function action(args: Route.ActionArgs) {
 		"link-toggle",
 		"text-save",
 		"text-update",
+		"section-save",
+		"section-update",
 	] as const;
 	type ValidIntent = (typeof validIntents)[number];
 
@@ -117,6 +121,10 @@ export async function action(args: Route.ActionArgs) {
 			return handleTextSave({ formData, supabase });
 		case "text-update":
 			return handleTextUpdate({ formData, supabase });
+		case "section-save":
+			return handleSectionSave({ formData, supabase });
+		case "section-update":
+			return handleSectionUpdate({ formData, supabase });
 		default:
 			// 타입 시스템에서 도달 불가능한 코드
 			return {

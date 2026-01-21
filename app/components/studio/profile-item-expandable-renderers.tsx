@@ -2,6 +2,7 @@ import type { StudioOutletContext } from "types/studio.types";
 import type { ExpandableCardRenderer } from "@/components/effects/expandable-card";
 import ProfileItemActiveSwitch from "@/components/studio/profile-item-active-switch";
 import { ProfileItemExpandedContent } from "@/components/studio/profile-item-expanded-content";
+import { SectionItemExpandedContent } from "@/components/studio/section-item-expanded-content";
 import { TextItemExpandedContent } from "@/components/studio/text-item-expanded-content";
 
 type ProfileItem = StudioOutletContext["profileItems"][number];
@@ -52,6 +53,28 @@ export const profileItemCardRenderers: Record<string, ExpandableCardRenderer<Pro
 				title,
 				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
 				content: <TextItemExpandedContent item={item.data} />,
+			};
+		},
+	},
+	section: {
+		summary: (item) => {
+			const configData = item.data.config?.data;
+			const title = configData?.headline ?? "Untitled";
+			return {
+				title,
+				titleClassName: "truncate font-bold",
+				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
+				ctaClassName: "self-start",
+			};
+		},
+		expanded: (item) => {
+			const configData = item.data.config?.data;
+			const title = configData?.headline ?? "Untitled";
+			return {
+				title,
+				expandedTitleClassName: "font-bold",
+				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
+				content: <SectionItemExpandedContent item={item.data} />,
 			};
 		},
 	},

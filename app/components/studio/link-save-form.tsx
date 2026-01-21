@@ -67,7 +67,7 @@ export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFo
 					</div>
 					<FieldError
 						id="link-url-error"
-						className="mt-1 text-xs/relaxed"
+						className="mt-1 px-2 text-xs/relaxed"
 						errors={urlError || urlErrorMessage ? [{ message: urlError ?? urlErrorMessage ?? "" }] : []}
 					/>
 				</FieldContent>

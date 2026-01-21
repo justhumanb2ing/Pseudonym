@@ -4,6 +4,7 @@ type ProfileItemConfig = {
 	data?: {
 		url?: string | null;
 		title?: string | null;
+		headline?: string | null;
 		description?: string | null;
 		site_name?: string | null;
 		icon_url?: string | null;
