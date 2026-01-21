@@ -75,7 +75,7 @@ export default function StudioHandleLayoutRoute({ loaderData }: Route.ComponentP
 			<AppSidebar pageId={loaderData.page.id} isPublic={loaderData.page.is_public} />
 			{/* TODO: bg-sidebar 고려 */}
 			<SidebarInset>
-				<main className="relative flex h-dvh w-full flex-col gap-4 bg-background">
+				<main className="relative flex h-dvh w-full min-w-0 flex-col gap-4 overflow-hidden bg-background">
 					<aside className="absolute top-0 right-0 flex h-16 items-center justify-between gap-2 px-4">
 						<div className="ml-auto flex items-center gap-2">
 							<SidebarTrigger className="size-8 rounded-md bg-white dark:bg-black" />

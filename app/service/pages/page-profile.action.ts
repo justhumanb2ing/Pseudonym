@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { normalizeLinkUrl } from "@/service/links/link-crawl";
 import { createLinkSaver } from "@/service/links/save-link";
+import { createTextSaver } from "@/service/texts/save-text";
 import { normalizePageDetails, pageDetailsSchema } from "@/service/pages/page-details";
 import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/page-image";
 import type { Database } from "../../../types/database.types";
@@ -14,7 +15,9 @@ export type ActionIntent =
 	| "link-save"
 	| "link-remove"
 	| "link-update"
-	| "link-toggle";
+	| "link-toggle"
+	| "text-save"
+	| "text-update";
 
 export type PageProfileActionData = {
 	formError?: string;
@@ -33,6 +36,16 @@ export type PageProfileActionData = {
 const linkSaveSchema = z.object({
 	pageId: z.string().min(1, "Page id is required."),
 	url: z.string().trim().min(1, "URL is required."),
+});
+
+const textSaveSchema = z.object({
+	pageId: z.string().min(1, "Page id is required."),
+	title: z.string().trim().min(1, "Text is required."),
+});
+
+const textUpdateSchema = z.object({
+	itemId: z.string().min(1, "Item id is required."),
+	title: z.string().trim().min(1, "Text is required."),
 });
 
 const linkRemoveSchema = z.object({
@@ -350,4 +363,101 @@ export async function handleLinkToggle({ formData, supabase }: PageProfileAction
 	}
 
 	return { success: true, intent: "link-toggle", itemId: parsed.data.itemId };
+}
+
+/**
+ * Saves a text item from the profile page.
+ */
+export async function handleTextSave({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = textSaveSchema.safeParse({
+		pageId: formData.get("pageId"),
+		title: formData.get("title"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			fieldErrors: {
+				title: tree.properties?.title?.errors[0],
+			},
+			formError: tree.properties?.pageId?.errors[0],
+			intent: "text-save",
+		};
+	}
+
+	const saveText = createTextSaver(Promise.resolve(supabase));
+
+	try {
+		await saveText({
+			pageId: parsed.data.pageId,
+			title: parsed.data.title,
+		});
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to save text.",
+			intent: "text-save",
+		};
+	}
+
+	return { success: true, intent: "text-save" };
+}
+
+/**
+ * Updates a text item title from the profile page.
+ */
+export async function handleTextUpdate({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
+	const parsed = textUpdateSchema.safeParse({
+		itemId: formData.get("itemId"),
+		title: formData.get("title"),
+	});
+
+	if (!parsed.success) {
+		const tree = z.treeifyError(parsed.error);
+		return {
+			fieldErrors: {
+				itemId: tree.properties?.itemId?.errors[0],
+				title: tree.properties?.title?.errors[0],
+			},
+			formError: tree.properties?.itemId?.errors[0] ?? tree.properties?.title?.errors[0],
+			intent: "text-update",
+		};
+	}
+
+	const { data: profileItem, error: itemError } = await supabase
+		.from("profile_items")
+		.select("config")
+		.eq("id", parsed.data.itemId)
+		.maybeSingle();
+
+	if (itemError) {
+		return { formError: itemError.message, intent: "text-update", itemId: parsed.data.itemId };
+	}
+
+	const rawConfig = profileItem?.config;
+	const configObject =
+		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
+	const rawConfigData = configObject.data;
+	const configData =
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
+			? (rawConfigData as Record<string, unknown>)
+			: {};
+
+	const { error: updateError } = await supabase
+		.from("profile_items")
+		.update({
+			config: {
+				...configObject,
+				data: {
+					...configData,
+					title: parsed.data.title,
+				},
+			},
+		})
+		.eq("id", parsed.data.itemId);
+
+	if (updateError) {
+		return { formError: updateError.message, intent: "text-update", itemId: parsed.data.itemId };
+	}
+
+	return { success: true, intent: "text-update", itemId: parsed.data.itemId };
 }

@@ -2,6 +2,7 @@ import type { StudioOutletContext } from "types/studio.types";
 import type { ExpandableCardRenderer } from "@/components/effects/expandable-card";
 import ProfileItemActiveSwitch from "@/components/studio/profile-item-active-switch";
 import { ProfileItemExpandedContent } from "@/components/studio/profile-item-expanded-content";
+import { TextItemExpandedContent } from "@/components/studio/text-item-expanded-content";
 
 type ProfileItem = StudioOutletContext["profileItems"][number];
 
@@ -30,6 +31,27 @@ export const profileItemCardRenderers: Record<string, ExpandableCardRenderer<Pro
 				imageUrl,
 				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
 				content: <ProfileItemExpandedContent item={item.data} />,
+			};
+		},
+	},
+	text: {
+		summary: (item) => {
+			const configData = item.data.config?.data;
+			const title = configData?.title ?? "Untitled";
+			return {
+				title,
+				titleClassName: "line-clamp-5",
+				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
+				ctaClassName: "self-start",
+			};
+		},
+		expanded: (item) => {
+			const configData = item.data.config?.data;
+			const title = configData?.title ?? "Untitled";
+			return {
+				title,
+				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
+				content: <TextItemExpandedContent item={item.data} />,
 			};
 		},
 	},

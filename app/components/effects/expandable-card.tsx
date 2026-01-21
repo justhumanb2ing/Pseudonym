@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
-import { type ReactNode, type RefObject, createContext, useContext, useEffect, useId, useRef, useState } from "react";
+import { createContext, type ReactNode, type RefObject, useContext, useEffect, useId, useRef, useState } from "react";
 import { useOutsideClick } from "@/hooks/use-outside-click";
+import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 
 export type ExpandableCardItem<T = unknown> = {
@@ -11,9 +12,11 @@ export type ExpandableCardItem<T = unknown> = {
 
 export type ExpandableCardView = {
 	title?: string;
+	titleClassName?: string;
 	description?: string;
 	imageUrl?: string;
 	ctaContent?: ReactNode;
+	ctaClassName?: string;
 	content?: ReactNode | (() => ReactNode);
 };
 
@@ -110,7 +113,7 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 							className="relative flex h-full w-full max-w-full flex-col overflow-hidden bg-white md:h-fit md:max-h-[90%] md:max-w-lg md:rounded-3xl dark:bg-neutral-900"
 						>
 							<div className="flex grow flex-col gap-4">
-								<div className="flex items-center justify-between gap-6 p-4">
+								<div className="flex items-center justify-between gap-6 p-4 px-6">
 									<div className="flex min-w-0 items-center gap-4">
 										{activeExpanded?.imageUrl ? (
 											<motion.div layoutId={`image-${active.id}-${id}`} className="size-8 shrink-0 md:size-10">
@@ -132,7 +135,7 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 									{activeExpanded?.ctaContent ? (
 										<motion.div
 											layoutId={`button-${active.id}-${id}`}
-											className="shrink-0"
+											className="flex shrink-0 items-center"
 											onClick={(event) => event.stopPropagation()}
 											onPointerDown={(event) => event.stopPropagation()}
 										>
@@ -166,7 +169,7 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 			<motion.div
 				layoutId={`card-${item.id}-${id}`}
 				onClick={() => setActive(item)}
-				className="flex cursor-pointer flex-row items-center justify-between gap-3 rounded-xl p-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+				className="flex min-w-0 cursor-pointer flex-row items-center justify-between gap-3 rounded-xl p-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
 			>
 				<div className="flex min-w-0 flex-row items-center gap-4">
 					{summary.imageUrl ? (
@@ -181,7 +184,10 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 						</motion.div>
 					) : null}
 					<div className="min-w-0 flex-1 overflow-hidden">
-						<motion.h3 layoutId={`title-${item.id}-${id}`} className="w-full truncate font-medium text-sm md:text-base">
+						<motion.h3
+							layoutId={`title-${item.id}-${id}`}
+							className={cn("w-full font-medium text-sm md:text-base", summary.titleClassName ?? "truncate")}
+						>
 							{summary.title}
 						</motion.h3>
 						{summary.description ? (
@@ -194,7 +200,7 @@ export function ExpandableCard<T>({ item, renderers, fallbackRenderer }: Expanda
 				{summary.ctaContent ? (
 					<motion.div
 						layoutId={`button-${item.id}-${id}`}
-						className="shrink-0"
+						className={cn("shrink-0", summary.ctaClassName)}
 						onClick={(event) => event.stopPropagation()}
 						onPointerDown={(event) => event.stopPropagation()}
 					>

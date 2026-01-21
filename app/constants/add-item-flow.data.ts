@@ -1,4 +1,4 @@
-export type ItemTypeId = "link" | "image" | "map" | "video" | "playlist";
+export type ItemTypeId = "link" | "image" | "map" | "video" | "playlist" | "text";
 
 export type ItemType = {
 	id: ItemTypeId;
@@ -31,5 +31,10 @@ export const ITEM_TYPES: ItemType[] = [
 		id: "playlist",
 		title: "Playlist",
 		description: "Share a collection.",
+	},
+	{
+		id: "text",
+		title: "Note",
+		description: "Add a simple text note.",
 	},
 ];

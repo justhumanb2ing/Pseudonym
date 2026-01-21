@@ -26,6 +26,8 @@ import {
 	handlePageDetails,
 	handlePageVisibility,
 	handleRemoveImage,
+	handleTextSave,
+	handleTextUpdate,
 	handleUpdateImage,
 	type PageProfileActionData,
 } from "@/service/pages/page-profile.action";
@@ -70,6 +72,8 @@ export async function action(args: Route.ActionArgs) {
 		"link-remove",
 		"link-update",
 		"link-toggle",
+		"text-save",
+		"text-update",
 	] as const;
 	type ValidIntent = (typeof validIntents)[number];
 
@@ -109,6 +113,10 @@ export async function action(args: Route.ActionArgs) {
 			return handleLinkToggle({ formData, supabase });
 		case "page-details":
 			return handlePageDetails({ formData, supabase });
+		case "text-save":
+			return handleTextSave({ formData, supabase });
+		case "text-update":
+			return handleTextUpdate({ formData, supabase });
 		default:
 			// 타입 시스템에서 도달 불가능한 코드
 			return {
@@ -140,7 +148,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 	}));
 
 	return (
-		<section className="flex min-h-0 grow flex-col gap-6">
+		<section className="flex min-h-0 min-w-0 grow flex-col gap-6">
 			<article className="flex min-h-0 min-w-0 grow flex-col gap-5 xl:flex-row xl:justify-between">
 				{/* Left Column - Profile & Links */}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 px-6 pt-14 pb-8 md:container md:mx-auto md:max-w-6xl md:px-8">
@@ -156,7 +164,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 						</div>
 					</div>
 
-					<div className="relative flex min-h-0 flex-1 flex-col">
+					<div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
 						{/* Section Header */}
 						<div className="mb-3 flex items-center justify-between px-1">
 							<Text.H4>My Links</Text.H4>
@@ -167,7 +175,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 						</div>
 
 						{/* Links List */}
-						<div className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-5 overflow-y-scroll md:pb-16">
+						<div className="scrollbar-hide flex min-h-0 min-w-0 flex-1 flex-col gap-5 overflow-y-scroll md:pb-16">
 							{profileItems.length === 0 ? (
 								<Empty>
 									<EmptyHeader className="gap-1">
@@ -182,9 +190,9 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 									</EmptyContent>
 								</Empty>
 							) : (
-								<div className="space-y-1">
+								<div className="min-w-0 space-y-1">
 									{expandableItems.map((item) => (
-										<div key={item.id} className="fade-in slide-in-from-bottom-1 animate-in">
+										<div key={item.id} className="fade-in slide-in-from-bottom-1 min-w-0 animate-in">
 											<ExpandableCard item={item} renderers={profileItemCardRenderers} fallbackRenderer={profileItemCardFallbackRenderer} />
 										</div>
 									))}
@@ -211,14 +219,8 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 							}
 						></Button>
 					</div>
-					<Iphone className="">
-						<ProfilePreviewFrame
-							ref={previewFrameRef}
-							handle={handle}
-							lang={lang}
-							className="h-full w-full"
-							onLoad={handleIframeLoad}
-						/>
+					<Iphone className="z-999">
+						<ProfilePreviewFrame ref={previewFrameRef} handle={handle} lang={lang} className="h-full w-full" onLoad={handleIframeLoad} />
 					</Iphone>
 				</aside>
 			</article>

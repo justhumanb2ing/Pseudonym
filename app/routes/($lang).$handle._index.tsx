@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useLoaderData, useLocation, useRevalidator } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import LinkItem from "@/components/page/link-item";
+import TextItem from "@/components/page/text-item";
 import Watermark from "@/components/page/watermark";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -173,9 +174,9 @@ export default function UserProfileRoute() {
 							</EmptyHeader>
 						</Empty>
 					)}
-					{activeProfileItems.map((item) => (
-						<LinkItem key={item.id} item={item} />
-					))}
+					{activeProfileItems.map((item) =>
+						item.type === "text" ? <TextItem key={item.id} item={item} /> : <LinkItem key={item.id} item={item} />
+					)}
 				</section>
 				<footer className="flex justify-center py-8">
 					<Watermark />

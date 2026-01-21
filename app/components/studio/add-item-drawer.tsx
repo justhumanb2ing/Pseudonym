@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Activity } from "@/components/common/activity";
 import LinkSaveForm from "@/components/studio/link-save-form";
+import TextSaveForm from "@/components/studio/text-save-form";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { ITEM_TYPES, type ItemTypeId } from "@/constants/add-item-flow.data";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -109,6 +110,8 @@ export default function AddItemDrawer({ pageId }: AddItemDrawerProps) {
 										<div className="flex h-full flex-col gap-4">
 											{selectedItemType === "link" ? (
 												<LinkSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
+											) : selectedItemType === "text" ? (
+												<TextSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
 											) : (
 												<ItemTypePlaceholder title={detailTitle} description={selectedItem?.description} />
 											)}
