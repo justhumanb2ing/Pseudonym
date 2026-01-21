@@ -125,10 +125,10 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 									isActive={location.pathname === item.url}
 									className="group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:[&_svg]:size-6"
 									render={
-										<a href={item.url}>
+										<LocalizedLink to={item.url}>
 											<item.icon />
 											<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
-										</a>
+										</LocalizedLink>
 									}
 								></SidebarMenuButton>
 							</SidebarMenuItem>
