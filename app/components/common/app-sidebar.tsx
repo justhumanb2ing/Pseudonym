@@ -1,4 +1,4 @@
-import { ChartColumnIcon, ChevronRightIcon, LayoutDashboardIcon, SettingsIcon } from "lucide-react";
+import { ChartColumnIcon, ChevronRightIcon, LayoutDashboardIcon, type LucideIcon, SettingsIcon } from "lucide-react";
 import { useLocation, useParams } from "react-router";
 import {
 	Sidebar,
@@ -26,13 +26,35 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
 	isPublic: boolean;
 };
 
+type SidebarSubItem = {
+	title: string;
+	url: string;
+	isEnabled: boolean;
+};
+
+type SidebarMainItem = {
+	title: string;
+	icon: LucideIcon;
+	isActive: boolean;
+	items: SidebarSubItem[];
+};
+
+type SidebarAsideItem = {
+	title: string;
+	icon: LucideIcon;
+	isEnabled: boolean;
+	url?: string;
+	items?: SidebarSubItem[];
+};
+
 export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarProps) {
 	const { lang, handle } = useParams();
 	const location = useLocation();
 	const { state } = useSidebar();
 	const isCollapsed = state === "collapsed";
+	const _settingsBaseUrl = getLocalizedPath(lang, `/studio/${handle}/settings`);
 
-	const data = {
+	const data: { main: SidebarMainItem[]; aside: SidebarAsideItem[] } = {
 		main: [
 			{
 				title: "My Layout",
@@ -61,9 +83,20 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 			},
 			{
 				title: "Settings",
-				url: getLocalizedPath(lang, `/studio/${handle}/settings`),
 				icon: SettingsIcon,
 				isEnabled: true,
+				items: [
+					{
+						title: "Account",
+						url: getLocalizedPath(lang, `/studio/${handle}/account`),
+						isEnabled: true,
+					},
+					{
+						title: "Handle",
+						url: getLocalizedPath(lang, `/studio/${handle}/handle`),
+						isEnabled: true,
+					},
+				],
 			},
 		],
 	};
@@ -130,27 +163,87 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 				<SidebarGroup className="p-0">
 					<SidebarMenu className="gap-1 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-2">
 						{data.aside.map((item) => (
-							<SidebarMenuItem key={item.title}>
-								<SidebarMenuButton
-									isActive={location.pathname === item.url}
-									className="group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:[&_svg]:size-6"
-									aria-disabled={!item.isEnabled}
-									tabIndex={item.isEnabled ? 0 : -1}
-									render={
-										item.isEnabled ? (
-											<LocalizedLink to={item.url}>
-												<item.icon />
-												<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
-											</LocalizedLink>
-										) : (
-											<span aria-disabled="true" className="flex items-center gap-2">
-												<item.icon />
-												<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
-											</span>
-										)
-									}
-								></SidebarMenuButton>
-							</SidebarMenuItem>
+							<Collapsible
+								key={item.title}
+								defaultOpen={
+									item.items
+										? item.items.some((subItem) => location.pathname === subItem.url)
+										: item.url
+											? location.pathname === item.url || location.pathname.startsWith(`${item.url}/`)
+											: false
+								}
+								className="group/collapsible"
+								render={
+									<SidebarMenuItem>
+										<CollapsibleTrigger
+											render={
+												<SidebarMenuButton
+													isActive={
+														item.items
+															? item.items.some((subItem) => location.pathname === subItem.url)
+															: item.url
+																? location.pathname === item.url || location.pathname.startsWith(`${item.url}/`)
+																: false
+													}
+													className="group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:[&_svg]:size-6"
+													aria-disabled={!item.isEnabled}
+													tabIndex={item.isEnabled ? 0 : -1}
+													render={
+														item.isEnabled ? (
+															item.url ? (
+																<LocalizedLink to={item.url}>
+																	<item.icon />
+																	<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+																	{item.items ? (
+																		<ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[collapsible=icon]:hidden group-data-open/collapsible:rotate-90" />
+																	) : null}
+																</LocalizedLink>
+															) : (
+																<span className="flex items-center gap-2">
+																	<item.icon />
+																	<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+																	{item.items ? (
+																		<ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[collapsible=icon]:hidden group-data-open/collapsible:rotate-90" />
+																	) : null}
+																</span>
+															)
+														) : (
+															<span aria-disabled="true" className="flex items-center gap-2">
+																<item.icon />
+																<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+															</span>
+														)
+													}
+												></SidebarMenuButton>
+											}
+										></CollapsibleTrigger>
+										{item.items ? (
+											<CollapsibleContent>
+												<SidebarMenuSub>
+													{item.items.map((subItem) => (
+														<SidebarMenuSubItem key={subItem.title}>
+															<SidebarMenuSubButton
+																isActive={location.pathname === subItem.url}
+																aria-disabled={!subItem.isEnabled}
+																tabIndex={subItem.isEnabled ? 0 : -1}
+																render={
+																	subItem.isEnabled ? (
+																		<LocalizedLink to={subItem.url}>
+																			<span>{subItem.title}</span>
+																		</LocalizedLink>
+																	) : (
+																		<span aria-disabled="true">{subItem.title}</span>
+																	)
+																}
+															></SidebarMenuSubButton>
+														</SidebarMenuSubItem>
+													))}
+												</SidebarMenuSub>
+											</CollapsibleContent>
+										) : null}
+									</SidebarMenuItem>
+								}
+							></Collapsible>
 						))}
 					</SidebarMenu>
 				</SidebarGroup>

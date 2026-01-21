@@ -33,8 +33,12 @@ const getPayloadMessage = (value: unknown, key: "message" | "error"): string | n
 	return typeof candidate === "string" ? candidate : null;
 };
 
-async function requestDeleteAccount(): Promise<DeleteAccountResponse> {
-	const response = await fetch(DELETE_ACCOUNT_ENDPOINT, {
+type DeleteAccountButtonProps = {
+	endpoint?: string;
+};
+
+async function requestDeleteAccount(endpoint: string): Promise<DeleteAccountResponse> {
+	const response = await fetch(endpoint, {
 		method: "POST",
 		headers: {
 			Accept: "application/json",
@@ -53,7 +57,7 @@ async function requestDeleteAccount(): Promise<DeleteAccountResponse> {
 	};
 }
 
-export default function DeleteAccountButton() {
+export default function DeleteAccountButton({ endpoint = DELETE_ACCOUNT_ENDPOINT }: DeleteAccountButtonProps) {
 	const clerk = useClerk();
 	const { isLoaded, isSignedIn } = useUser();
 	const [open, setOpen] = useState(false);
@@ -78,7 +82,7 @@ export default function DeleteAccountButton() {
 				once: true,
 			},
 		);
-		const deletePromise = requestDeleteAccount();
+		const deletePromise = requestDeleteAccount(endpoint);
 
 		toastManager.promise(deletePromise, {
 			loading: {
