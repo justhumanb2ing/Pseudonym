@@ -78,9 +78,9 @@ function DetailsStep({ title, description, errors, isSubmitting, canSubmit, onTi
 
 	return (
 		<div className="flex flex-col gap-4">
-			<Field className="relative mt-4 rounded-xl border border-input bg-input/20 outline-none transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-aria-invalid:border-destructive has-disabled:opacity-50 has-aria-invalid:ring-destructive/20 has-[input:is(:disabled)]:*:pointer-events-none dark:has-aria-invalid:ring-destructive/40">
-				<FieldLabel className="block px-3 pt-2 font-medium text-foreground text-sm" htmlFor="title">
-					Title
+			<Field className="relative mt-4 gap-1 rounded-xl border border-input bg-input/20 outline-none transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-aria-invalid:border-destructive has-disabled:opacity-50 has-aria-invalid:ring-destructive/20 has-[input:is(:disabled)]:*:pointer-events-none dark:has-aria-invalid:ring-destructive/40">
+				<FieldLabel className="flex gap-1 px-3 pt-2 font-medium text-foreground text-sm" htmlFor="title">
+					Title<span className="text-destructive">*</span>
 				</FieldLabel>
 				<FieldContent>
 					<Input
@@ -94,12 +94,12 @@ function DetailsStep({ title, description, errors, isSubmitting, canSubmit, onTi
 						onChange={(event) => onTitleChange(event.target.value)}
 						aria-invalid={!!titleError}
 						aria-describedby={titleError ? "title-error" : undefined}
-						className="h-12 rounded-xl border-none bg-transparent px-3 ps-4 pb-2 text-base! focus-visible:ring-0 aria-invalid:ring-0 dark:aria-invalid:ring-0"
+						className="h-10 rounded-xl border-none bg-transparent px-3 ps-4 pb-2 text-base! focus-visible:ring-0 aria-invalid:ring-0 dark:aria-invalid:ring-0"
 					/>
 					<FieldError id="title-error" className="mb-2 ml-4" errors={toErrorItems(titleError)} />
 				</FieldContent>
 			</Field>
-			<Field className="relative mt-4 rounded-xl border border-input bg-input/20 outline-none transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-aria-invalid:border-destructive has-disabled:opacity-50 has-aria-invalid:ring-destructive/20 has-[input:is(:disabled)]:*:pointer-events-none dark:has-aria-invalid:ring-destructive/40">
+			<Field className="relative mt-4 gap-1 rounded-xl border border-input bg-input/20 outline-none transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 has-disabled:pointer-events-none has-disabled:cursor-not-allowed has-aria-invalid:border-destructive has-disabled:opacity-50 has-aria-invalid:ring-destructive/20 has-[input:is(:disabled)]:*:pointer-events-none dark:has-aria-invalid:ring-destructive/40">
 				<FieldLabel className="block px-3 pt-2 font-medium text-foreground text-sm" htmlFor="description">
 					Bio
 				</FieldLabel>

@@ -1,11 +1,12 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigation } from "react-router";
+import type { ShouldRevalidateFunctionArgs } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import { ClerkProvider } from "@clerk/react-router";
 import { clerkMiddleware, rootAuthLoader } from "@clerk/react-router/server";
 import { shadcn } from "@clerk/themes";
-import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard";
+import { isOnboardingPath, resolveOnboardingRedirect } from "@/service/auth/onboarding-guard";
 import NotFound from "./components/error/not-found";
 import { Spinner } from "./components/ui/spinner";
 import Providers from "./providers";
@@ -50,6 +51,18 @@ export const loader = (args: Route.LoaderArgs) =>
 
 		return null;
 	});
+
+export function shouldRevalidate({ actionResult, currentUrl, defaultShouldRevalidate }: ShouldRevalidateFunctionArgs) {
+	if (!isOnboardingPath(currentUrl.pathname)) {
+		return defaultShouldRevalidate;
+	}
+
+	if (actionResult && typeof actionResult === "object" && "success" in actionResult) {
+		return actionResult.success !== true;
+	}
+
+	return defaultShouldRevalidate;
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	const navigation = useNavigation();

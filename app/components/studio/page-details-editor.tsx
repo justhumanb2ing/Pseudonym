@@ -66,8 +66,8 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 		wasSavingRef.current = isCurrentlySaving;
 	}, [actionData?.success, fetcher.state]);
 
-	const handleTitleChange = (nextValue: string) => {
-		const nextTitle = nextValue.slice(0, PAGE_TITLE_MAX_LENGTH);
+	const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const nextTitle = event.target.value.slice(0, PAGE_TITLE_MAX_LENGTH);
 		setTitleValue(nextTitle);
 	};
 
@@ -92,7 +92,7 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 							id="page-title"
 							name="title"
 							value={titleValue}
-							onValueChange={handleTitleChange}
+							onChange={handleTitleChange}
 							maxLength={PAGE_TITLE_MAX_LENGTH}
 							disabled={isSaving}
 							aria-invalid={isTitleMissing}

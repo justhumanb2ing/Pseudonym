@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const PAGE_TITLE_MAX_LENGTH = 30;
-export const PAGE_DESCRIPTION_MAX_LENGTH = 100;
+export const PAGE_DESCRIPTION_MAX_LENGTH = 300;
 
 const descriptionSchema = z.preprocess((value) => {
 	if (typeof value !== "string") {

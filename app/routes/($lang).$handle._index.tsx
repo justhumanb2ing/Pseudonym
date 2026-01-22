@@ -156,9 +156,13 @@ export default function UserProfileRoute() {
 	return (
 		<div className={cn("box-border h-dvh overflow-hidden", !isMobile && "py-10")}>
 			<main className={cn(mainClassName, "scrollbar-hide box-border overflow-y-auto bg-white pb-10 dark:bg-black")}>
-				<div className="flex flex-col gap-4 p-10 py-12 pb-4 md:pb-8">
+				<div className="flex flex-col gap-4 p-10 py-12 pb-2">
 					<div className="size-30 overflow-hidden rounded-full md:size-36">
-						<img src={page.image_url ?? ""} alt={page.handle} className="h-full w-full object-cover" />
+						{page.image_url ? (
+							<img src={page.image_url} alt={page.handle} className="h-full w-full object-cover" />
+						) : (
+							<div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground text-xs"></div>
+						)}
 					</div>
 					<div className="flex min-w-0 flex-col gap-2">
 						<p className="font-bold text-3xl md:text-4xl">{page.title}</p>
@@ -194,7 +198,7 @@ export default function UserProfileRoute() {
 					})}
 				</section>
 				<footer className="flex justify-center py-8">
-					<Watermark />
+					{/* <Watermark /> */}
 				</footer>
 			</main>
 		</div>

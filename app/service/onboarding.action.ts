@@ -24,6 +24,15 @@ export type ActionData = {
 	handle?: string;
 };
 
+/**
+ * Fetches the Clerk profile image URL for seeding the initial page.
+ */
+async function getClerkProfileImageUrl(args: Route.ActionArgs, userId: string) {
+	const clerk = clerkClient(args);
+	const user = await clerk.users.getUser(userId);
+	return user.imageUrl ?? null;
+}
+
 export async function action(args: Route.ActionArgs) {
 	const auth = await getAuth(args);
 	if (!auth.userId) {
@@ -51,10 +60,12 @@ export async function action(args: Route.ActionArgs) {
 	const { handle, title, description } = parsed.data;
 
 	const supabase = await getSupabaseServerClient(args);
+	const profileImageUrl = await getClerkProfileImageUrl(args, auth.userId);
 	const { error } = await supabase.rpc("create_page", {
 		p_handle: `@${handle}`,
 		p_title: title,
 		p_description: description ?? undefined,
+		p_image_url: profileImageUrl ?? undefined,
 	});
 
 	if (error) {
