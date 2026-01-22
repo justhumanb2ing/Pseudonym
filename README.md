@@ -1,87 +1,87 @@
-# Welcome to React Router!
+## Overview
 
-A modern, production-ready template for building full-stack React applications using React Router.
+<div align="center">
+  <img
+    src="https://github.com/user-attachments/assets/c2e5fd51-4fcb-4925-a7a2-67d73f2f8d70"
+    width="400"
+  />
+</div>
+This project is a personal page builder designed for creators who want their online presence to feel intentional and personal.
+</br>
+It allows users to build a public-facing page using blocks such as links, text, images, videos, and maps — with an editing experience that feels more like creation than configuration.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Motivation
 
-## Features
+This project started from a simple motivation:
+I wanted to build the kind of personal page I personally wanted to use.
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+While many link-in-bio services are well-designed,
+they often limit deeper customization behind predefined options or paid plans.
+As a developer, I wanted more than configuration —
+I wanted a page I could directly shape, extend, and experiment with.
 
-## Getting Started
+Instead of managing settings, I wanted the experience to feel
+like working in a creative workspace.
+This project is my attempt to design and build that experience from scratch.
 
-### Installation
+## Core Experience
 
-Install the dependencies:
+The core idea of this project is to separate creation from configuration.
 
-```bash
-npm install
-```
+Users edit content in focused drawers/dialogs
+and the preview refreshes after successful saves/reorders.
+This reduces context switching and helps users stay focused on shaping
+the page itself rather than managing settings.
 
-### Development
+## Key Features
 
-Start the development server with HMR:
+- Block-based editor supporting links, text, images, videos, and map blocks
+- Drawer/Dialog-based editing with preview refresh after saves/reorders
+- Drag-and-drop reordering with consistent interaction patterns
+- Public-facing page with a clear separation between editing and viewing
+- Identity-based routing with handle updates
+- Account lifecycle management, including safe account deletion
 
-```bash
-npm run dev
-```
+## Block System Design
 
-Your application will be available at `http://localhost:5173`.
+All content types are implemented as reusable blocks
+with a shared editing and rendering pattern.
 
-## Building for Production
+Each block follows the same lifecycle:
+edit → preview → publish.
+This approach makes it easy to introduce new block types
+without breaking existing interaction patterns.
 
-Create a production build:
+## Public Page vs Creator Workspace
 
-```bash
-npm run build
-```
+The product is intentionally split into two distinct experiences:
 
-## Deployment
+- A creator workspace for editing and arranging content
+- A public page for viewing the final result
 
-### Docker Deployment
+The public page is always read-only,
+ensuring that creators can focus on building
+while visitors experience a clean, distraction-free page.
 
-To build and run using Docker:
+## AI-Assisted Development
 
-```bash
-docker build -t my-app .
+AI tools were used as an implementation assistant,
+after the feature scope, usage scenarios, and UX goals were defined upfront.
 
-# Run the container
-docker run -p 3000:3000 my-app
-```
+The overall design, state flow, and interaction patterns
+were intentionally designed and owned by the developer.
 
-The containerized application can be deployed to any platform that supports Docker, including:
+## Scope
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
+This project is intentionally scoped as a v1 product.
 
-### DIY Deployment
+It focuses on core creation and editing experiences,
+while features such as advanced analytics and theme systems
+are deliberately left out to avoid premature complexity.
 
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
+## Closing
 
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+This project represents my approach to frontend development:
+starting from a personal motivation,
+making deliberate UX decisions,
+and carrying a product through to a complete, usable state.
