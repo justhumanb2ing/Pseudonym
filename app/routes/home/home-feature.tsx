@@ -6,12 +6,18 @@ export default function HomeFeature() {
 
 	return (
 		<section className="relative flex min-h-dvh w-full flex-col-reverse items-center justify-between gap-8 overflow-hidden px-8 py-20 xl:h-full xl:flex-row xl:justify-center xl:gap-60 xl:py-20">
-			<aside className="flex min-h-full shrink-0 items-center justify-center overflow-hidden rounded-[36px] border-[0.5px] shadow-float xl:rounded-[64px]">
-				<video className="object-cover" preload="metadata" playsInline muted loop autoPlay>
+			<motion.aside
+				className="flex min-h-full shrink-0 items-center justify-center overflow-hidden rounded-[36px] border-[0.5px] shadow-float xl:rounded-[64px]"
+				initial={{ opacity: 0, y: 8 }}
+				whileInView={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.4, ease: "easeOut" }}
+				viewport={{ once: true, amount: 0.5 }}
+			>
+				<video className="h-full w-full object-cover" preload="metadata" playsInline muted loop autoPlay>
 					<source src="/landing/real-use.webm" type="video/webm" />
 					<source src="/landing/real-use.mp4" type="video/mp4" />
 				</video>
-			</aside>
+			</motion.aside>
 			<aside className="space-y-5 text-center md:text-left">
 				<TextAnimate
 					animation="fadeIn"
