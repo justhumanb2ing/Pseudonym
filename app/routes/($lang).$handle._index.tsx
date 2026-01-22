@@ -198,7 +198,7 @@ export default function UserProfileRoute() {
 					})}
 				</section>
 				<footer className="flex justify-center py-8">
-					{/* <Watermark /> */}
+					<Watermark />
 				</footer>
 			</main>
 		</div>

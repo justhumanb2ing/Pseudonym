@@ -6,8 +6,9 @@ import { metadataConfig } from "@/config/metadata";
 import { useUmamiPageView } from "@/hooks/use-umami-page-view";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
 import { getLocalizedPath } from "@/utils/localized-path";
-import HomeFooter from "./home/_home-footer";
-import HomeHero from "./home/_home-hero";
+import HomeFooter from "./home/home-footer";
+import HomeHero from "./home/home-hero";
+import HomeFeature from "./home/home-feature";
 
 const buildUrl = (lang: string | undefined, pathname: string) => new URL(getLocalizedPath(lang, pathname), metadataConfig.url).toString();
 
@@ -50,12 +51,21 @@ export default function Home() {
 	});
 
 	return (
-		<main className="min-h-screen">
+		<main className="h-screen snap-y snap-proximity overflow-y-auto scroll-smooth">
 			{/* Landing Page Main Section */}
-			<HomeHero />
+			<section className="snap-start">
+				<HomeHero />
+			</section>
+
+			{/* Feature Section */}
+			<section className="snap-start">
+				<HomeFeature />
+			</section>
 
 			{/* Footer */}
-			<HomeFooter />
+			<section className="snap-start">
+				<HomeFooter />
+			</section>
 		</main>
 	);
 }
