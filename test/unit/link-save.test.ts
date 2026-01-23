@@ -53,6 +53,9 @@ describe("createLinkSaver", () => {
 			p_type: "link",
 			p_is_active: true,
 			p_config: {
+				style: {
+					layout: "compact",
+				},
 				data: {
 					title: "Example",
 					url: "https://example.com",

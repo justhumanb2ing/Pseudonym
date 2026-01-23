@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFetcher } from "react-router";
-import type { StudioOutletContext } from "types/studio.types";
+import type { ProfileItemLayout, StudioOutletContext } from "types/studio.types";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import ItemLayoutSelector from "@/components/studio/item-layout-selector";
 import type { PageProfileActionData } from "@/service/pages/page-profile.action";
 
 type ProfileItem = StudioOutletContext["profileItems"][number];
@@ -27,8 +28,10 @@ export function ProfileItemExpandedContent({ item }: { item: ProfileItem }) {
 	const isSaving = updateFetcher.state !== "idle";
 	const formId = `profile-item-edit-${item.id}`;
 	const configData = item.config?.data;
+	const defaultLayout: ProfileItemLayout = item.config?.style?.layout ?? "compact";
 	const defaultTitle = configData?.title ?? "";
 	const defaultUrl = configData?.url ?? "";
+	const [layout, setLayout] = useState<ProfileItemLayout>(defaultLayout);
 	const updateError =
 		updateFetcher.data?.intent === "link-update" && !updateFetcher.data?.success ? updateFetcher.data.formError : undefined;
 
@@ -47,6 +50,7 @@ export function ProfileItemExpandedContent({ item }: { item: ProfileItem }) {
 			<updateFetcher.Form id={formId} method="post" className="flex flex-col gap-4">
 				<input type="hidden" name="intent" value="link-update" />
 				<input type="hidden" name="itemId" value={item.id} />
+				<input type="hidden" name="layout" value={layout} />
 				<Field>
 					<FieldContent>
 						<div className="relative">
@@ -89,6 +93,7 @@ export function ProfileItemExpandedContent({ item }: { item: ProfileItem }) {
 					</FieldContent>
 				</Field>
 				{updateError ? <p className="text-destructive text-sm">{updateError}</p> : null}
+				<ItemLayoutSelector value={layout} onChange={setLayout} disabled={isSaving} />
 			</updateFetcher.Form>
 			<footer className="flex items-center gap-3">
 				<AlertDialog open={open} onOpenChange={setOpen}>

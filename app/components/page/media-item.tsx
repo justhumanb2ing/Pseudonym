@@ -9,7 +9,8 @@ interface MediaItemProps {
 }
 
 export default function MediaItem({ item }: MediaItemProps) {
-	const mediaData = item.config?.data;
+	const config = item.config;
+	const mediaData = config?.data;
 	const mediaUrl = mediaData?.media_url ?? "";
 	const mediaType = mediaData?.media_type ?? "image";
 	const caption = mediaData?.caption ?? "";

@@ -1,6 +1,13 @@
 import type { Json, Tables } from "./database.types";
 
+export type ProfileItemLayout = "compact" | "full";
+
+type ProfileItemStyle = {
+	layout?: ProfileItemLayout;
+} | null;
+
 type ProfileItemConfig = {
+	style?: ProfileItemStyle;
 	data?: {
 		url?: string | null;
 		title?: string | null;

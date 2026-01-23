@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { PageMediaKind } from "@/service/pages/page-media";
+import type { ProfileItemLayout } from "types/studio.types";
 import type { Database } from "../../../types/database.types";
 
 export type MediaSavePayload = {
@@ -10,6 +11,7 @@ export type MediaSavePayload = {
 	caption: string | null;
 	url: string | null;
 	isActive?: boolean;
+	layout?: ProfileItemLayout;
 };
 
 /**
@@ -24,6 +26,9 @@ export function createMediaSaver(supabasePromise: Promise<SupabaseClient<Databas
 			p_type: "media",
 			p_is_active: payload.isActive ?? true,
 			p_config: {
+				style: {
+					layout: payload.layout ?? "compact",
+				},
 				data: {
 					media_type: payload.mediaType,
 					media_url: payload.mediaUrl,

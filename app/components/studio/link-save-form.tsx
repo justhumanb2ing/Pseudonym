@@ -4,7 +4,9 @@ import { useFetcher } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Field, FieldContent, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import ItemLayoutSelector from "@/components/studio/item-layout-selector";
 import { shouldShowUrlRequiredError } from "@/utils/link-save-form.utils";
+import type { ProfileItemLayout } from "types/studio.types";
 
 type LinkSaveActionData = {
 	fieldErrors?: {
@@ -26,6 +28,7 @@ export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFo
 	const actionData = fetcher.data;
 	const [urlValue, setUrlValue] = useState("");
 	const [hasInteracted, setHasInteracted] = useState(false);
+	const [layout, setLayout] = useState<ProfileItemLayout>("compact");
 
 	const urlError = actionData?.fieldErrors?.url;
 	const formError = actionData?.formError;
@@ -38,6 +41,7 @@ export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFo
 		if (actionData?.success && actionData.intent === "link-save") {
 			setUrlValue("");
 			setHasInteracted(false);
+			setLayout("compact");
 			onSuccess?.();
 		}
 	}, [actionData?.success, actionData?.intent, onSuccess]);
@@ -46,6 +50,7 @@ export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFo
 		<fetcher.Form method="post" className="flex flex-col justify-between gap-3" noValidate>
 			<input type="hidden" name="intent" value="link-save" />
 			<input type="hidden" name="pageId" value={pageId} />
+			<input type="hidden" name="layout" value={layout} />
 			<Field data-invalid={showRequiredError || !!urlError}>
 				<FieldContent>
 					<div className="relative px-2">
@@ -77,6 +82,7 @@ export default function LinkSaveForm({ pageId, onSuccess, onCancel }: LinkSaveFo
 					{formError}
 				</p>
 			) : null}
+			<ItemLayoutSelector value={layout} onChange={setLayout} disabled={isSaving} />
 			<div className="flex gap-2">
 				{onCancel && (
 					<Button type="button" size={"lg"} variant="secondary" onClick={onCancel} disabled={isSaving} className="flex-1 rounded-2xl">

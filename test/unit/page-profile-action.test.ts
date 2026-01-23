@@ -83,6 +83,9 @@ describe("handleLinkSave", () => {
 				p_type: "link",
 				p_is_active: true,
 				p_config: {
+					style: {
+						layout: "compact",
+					},
 					data: {
 						title: "Example",
 						url: "https://example.com",
@@ -304,6 +307,9 @@ describe("handleMapSave", () => {
 				p_type: "map",
 				p_is_active: true,
 				p_config: {
+					style: {
+						layout: "compact",
+					},
 					data: {
 						url: "https://www.google.com/maps/@37.571728994548224,126.99115832321161,10.1z",
 						caption: "City Center",

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { buildGoogleMapsHref } from "@/lib/map";
+import type { ProfileItemLayout } from "types/studio.types";
 import type { Database } from "../../../types/database.types";
 
 export type MapSavePayload = {
@@ -9,6 +10,7 @@ export type MapSavePayload = {
 	zoom: number;
 	caption?: string | null;
 	isActive?: boolean;
+	layout?: ProfileItemLayout;
 };
 
 /**
@@ -24,6 +26,9 @@ export function createMapSaver(supabasePromise: Promise<SupabaseClient<Database>
 		p_type: "map",
 		p_is_active: payload.isActive ?? true,
 		p_config: {
+			style: {
+				layout: payload.layout ?? "compact",
+			},
 			data: {
 				url,
 				caption: payload.caption ?? null,

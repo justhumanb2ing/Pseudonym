@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFetcher } from "react-router";
-import type { StudioOutletContext } from "types/studio.types";
+import type { ProfileItemLayout, StudioOutletContext } from "types/studio.types";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import ItemLayoutSelector from "@/components/studio/item-layout-selector";
 import type { PageProfileActionData } from "@/service/pages/page-profile.action";
 
 type ProfileItem = StudioOutletContext["profileItems"][number];
@@ -32,6 +33,7 @@ export function MediaItemExpandedContent({ item }: { item: ProfileItem }) {
 	const defaultUrl = configData?.url ?? "";
 	const mediaUrl = configData?.media_url ?? "";
 	const mediaType = configData?.media_type ?? "image";
+	const [layout, setLayout] = useState<ProfileItemLayout>(item.config?.style?.layout ?? "compact");
 	const updateError =
 		updateFetcher.data?.intent === "media-update" && !updateFetcher.data?.success ? updateFetcher.data.formError : undefined;
 
@@ -50,6 +52,7 @@ export function MediaItemExpandedContent({ item }: { item: ProfileItem }) {
 			<updateFetcher.Form id={formId} method="post" className="flex flex-col gap-4">
 				<input type="hidden" name="intent" value="media-update" />
 				<input type="hidden" name="itemId" value={item.id} />
+				<input type="hidden" name="layout" value={layout} />
 				{mediaUrl ? (
 					<div
 						className={
@@ -108,6 +111,7 @@ export function MediaItemExpandedContent({ item }: { item: ProfileItem }) {
 					</FieldContent>
 				</Field>
 				{updateError ? <p className="text-destructive text-sm">{updateError}</p> : null}
+				<ItemLayoutSelector value={layout} onChange={setLayout} disabled={isSaving} />
 			</updateFetcher.Form>
 			<footer className="flex items-center gap-3">
 				<AlertDialog open={open} onOpenChange={setOpen}>

@@ -2,6 +2,7 @@ import { ArrowCircleUpRightIcon } from "@phosphor-icons/react";
 import type { StudioOutletContext } from "types/studio.types";
 import { MapCanvas } from "@/components/map/map-canvas";
 import { Item, ItemContent } from "@/components/ui/item";
+import { cn } from "@/lib/utils";
 
 type ProfileItem = StudioOutletContext["profileItems"][number];
 
@@ -10,12 +11,14 @@ interface MapItemProps {
 }
 
 export default function MapItem({ item }: MapItemProps) {
-	const mapData = item.config?.data;
+	const config = item.config;
+	const mapData = config?.data;
 	const lat = mapData?.lat;
 	const lng = mapData?.lng;
 	const zoom = mapData?.zoom;
 	const caption = mapData?.caption ?? "";
 	const linkUrl = mapData?.url ?? "";
+	const layout = config?.style?.layout ?? "compact";
 	const hasCoordinates = Number.isFinite(lat) && Number.isFinite(lng);
 	const center = hasCoordinates ? ([lng, lat] as [number, number]) : undefined;
 	const mapZoom = Number.isFinite(zoom) ? zoom : undefined;
@@ -24,7 +27,12 @@ export default function MapItem({ item }: MapItemProps) {
 		<Item variant={"default"} className="p-0">
 			<ItemContent className="min-w-0 flex-1">
 				<div className="relative flex w-full flex-col gap-3">
-					<div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted/60 outline outline-border">
+					<div
+						className={cn(
+							"relative w-full overflow-hidden rounded-xl bg-muted/60 outline outline-border",
+							layout === "compact" ? "aspect-video" : "aspect-square",
+						)}
+					>
 						<MapCanvas center={center} zoom={mapZoom} interactive={false} className="h-full w-full" />
 					</div>
 					{caption ? (

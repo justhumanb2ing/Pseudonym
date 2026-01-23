@@ -170,7 +170,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 		<section className="flex min-h-0 min-w-0 grow flex-col gap-6">
 			<article className="flex min-h-0 min-w-0 grow flex-col gap-5 xl:flex-row xl:justify-between">
 				{/* Left Column - Profile & Links */}
-				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 px-4 pt-14 pb-8 md:container md:mx-auto md:max-w-6xl md:px-4">
+				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6 px-4 pt-14 pb-8 md:container md:mx-auto md:max-w-2xl md:px-4">
 					<div className="overflow-hidden">
 						<div className="flex items-center gap-2">
 							{/* Profile Image */}

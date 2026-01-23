@@ -2,7 +2,7 @@ import { Crosshair, Minus, Plus } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { useFetcher } from "react-router";
-import type { StudioOutletContext } from "types/studio.types";
+import type { ProfileItemLayout, StudioOutletContext } from "types/studio.types";
 import { MapCanvas, type MapCanvasControls, type MapCanvasViewport } from "@/components/map/map-canvas";
 import { MapSearch } from "@/components/map/map-search";
 import {
@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
+import ItemLayoutSelector from "@/components/studio/item-layout-selector";
 import { MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM } from "@/lib/map";
 import type { PageProfileActionData } from "@/service/pages/page-profile.action";
 
@@ -41,6 +42,7 @@ export function MapItemExpandedContent({ item }: { item: ProfileItem }) {
 	const [controls, setControls] = useState<MapCanvasControls | null>(null);
 	const [caption, setCaption] = useState(configData?.caption ?? "");
 	const [mapKey, setMapKey] = useState(0);
+	const [layout, setLayout] = useState<ProfileItemLayout>(item.config?.style?.layout ?? "compact");
 
 	const isSaving = updateFetcher.state !== "idle";
 	const isDeleting = deleteFetcher.state !== "idle";
@@ -91,6 +93,7 @@ export function MapItemExpandedContent({ item }: { item: ProfileItem }) {
 				<input type="hidden" name="lat" value={String(center[1])} />
 				<input type="hidden" name="lng" value={String(center[0])} />
 				<input type="hidden" name="zoom" value={String(zoom)} />
+				<input type="hidden" name="layout" value={layout} />
 
 				<div className="relative h-56 shrink-0 overflow-hidden rounded-2xl border bg-muted/10 md:h-80" data-vaul-no-drag>
 					<MapCanvas
@@ -128,6 +131,7 @@ export function MapItemExpandedContent({ item }: { item: ProfileItem }) {
 				</div>
 
 				{updateError ? <p className="text-destructive text-xs/relaxed">{updateError}</p> : null}
+				<ItemLayoutSelector value={layout} onChange={setLayout} disabled={isSaving} />
 			</updateFetcher.Form>
 
 			<footer className="flex items-center gap-3">

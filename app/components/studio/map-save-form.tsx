@@ -4,11 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useFetcher } from "react-router";
 import { MapCanvas, type MapCanvasControls, type MapCanvasViewport } from "@/components/map/map-canvas";
 import { MapSearch } from "@/components/map/map-search";
+import ItemLayoutSelector from "@/components/studio/item-layout-selector";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 import { MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM } from "@/lib/map";
 import type { PageProfileActionData } from "@/service/pages/page-profile.action";
+import type { ProfileItemLayout } from "types/studio.types";
 
 const DEFAULT_CENTER: [number, number] = MAP_DEFAULT_CENTER;
 
@@ -25,6 +27,7 @@ export default function MapSaveForm({ pageId, onSuccess, onCancel }: MapSaveForm
 	const [zoom, setZoom] = useState(MAP_DEFAULT_ZOOM);
 	const [controls, setControls] = useState<MapCanvasControls | null>(null);
 	const [caption, setCaption] = useState("");
+	const [layout, setLayout] = useState<ProfileItemLayout>("compact");
 
 	const isSaving = fetcher.state !== "idle";
 	const formError = actionData?.intent === "map-save" && !actionData?.success ? actionData.formError : undefined;
@@ -34,6 +37,7 @@ export default function MapSaveForm({ pageId, onSuccess, onCancel }: MapSaveForm
 			setCenter(DEFAULT_CENTER);
 			setZoom(MAP_DEFAULT_ZOOM);
 			setCaption("");
+			setLayout("compact");
 			onSuccess?.();
 		}
 	}, [actionData?.success, actionData?.intent, onSuccess]);
@@ -65,6 +69,7 @@ export default function MapSaveForm({ pageId, onSuccess, onCancel }: MapSaveForm
 			<input type="hidden" name="lat" value={String(center[1])} />
 			<input type="hidden" name="lng" value={String(center[0])} />
 			<input type="hidden" name="zoom" value={String(zoom)} />
+			<input type="hidden" name="layout" value={layout} />
 
 			<div className="relative h-40 shrink-0 overflow-hidden rounded-2xl border bg-muted/10 md:h-64" data-vaul-no-drag>
 				<MapCanvas
@@ -101,6 +106,7 @@ export default function MapSaveForm({ pageId, onSuccess, onCancel }: MapSaveForm
 			</div>
 
 			{formError ? <p className="text-destructive text-xs/relaxed">{formError}</p> : null}
+			<ItemLayoutSelector value={layout} onChange={setLayout} disabled={isSaving} />
 
 			<div className="flex gap-2">
 				{onCancel ? (

@@ -5,10 +5,12 @@ import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toastManager } from "@/components/ui/toast";
+import ItemLayoutSelector from "@/components/studio/item-layout-selector";
 import { usePageMediaUploader } from "@/hooks/use-page-media-uploader";
 import { cn } from "@/lib/utils";
 import { getPageMediaValidationError, normalizeOptionalText, type PageMediaKind, resolvePageMediaKind } from "@/service/pages/page-media";
 import type { PageProfileActionData } from "@/service/pages/page-profile.action";
+import type { ProfileItemLayout } from "types/studio.types";
 
 type MediaSaveFormProps = {
 	pageId: string;
@@ -30,6 +32,7 @@ export default function MediaSaveForm({ pageId, userId, onSuccess, onCancel }: M
 	const [isUploading, setIsUploading] = useState(false);
 	const [uploadError, setUploadError] = useState<string | null>(null);
 	const [isDragOver, setIsDragOver] = useState(false);
+	const [layout, setLayout] = useState<ProfileItemLayout>("compact");
 
 	const isSaving = fetcher.state !== "idle";
 	const formError = fetcher.data?.intent === "media-save" && !fetcher.data?.success ? fetcher.data.formError : undefined;
@@ -43,6 +46,7 @@ export default function MediaSaveForm({ pageId, userId, onSuccess, onCancel }: M
 			setCaptionValue("");
 			setUrlValue("");
 			setUploadError(null);
+			setLayout("compact");
 			if (fileInputRef.current) {
 				fileInputRef.current.value = "";
 			}
@@ -166,6 +170,7 @@ export default function MediaSaveForm({ pageId, userId, onSuccess, onCancel }: M
 		formData.set("pageId", pageId);
 		formData.set("mediaUrl", mediaUrl);
 		formData.set("mediaType", mediaType);
+		formData.set("layout", layout);
 		const normalizedCaption = normalizeOptionalText(captionValue);
 		const normalizedUrl = normalizeOptionalText(urlValue);
 		if (normalizedCaption !== null) {
@@ -303,6 +308,7 @@ export default function MediaSaveForm({ pageId, userId, onSuccess, onCancel }: M
 			) : null}
 
 			{formError ? <p className="text-destructive text-xs">{formError}</p> : null}
+			<ItemLayoutSelector value={layout} onChange={setLayout} disabled={isSaving || isUploading} />
 
 			<div className="flex gap-2 pt-2">
 				{onCancel && (

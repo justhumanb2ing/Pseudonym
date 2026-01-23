@@ -46,9 +46,24 @@ export type PageProfileActionData = {
 	itemId?: string;
 };
 
+const layoutSchema = z.preprocess((value) => {
+	if (typeof value !== "string" || value.trim().length === 0) {
+		return undefined;
+	}
+	return value;
+}, z.enum(["compact", "full"]).optional());
+
+const layoutWithDefaultSchema = z.preprocess((value) => {
+	if (typeof value !== "string" || value.trim().length === 0) {
+		return "compact";
+	}
+	return value;
+}, z.enum(["compact", "full"]));
+
 const linkSaveSchema = z.object({
 	pageId: z.string().min(1, "Page id is required."),
 	url: z.string().trim().min(1, "URL is required."),
+	layout: layoutWithDefaultSchema,
 });
 
 const mapSaveSchema = z.object({
@@ -57,6 +72,7 @@ const mapSaveSchema = z.object({
 	lng: z.coerce.number().min(-180).max(180),
 	zoom: z.coerce.number().min(0).max(22),
 	caption: z.string().trim().optional().nullable(),
+	layout: layoutWithDefaultSchema,
 });
 
 const mapUpdateSchema = z.object({
@@ -65,6 +81,7 @@ const mapUpdateSchema = z.object({
 	lng: z.coerce.number().min(-180).max(180),
 	zoom: z.coerce.number().min(0).max(22),
 	caption: z.string().trim().optional().nullable(),
+	layout: layoutSchema,
 });
 
 const textSaveSchema = z.object({
@@ -103,6 +120,7 @@ const linkUpdateSchema = z.object({
 	itemId: z.string().min(1, "Item id is required."),
 	title: z.string().trim().optional(),
 	url: z.string().trim().min(1, "URL is required."),
+	layout: layoutSchema,
 });
 
 const linkToggleSchema = z.object({
@@ -294,6 +312,7 @@ export async function handleLinkSave({ formData, supabase }: PageProfileActionCo
 	const parsed = linkSaveSchema.safeParse({
 		pageId: formData.get("pageId"),
 		url: formData.get("url"),
+		layout: formData.get("layout"),
 	});
 
 	if (!parsed.success) {
@@ -313,6 +332,7 @@ export async function handleLinkSave({ formData, supabase }: PageProfileActionCo
 		await saveLink({
 			pageId: parsed.data.pageId,
 			url: parsed.data.url,
+			layout: parsed.data.layout,
 		});
 	} catch (error) {
 		return {
@@ -360,6 +380,7 @@ export async function handleLinkUpdate({ formData, supabase }: PageProfileAction
 		itemId: formData.get("itemId"),
 		title: formData.get("title"),
 		url: formData.get("url"),
+		layout: formData.get("layout"),
 	});
 
 	if (!parsed.success) {
@@ -377,6 +398,7 @@ export async function handleLinkUpdate({ formData, supabase }: PageProfileAction
 
 	const normalizedTitle = parsed.data.title?.trim() || null;
 	const normalizedUrl = normalizeLinkUrl(parsed.data.url);
+	const nextLayout = parsed.data.layout;
 
 	const { data: profileItem, error: itemError } = await supabase
 		.from("profile_items")
@@ -391,17 +413,25 @@ export async function handleLinkUpdate({ formData, supabase }: PageProfileAction
 	const rawConfig = profileItem?.config;
 	const configObject =
 		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
+	const rawConfigStyle = configObject.style;
+	const configStyle =
+		rawConfigStyle && typeof rawConfigStyle === "object" && !Array.isArray(rawConfigStyle)
+			? (rawConfigStyle as Record<string, unknown>)
+			: {};
 	const rawConfigData = configObject.data;
 	const configData =
 		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
 			? (rawConfigData as Record<string, unknown>)
 			: {};
 
+	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
+
 	const { error: updateError } = await supabase
 		.from("profile_items")
 		.update({
 			config: {
 				...configObject,
+				...(nextStyle !== undefined ? { style: nextStyle } : {}),
 				data: {
 					...configData,
 					title: normalizedTitle,
@@ -530,12 +560,13 @@ export async function handleSectionSave({ formData, supabase }: PageProfileActio
  * Saves an image/video item from the profile page.
  */
 export async function handleMediaSave({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
-	const parsed = pageMediaSaveSchema.safeParse({
+	const parsed = pageMediaSaveSchema.extend({ layout: layoutWithDefaultSchema }).safeParse({
 		pageId: formData.get("pageId"),
 		mediaUrl: formData.get("mediaUrl"),
 		mediaType: formData.get("mediaType"),
 		caption: formData.get("caption"),
 		url: formData.get("url"),
+		layout: formData.get("layout"),
 	});
 
 	if (!parsed.success) {
@@ -555,6 +586,7 @@ export async function handleMediaSave({ formData, supabase }: PageProfileActionC
 			mediaType: parsed.data.mediaType,
 			caption: normalizeOptionalText(formData.get("caption")),
 			url: normalizeOptionalText(formData.get("url")),
+			layout: parsed.data.layout,
 		});
 	} catch (error) {
 		return {
@@ -576,6 +608,7 @@ export async function handleMapSave({ formData, supabase }: PageProfileActionCon
 		lng: formData.get("lng"),
 		zoom: formData.get("zoom"),
 		caption: formData.get("caption"),
+		layout: formData.get("layout"),
 	});
 
 	if (!parsed.success) {
@@ -598,6 +631,7 @@ export async function handleMapSave({ formData, supabase }: PageProfileActionCon
 			center: [parsed.data.lng, parsed.data.lat],
 			zoom: parsed.data.zoom,
 			caption: normalizeOptionalText(parsed.data.caption ?? null),
+			layout: parsed.data.layout,
 		});
 	} catch (error) {
 		return {
@@ -619,6 +653,7 @@ export async function handleMapUpdate({ formData, supabase }: PageProfileActionC
 		lng: formData.get("lng"),
 		zoom: formData.get("zoom"),
 		caption: formData.get("caption"),
+		layout: formData.get("layout"),
 	});
 
 	if (!parsed.success) {
@@ -646,18 +681,27 @@ export async function handleMapUpdate({ formData, supabase }: PageProfileActionC
 	const rawConfig = profileItem?.config;
 	const configObject =
 		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
+	const rawConfigStyle = configObject.style;
+	const configStyle =
+		rawConfigStyle && typeof rawConfigStyle === "object" && !Array.isArray(rawConfigStyle)
+			? (rawConfigStyle as Record<string, unknown>)
+			: {};
 	const rawConfigData = configObject.data;
 	const configData =
 		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
 			? (rawConfigData as Record<string, unknown>)
 			: {};
 	const nextCenter: [number, number] = [parsed.data.lng, parsed.data.lat];
+	const nextLayout = parsed.data.layout;
+
+	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
 
 	const { error: updateError } = await supabase
 		.from("profile_items")
 		.update({
 			config: {
 				...configObject,
+				...(nextStyle !== undefined ? { style: nextStyle } : {}),
 				data: {
 					...configData,
 					url: buildGoogleMapsHref(nextCenter, parsed.data.zoom),
@@ -741,10 +785,11 @@ export async function handleTextUpdate({ formData, supabase }: PageProfileAction
  * Updates a media item caption/url from the profile page.
  */
 export async function handleMediaUpdate({ formData, supabase }: PageProfileActionContext): Promise<PageProfileActionData> {
-	const parsed = pageMediaUpdateSchema.safeParse({
+	const parsed = pageMediaUpdateSchema.extend({ layout: layoutSchema }).safeParse({
 		itemId: formData.get("itemId"),
 		caption: formData.get("caption"),
 		url: formData.get("url"),
+		layout: formData.get("layout"),
 	});
 
 	if (!parsed.success) {
@@ -768,17 +813,26 @@ export async function handleMediaUpdate({ formData, supabase }: PageProfileActio
 	const rawConfig = profileItem?.config;
 	const configObject =
 		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
+	const rawConfigStyle = configObject.style;
+	const configStyle =
+		rawConfigStyle && typeof rawConfigStyle === "object" && !Array.isArray(rawConfigStyle)
+			? (rawConfigStyle as Record<string, unknown>)
+			: {};
 	const rawConfigData = configObject.data;
 	const configData =
 		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
 			? (rawConfigData as Record<string, unknown>)
 			: {};
+	const nextLayout = parsed.data.layout;
+
+	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
 
 	const { error: updateError } = await supabase
 		.from("profile_items")
 		.update({
 			config: {
 				...configObject,
+				...(nextStyle !== undefined ? { style: nextStyle } : {}),
 				data: {
 					...configData,
 					caption: normalizeOptionalText(formData.get("caption")),

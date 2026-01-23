@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import type { ProfileItemLayout } from "types/studio.types";
 import type { Database } from "../../../types/database.types";
 import { type CrawlLinkOptions, crawlLinkUrl } from "./link-crawl";
 
@@ -7,6 +8,7 @@ export type LinkSavePayload = {
 	pageId: string;
 	url: string;
 	isActive?: boolean;
+	layout?: ProfileItemLayout;
 };
 
 export type LinkSaveDependencies = {
@@ -38,6 +40,9 @@ export function createLinkSaver(supabasePromise: Promise<SupabaseClient<Database
 			p_type: "link",
 			p_is_active: payload.isActive ?? true,
 			p_config: {
+				style: {
+					layout: payload.layout ?? "compact",
+				},
 				data: {
 					url: normalizedUrl,
 					title: data.title ?? null,
