@@ -6,8 +6,6 @@ export type FieldErrors = Partial<Record<"senderEmail" | "subject" | "content", 
 
 export type ActionData = { ok: true; message: string } | { ok: false; fieldErrors?: FieldErrors; formError?: string };
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const emailSchema = z.object({
 	senderEmail: z.email(),
 	subject: z.string().trim().min(1, "Subject is required."),
@@ -42,6 +40,18 @@ export async function action({ request }: Route.ActionArgs) {
 	const { senderEmail, subject, content } = parsed.data;
 
 	try {
+		const apiKey = process.env.RESEND_API_KEY;
+		if (!apiKey) {
+			console.error("RESEND_API_KEY is missing.");
+			const data = {
+				ok: false,
+				formError: "메일 전송에 실패했어요. 잠시 후 다시 시도해주세요.",
+			} satisfies ActionData;
+
+			return Response.json(data, { status: 500 });
+		}
+
+		const resend = new Resend(apiKey);
 		await resend.emails.send({
 			from: `delivered@resend.dev`, // TODO: 검증된 도메인의 발신 주소이다. 사용자의 이메일 주소가 아님 e.g. 앱이름 <no-reply.서브도메인>
 			to: "zentechie7@gmail.com", // TODO: 전달받을 나의 이메일 주소

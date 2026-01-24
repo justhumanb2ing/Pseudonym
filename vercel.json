@@ -1,5 +1,0 @@
-{
-	"$schema": "https://openapi.vercel.sh/vercel.json",
-	"regions": ["icn1"],
-	"rewrites": [{ "source": "/(.*)", "destination": "/" }]
-}

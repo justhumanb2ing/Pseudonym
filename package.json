@@ -7,8 +7,10 @@
 		"dev": "react-router dev",
 		"hooks:setup": "git config core.hooksPath config/githooks",
 		"test": "vitest run",
-		"start": "react-router-serve ./build/server/index.js",
-		"typecheck": "react-router typegen && tsc",
+		"cf-typegen": "wrangler types",
+		"postinstall": "bun run cf-typegen",
+		"deploy": "react-router build && wrangler deploy",
+		"typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
 		"gentype": "supabase gen types typescript --project-id mkkwldxodlabuyerxslb > types/database.types.ts",
 		"lint": "biome lint --write",
 		"format": "biome format --write",
@@ -63,6 +65,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.11",
+		"@cloudflare/vite-plugin": "^1.21.2",
 		"@react-router/dev": "7.10.1",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.1.13",
@@ -84,6 +87,7 @@
 		"vite": "^7.1.7",
 		"vite-intlayer": "^7.5.7",
 		"vite-tsconfig-paths": "^5.1.4",
-		"vitest": "^3.0.0"
+		"vitest": "^3.0.0",
+		"wrangler": "^4.60.0"
 	}
 }

@@ -1,0 +1,51 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "venus",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"compatibility_date": "2025-04-04",
+	"main": "./workers/app.ts",
+	"vars": {
+		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare",
+		"VITE_SB_ID": "mkkwldxodlabuyerxslb",
+		"VITE_SB_URL": "https://mkkwldxodlabuyerxslb.supabase.co",
+		"VITE_SB_PUBLISHABLE_KEY": "sb_publishable_AJzWDQYb9Yokf9xE7Y_TZQ_0gjfwkXc",
+		"VITE_CLERK_PUBLISHABLE_KEY": "pk_test_dGhvcm91Z2gtdGVycmllci05LmNsZXJrLmFjY291bnRzLmRldiQ",
+		"CLERK_SIGN_IN_URL": "/sign-in",
+		"CLERK_SIGN_IN_FALLBACK_REDIRECT_URL": "/",
+		"CLERK_SIGN_UP_FALLBACK_REDIRECT_URL": "/",
+		"VITE_UMAMI_WEBSITE_ID": "913b402f-ffb7-4247-8407-98b91b9ec264",
+		"VITE_UMAMI_SCRIPT_URL": "https://cloud.umami.is/script.js",
+		"VITE_MAPBOX_PUBLIC_TOKEN": "pk.eyJ1IjoianVzdGh1bWFuYjJpbmciLCJhIjoiY21rM3RncDhiMDBlcDNkcHlmeWtsMXc3cyJ9.SpXaX9eMjErIeyYPqEyGtA",
+		"VITE_CRAWLER_SERVER_ENDPOINT": "https://og-crawler-server.vercel.app"
+	},
+	"observability": {
+		"enabled": true
+	}
+	/**
+	 * Smart Placement
+	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
+	 */
+	// "placement": {  "mode": "smart" }
+	/**
+	 * Bindings
+	 * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
+	 * databases, object storage, AI inference, real-time communication and more.
+	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
+	 */
+	/**
+	 * Static Assets
+	 * https://developers.cloudflare.com/workers/static-assets/binding/
+	 */
+	// "assets": {  "directory": "./public/",  "binding": "ASSETS" }
+	/**
+	 * Service Bindings (communicate between multiple Workers)
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
+	 */
+	// "services": [  {   "binding": "MY_SERVICE",   "service": "my-service"  } ]
+}
