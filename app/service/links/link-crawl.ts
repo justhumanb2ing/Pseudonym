@@ -113,6 +113,7 @@ function buildCrawlerUrl(baseUrl: string, normalizedUrl: string) {
 	const url = new URL("/api/crawl", baseUrl);
 	url.searchParams.set("url", normalizedUrl);
 	url.searchParams.set("mode", "auto");
+	url.searchParams.set("timings", "true");
 	return url.toString();
 }
 

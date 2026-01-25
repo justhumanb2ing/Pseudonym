@@ -69,7 +69,7 @@ describe("crawlLinkUrl", () => {
 		expect(result.response).toEqual(successPayload);
 		expect(fetcher).toHaveBeenCalledTimes(3);
 		expect(fetcher).toHaveBeenCalledWith(
-			"https://crawler.test/api/crawl?url=https%3A%2F%2Fexample.com&mode=auto",
+			"https://crawler.test/api/crawl?url=https%3A%2F%2Fexample.com&mode=auto&timings=true",
 			expect.objectContaining({ method: "GET" }),
 		);
 		expect(delays).toEqual([500, 1500]);

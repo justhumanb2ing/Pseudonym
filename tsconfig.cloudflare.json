@@ -6,6 +6,7 @@
     "app/**/.server/**/*",
     "app/**/.client/**/*",
     ".intlayer/**/*.ts",
+    "types/**/*",
     "workers/**/*",
     "test/**/*",
     "worker-configuration.d.ts"

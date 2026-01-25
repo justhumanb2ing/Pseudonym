@@ -6,6 +6,9 @@ import { intlayer, intlayerProxy } from "vite-intlayer";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig((config) => {
+	const enableCloudflareInDev = /^(1|true|yes)$/i.test(process.env.DEV_CLOUDFLARE ?? "");
+	const useCloudflarePlugin =
+		config.command === "build" || (config.command === "serve" && enableCloudflareInDev);
 	return {
 		// define: {
 		// 	__APP_ENV__: JSON.stringify(env.APP_ENV),
@@ -30,6 +33,13 @@ export default defineConfig((config) => {
 				enable_nodejs_process_v2: true,
 			},
 		},
-		plugins: [tailwindcss(), reactRouter(), tsconfigPaths(), intlayer(), intlayerProxy(), cloudflare({ viteEnvironment: { name: "ssr" } })],
+		plugins: [
+			tailwindcss(),
+			reactRouter(),
+			tsconfigPaths(),
+			intlayer(),
+			intlayerProxy(),
+			...(useCloudflarePlugin ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : []),
+		],
 	};
 });

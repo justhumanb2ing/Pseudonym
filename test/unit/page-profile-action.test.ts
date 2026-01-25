@@ -75,7 +75,7 @@ describe("handleLinkSave", () => {
 		const result = await handleLinkSave({ formData, supabase });
 
 		expect(result).toEqual({ success: true, intent: "link-save" });
-		expect(fetchCalls[0]?.url).toBe("https://crawler.test/api/crawl?url=https%3A%2F%2Fexample.com&mode=auto");
+		expect(fetchCalls[0]?.url).toBe("https://crawler.test/api/crawl?url=https%3A%2F%2Fexample.com&mode=auto&timings=true");
 		expect(calls.rpc).toEqual({
 			fn: "add_page_item",
 			payload: {
