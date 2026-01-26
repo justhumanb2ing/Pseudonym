@@ -16,7 +16,9 @@ export default defineConfig((config) => {
 		build: {
 			sourcemap: config.mode === "production",
 			rollupOptions: {
-				...(config.isSsrBuild ? { input: ["./server/app.ts"] } : {}),
+				...(config.isSsrBuild ? {
+					input: ["virtual:react-router/server-build", "./workers/app.ts"]
+				} : undefined),
 
 				onwarn(warning, warn) {
 					// base-ui / node_modules sourcemap 경고 제거
