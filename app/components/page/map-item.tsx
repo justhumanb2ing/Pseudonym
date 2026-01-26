@@ -1,5 +1,5 @@
 import { ArrowCircleUpRightIcon } from "@phosphor-icons/react";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import type { StudioOutletContext } from "types/studio.types";
 import { Item, ItemContent } from "@/components/ui/item";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,8 @@ interface MapItemProps {
 }
 
 const LazyMapCanvas = lazy(() => import("@/components/map/map-canvas").then((module) => ({ default: module.MapCanvas })));
+
+const PRELOAD_MARGIN = "200px";
 
 export default function MapItem({ item }: MapItemProps) {
 	const config = item.config;
@@ -24,20 +26,59 @@ export default function MapItem({ item }: MapItemProps) {
 	const hasCoordinates = Number.isFinite(lat) && Number.isFinite(lng);
 	const center = hasCoordinates ? ([lng, lat] as [number, number]) : undefined;
 	const mapZoom = Number.isFinite(zoom) ? zoom : undefined;
+	const [shouldRenderMap, setShouldRenderMap] = useState(() => {
+		if (typeof window === "undefined") {
+			return false;
+		}
+		return typeof IntersectionObserver === "undefined";
+	});
+	const mapWrapperRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		if (shouldRenderMap) {
+			return;
+		}
+
+		const target = mapWrapperRef.current;
+		if (!target || typeof IntersectionObserver === "undefined") {
+			setShouldRenderMap(true);
+			return;
+		}
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((entry) => entry.isIntersecting)) {
+					setShouldRenderMap(true);
+					observer.disconnect();
+				}
+			},
+			{ rootMargin: PRELOAD_MARGIN },
+		);
+
+		observer.observe(target);
+		return () => {
+			observer.disconnect();
+		};
+	}, [shouldRenderMap]);
 
 	return (
 		<Item variant={"default"} className="p-0">
 			<ItemContent className="min-w-0 flex-1">
 				<div className="relative flex w-full flex-col gap-3">
 					<div
+						ref={mapWrapperRef}
 						className={cn(
 							"relative w-full overflow-hidden rounded-xl bg-muted/60 outline outline-border",
 							layout === "compact" ? "aspect-video" : "aspect-square",
 						)}
 					>
-						<Suspense fallback={<div className="h-full w-full bg-muted/40" />}>
-							<LazyMapCanvas center={center} zoom={mapZoom} interactive={false} className="h-full w-full" />
-						</Suspense>
+						{shouldRenderMap ? (
+							<Suspense fallback={<div className="h-full w-full bg-muted/40" />}>
+								<LazyMapCanvas center={center} zoom={mapZoom} interactive={false} className="h-full w-full" />
+							</Suspense>
+						) : (
+							<div className="h-full w-full bg-muted/40" />
+						)}
 					</div>
 					{caption ? (
 						<p className="absolute bottom-2 left-2 line-clamp-2 w-fit max-w-[calc(100%-1rem)] break-all rounded-lg border bg-background px-2 py-1 text-left text-sm leading-5">

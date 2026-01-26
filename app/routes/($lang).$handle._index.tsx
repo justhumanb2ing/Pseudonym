@@ -18,6 +18,13 @@ import { getSupabaseServerClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import type { Route } from "./+types/($lang).$handle._index";
 
+const SIGNED_URL_HINTS = ["signature=", "expires=", "token=", "x-amz-"];
+
+const isLikelySignedUrl = (url: string) => {
+	const normalized = url.toLowerCase();
+	return SIGNED_URL_HINTS.some((hint) => normalized.includes(hint));
+};
+
 export async function loader(args: Route.LoaderArgs) {
 	const { userId } = await getAuth(args);
 	const { handle } = args.params;
@@ -63,6 +70,7 @@ export default function UserProfileRoute() {
 	const location = useLocation();
 	const revalidator = useRevalidator();
 	const isPreview = isPreviewSearch(location.search);
+	const shouldPreloadImage = Boolean(page.image_url) && !isPreview && !isLikelySignedUrl(page.image_url ?? "");
 	const activeProfileItems = profileItems.filter((item) => item.is_active) ?? [];
 	const isMobile = useIsMobile();
 	const mainClassName = isMobile
@@ -116,68 +124,77 @@ export default function UserProfileRoute() {
 	}, [isPreview, revalidator]);
 
 	return (
-		<div className={cn("box-border h-dvh overflow-hidden", !isMobile && "py-10")}>
-			<main className={cn(mainClassName, "scrollbar-hide relative box-border overflow-y-auto bg-white pb-10 dark:bg-black")}>
-				<div className="flex flex-col gap-4 p-10 py-12 pb-2">
-					<div className="size-30 overflow-hidden rounded-full md:size-36">
-						{page.image_url ? (
-							<img src={page.image_url} alt={page.handle} className="h-full w-full object-cover" />
-						) : (
-							<div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground text-xs"></div>
+		<>
+			{shouldPreloadImage && <link rel="preload" as="image" href={page.image_url ?? ""} fetchPriority="high" />}
+			<div className={cn("box-border h-dvh overflow-hidden", !isMobile && "py-10")}>
+				<main className={cn(mainClassName, "scrollbar-hide relative box-border overflow-y-auto bg-white pb-10 dark:bg-black")}>
+					<div className="flex flex-col gap-4 p-10 py-12 pb-2">
+						<div className="size-30 overflow-hidden rounded-full md:size-36">
+							{page.image_url ? (
+								<img
+									src={page.image_url}
+									alt={page.handle}
+									className="h-full w-full object-cover"
+									loading="eager"
+									decoding="async"
+								/>
+							) : (
+								<div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground text-xs"></div>
+							)}
+						</div>
+						<div className="flex min-w-0 flex-col gap-2">
+							<p className="font-bold text-3xl md:text-4xl">{page.title}</p>
+							<p className="line-clamp-6 text-pretty font-light">{page.description}</p>
+						</div>
+					</div>
+
+					<section className="flex flex-col gap-3 p-6">
+						{activeProfileItems.length === 0 && (
+							<Empty className="p-0">
+								<EmptyHeader>
+									<EmptyMedia className="size-52 overflow-hidden">
+										<img src={"/cat-blunge.png"} alt="empty" className="h-full w-full object-cover grayscale-75" />
+									</EmptyMedia>
+									<EmptyTitle className="text-base">Something is coming together here.</EmptyTitle>
+								</EmptyHeader>
+							</Empty>
 						)}
-					</div>
-					<div className="flex min-w-0 flex-col gap-2">
-						<p className="font-bold text-3xl md:text-4xl">{page.title}</p>
-						<p className="line-clamp-6 text-pretty font-light">{page.description}</p>
-					</div>
-				</div>
-
-				<section className="flex flex-col gap-3 p-6">
-					{activeProfileItems.length === 0 && (
-						<Empty className="p-0">
-							<EmptyHeader>
-								<EmptyMedia className="size-52 overflow-hidden">
-									<img src={"/cat-blunge.png"} alt="empty" className="h-full w-full object-cover grayscale-75" />
-								</EmptyMedia>
-								<EmptyTitle className="text-base">Something is coming together here.</EmptyTitle>
-							</EmptyHeader>
-						</Empty>
-					)}
-					{activeProfileItems.map((item) => {
-						if (item.type === "text") {
-							return <TextItem key={item.id} item={item} />;
-						}
-						if (item.type === "section") {
-							return <SectionItem key={item.id} item={item} />;
-						}
-						if (item.type === "media") {
-							return <MediaItem key={item.id} item={item} />;
-						}
-						if (item.type === "map") {
-							return <MapItem key={item.id} item={item} />;
-						}
-						return <LinkItem key={item.id} item={item} />;
-					})}
-				</section>
-				<footer className="flex justify-center py-8">
-					<Watermark />
-				</footer>
-
-				{!isPreview && (
-					<div className="absolute top-12 right-10">
-						<Button
-							size={"icon-lg"}
-							className={"rounded-full"}
-							aria-label="Let's make your unique page"
-							render={
-								<LocalizedLink to={"/"}>
-									<SparklesIcon />
-								</LocalizedLink>
+						{activeProfileItems.map((item) => {
+							if (item.type === "text") {
+								return <TextItem key={item.id} item={item} />;
 							}
-						></Button>
-					</div>
-				)}
-			</main>
-		</div>
+							if (item.type === "section") {
+								return <SectionItem key={item.id} item={item} />;
+							}
+							if (item.type === "media") {
+								return <MediaItem key={item.id} item={item} />;
+							}
+							if (item.type === "map") {
+								return <MapItem key={item.id} item={item} />;
+							}
+							return <LinkItem key={item.id} item={item} />;
+						})}
+					</section>
+					<footer className="flex justify-center py-8">
+						<Watermark />
+					</footer>
+
+					{!isPreview && (
+						<div className="absolute top-12 right-10">
+							<Button
+								size={"icon-lg"}
+								className={"rounded-full"}
+								aria-label="Let's make your unique page"
+								render={
+									<LocalizedLink to={"/"}>
+										<SparklesIcon />
+									</LocalizedLink>
+								}
+							></Button>
+						</div>
+					)}
+				</main>
+			</div>
+		</>
 	);
 }

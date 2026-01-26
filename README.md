@@ -79,6 +79,10 @@ It focuses on core creation and editing experiences,
 while features such as advanced analytics and theme systems
 are deliberately left out to avoid premature complexity.
 
+## Development
+
+- Run tests with `bun run test`. (`bun test` uses Bun's runner and won't resolve `@/` path aliases.)
+
 ## Closing
 
 This project represents my approach to frontend development:
