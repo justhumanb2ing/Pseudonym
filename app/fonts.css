@@ -1,31 +1,12 @@
-@import "@fontsource/pretendard/100.css";
-@import "@fontsource/pretendard/200.css";
-@import "@fontsource/pretendard/300.css";
-@import "@fontsource/pretendard/400.css";
-@import "@fontsource/pretendard/500.css";
-@import "@fontsource/pretendard/600.css";
-@import "@fontsource/pretendard/700.css";
-@import "@fontsource/pretendard/800.css";
-@import "@fontsource/pretendard/900.css";
+/* Supports weights 200-900 */
+@import "@fontsource-variable/nunito-sans";
+
+/* Supports weights 100-900 */
+@import "@fontsource-variable/raleway";
 
 @theme {
-	--font-pretendard: "Pretendard", sans-serif;
-	--font-jalnan: "Jalnan", sans-serif;
-	--font-jalnan-gothic: "JalnanGothic", sans-serif;
-}
-
-@font-face {
-	font-family: 'Jalnan';
-	src: url('/fonts/Jalnan2TTF.ttf') format("truetype");
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
-}
-
-@font-face {
-	font-family: 'JalnanGothic';
-	src: url('/fonts/JalnanGothicTTF.ttf') format("truetype");
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
+	/* --font-pretendard: "Pretendard", sans-serif; */
+	--font-pretendard: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+	--font-nunito: "Nunito Sans Variable", sans-serif;
+	--font-raleway: "Raleway Variable", sans-serif;
 }
