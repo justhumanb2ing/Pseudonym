@@ -44,7 +44,8 @@ describe("handleLinkSave", () => {
 	});
 
 	it("returns success when link save succeeds", async () => {
-		process.env.VITE_CRAWLER_SERVER_ENDPOINT = "https://og-crawler-server.onrender.com";
+		const env = process.env as Record<string, string | undefined>;
+		env.VITE_CRAWLER_SERVER_ENDPOINT = "https://crawler.test";
 		const formData = new FormData();
 		formData.set("pageId", "page-1");
 		formData.set("url", "example.com");
