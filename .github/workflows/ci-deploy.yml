@@ -32,8 +32,25 @@ jobs:
 
       - name: Build
         env:
+          WRANGLER_LOG: debug
           WRANGLER_LOG_PATH: ${{ runner.temp }}/wrangler-logs
         run: bun run build
+      
+      - name: Dump wrangler logs
+        if: always()
+        run: |
+          echo "WRANGLER_LOG_PATH=${{ runner.temp }}/wrangler-logs"
+          if [ -d "${{ runner.temp }}/wrangler-logs" ]; then
+            ls -al "${{ runner.temp }}/wrangler-logs" || true
+            for f in "${{ runner.temp }}/wrangler-logs"/*; do
+              if [ -f "$f" ]; then
+                echo "---- $f ----"
+                cat "$f" || true
+              fi
+            done
+          else
+            echo "No wrangler log directory found."
+          fi
 
       - name: Deploy (Workers)
         env:
