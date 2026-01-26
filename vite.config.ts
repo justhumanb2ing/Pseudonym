@@ -7,8 +7,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig((config) => {
 	const enableCloudflareInDev = /^(1|true|yes)$/i.test(process.env.DEV_CLOUDFLARE ?? "");
-	const useCloudflarePlugin =
-		config.command === "build" || (config.command === "serve" && enableCloudflareInDev);
+	const useCloudflarePlugin = config.command === "serve" && enableCloudflareInDev;
 	return {
 		// define: {
 		// 	__APP_ENV__: JSON.stringify(env.APP_ENV),
