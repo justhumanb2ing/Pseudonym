@@ -16,10 +16,6 @@ export default defineConfig((config) => {
 		build: {
 			sourcemap: config.mode === "production",
 			rollupOptions: {
-				...(config.isSsrBuild ? {
-					input: ["virtual:react-router/server-build", "./workers/app.ts"]
-				} : undefined),
-
 				onwarn(warning, warn) {
 					// base-ui / node_modules sourcemap 경고 제거
 					if (warning.code === "SOURCEMAP_ERROR" && warning.message?.includes("node_modules")) {
@@ -36,12 +32,12 @@ export default defineConfig((config) => {
 			},
 		},
 		plugins: [
+			...(useCloudflarePlugin ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : []),
 			tailwindcss(),
 			reactRouter(),
 			tsconfigPaths(),
 			intlayer(),
 			intlayerProxy(),
-			...(useCloudflarePlugin ? [cloudflare()] : []),
 		],
 	};
 });
