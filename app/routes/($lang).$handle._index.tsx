@@ -204,18 +204,20 @@ export default function UserProfileRoute() {
 					<Watermark />
 				</footer>
 
-				<div className="absolute top-12 right-10">
-					<Button
-						size={"icon-lg"}
-						className={"rounded-full"}
-						aria-label="Let's make your unique page"
-						render={
-							<LocalizedLink to={"/"}>
-								<SparklesIcon />
-							</LocalizedLink>
-						}
-					></Button>
-				</div>
+				{!isPreview && (
+					<div className="absolute top-12 right-10">
+						<Button
+							size={"icon-lg"}
+							className={"rounded-full"}
+							aria-label="Let's make your unique page"
+							render={
+								<LocalizedLink to={"/"}>
+									<SparklesIcon />
+								</LocalizedLink>
+							}
+						></Button>
+					</div>
+				)}
 			</main>
 		</div>
 	);
