@@ -38,31 +38,3 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: bunx wrangler deploy --name venus
-
-      - name: Notify success
-        if: success()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          secure: false
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          to: zentechie7@gmail.com
-          from: CI <zentechie7@gmail.com>
-          subject: "CI Deploy Success: ${{ github.repository }}@${{ github.sha }}"
-          body: "Build + deploy succeeded for ${{ github.repository }} at ${{ github.sha }}."
-
-      - name: Notify failure
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          secure: false
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          to: zentechie7@gmail.com
-          from: CI <zentechie7@gmail.com>
-          subject: "CI Deploy Failed: ${{ github.repository }}@${{ github.sha }}"
-          body: "Build or deploy failed for ${{ github.repository }} at ${{ github.sha }}."

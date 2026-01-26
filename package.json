@@ -7,7 +7,7 @@
 		"dev": "react-router dev",
 		"hooks:setup": "git config core.hooksPath config/githooks",
 		"test": "vitest run",
-		"cf-typegen": "wrangler types",
+		"cf-typegen": "wrangler types --include-runtime false",
 		"postinstall": "bun run cf-typegen",
 		"deploy": "bun run build && wrangler deploy",
 		"typecheck": "bun run cf-typegen && react-router typegen && tsc -b",
