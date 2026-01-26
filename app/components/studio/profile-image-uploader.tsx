@@ -281,7 +281,14 @@ export default function ProfileImageUploader({ pageId, userId, imageUrl, alt }: 
 					)}
 				>
 					{currentImageUrl ? (
-						<img src={currentImageUrl} alt={alt} className="h-full w-full object-cover" />
+						<img
+							src={currentImageUrl}
+							alt={alt}
+							className="h-full w-full object-cover"
+							loading="eager"
+							decoding="async"
+							fetchPriority="high"
+						/>
 					) : (
 						<div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground text-xs"></div>
 					)}

@@ -1,13 +1,19 @@
+import { Suspense, lazy } from "react";
 import type { StudioOutletContext } from "types/studio.types";
 import type { ExpandableCardRenderer } from "@/components/effects/expandable-card";
 import ProfileItemActiveSwitch from "@/components/studio/profile-item-active-switch";
 import { MediaItemExpandedContent } from "@/components/studio/media-item-expanded-content";
-import { MapItemExpandedContent } from "@/components/studio/map-item-expanded-content";
 import { ProfileItemExpandedContent } from "@/components/studio/profile-item-expanded-content";
 import { SectionItemExpandedContent } from "@/components/studio/section-item-expanded-content";
 import { TextItemExpandedContent } from "@/components/studio/text-item-expanded-content";
 
 type ProfileItem = StudioOutletContext["profileItems"][number];
+
+const LazyMapItemExpandedContent = lazy(() =>
+	import("@/components/studio/map-item-expanded-content").then((module) => ({
+		default: module.MapItemExpandedContent,
+	})),
+);
 
 export const profileItemCardRenderers: Record<string, ExpandableCardRenderer<ProfileItem>> = {
 	link: {
@@ -122,7 +128,11 @@ export const profileItemCardRenderers: Record<string, ExpandableCardRenderer<Pro
 			return {
 				title,
 				ctaContent: <ProfileItemActiveSwitch item={item.data} />,
-				content: <MapItemExpandedContent item={item.data} />,
+				content: (
+					<Suspense fallback={<div className="px-4 py-6 text-center text-muted-foreground text-sm">Loading map...</div>}>
+						<LazyMapItemExpandedContent item={item.data} />
+					</Suspense>
+				),
 			};
 		},
 	},

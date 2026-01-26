@@ -1,8 +1,6 @@
 /** biome-ignore-all lint/correctness/useExhaustiveDependencies: map initialization should run only once */
 import type { Map as MapboxMap } from "mapbox-gl";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import "mapbox-gl/dist/mapbox-gl.css";
-import mapboxgl from "mapbox-gl";
 
 import { MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM } from "@/lib/map";
 import { cn } from "@/lib/utils";
@@ -51,7 +49,7 @@ export function MapCanvas({ center, zoom, onControlsChange, onViewportChange, cl
 			return;
 		}
 
-		const ensureSizedAndInit = () => {
+		const ensureSizedAndInit = async () => {
 			if (cancelled || !containerRef.current) {
 				return;
 			}
@@ -59,6 +57,11 @@ export function MapCanvas({ center, zoom, onControlsChange, onViewportChange, cl
 			const { width, height } = containerRef.current.getBoundingClientRect();
 			if (width < minSize || height < minSize) {
 				requestAnimationFrame(ensureSizedAndInit);
+				return;
+			}
+
+			const [{ default: mapboxgl }] = await Promise.all([import("mapbox-gl"), import("mapbox-gl/dist/mapbox-gl.css")]);
+			if (cancelled || !containerRef.current) {
 				return;
 			}
 

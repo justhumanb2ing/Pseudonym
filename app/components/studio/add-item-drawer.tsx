@@ -1,9 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { Suspense, lazy, useState } from "react";
 import { Activity } from "@/components/common/activity";
 import LinkSaveForm from "@/components/studio/link-save-form";
-import MapSaveForm from "@/components/studio/map-save-form";
 import MediaSaveForm from "@/components/studio/media-save-form";
 import SectionSaveForm from "@/components/studio/section-save-form";
 import TextSaveForm from "@/components/studio/text-save-form";
@@ -17,6 +16,8 @@ type AddItemDrawerProps = {
 	pageId: string;
 	userId: string;
 };
+
+const LazyMapSaveForm = lazy(() => import("@/components/studio/map-save-form"));
 
 const DEFAULT_DIRECTION = 1;
 export default function AddItemDrawer({ pageId, userId }: AddItemDrawerProps) {
@@ -116,7 +117,9 @@ export default function AddItemDrawer({ pageId, userId }: AddItemDrawerProps) {
 											) : selectedItemType === "image/video" ? (
 												<MediaSaveForm pageId={pageId} userId={userId} onSuccess={handleSuccess} onCancel={handleBack} />
 											) : selectedItemType === "map" ? (
-												<MapSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
+												<Suspense fallback={<div className="flex h-full items-center justify-center text-muted-foreground text-sm">Loading map...</div>}>
+													<LazyMapSaveForm pageId={pageId} onSuccess={handleSuccess} onCancel={handleBack} />
+												</Suspense>
 											) : (
 												<ItemTypePlaceholder title={detailTitle} description={selectedItem?.description} />
 											)}

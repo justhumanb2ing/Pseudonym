@@ -35,9 +35,14 @@ export async function loader(args: Route.LoaderArgs): Promise<StudioOutletContex
 	}
 
 	const supabase = await getSupabaseServerClient(args);
-	const pageSelectQuery = "id, owner_id, handle, title, description, image_url, is_public, is_primary";
+	const pageSelectQuery = "id, owner_id, handle, title, description, image_url, is_public, is_primary, profile_items(*)";
 
-	const { data: page, error } = await supabase.from("pages").select(pageSelectQuery).eq("handle", handle).maybeSingle();
+	const { data: page, error } = await supabase
+		.from("pages")
+		.select(pageSelectQuery)
+		.eq("handle", handle)
+		.order("sort_key", { ascending: true, foreignTable: "profile_items" })
+		.maybeSingle();
 
 	if (error) {
 		throw new Response(error.message, { status: 500 });
@@ -51,19 +56,10 @@ export async function loader(args: Route.LoaderArgs): Promise<StudioOutletContex
 		throw new Response("Forbidden", { status: 403 });
 	}
 
-	// profile_items 조회
-	const { data: profileItems, error: itemsError } = await supabase
-		.from("profile_items")
-		.select("*")
-		.eq("page_id", page.id)
-		.order("sort_key", { ascending: true });
-
-	if (itemsError) {
-		throw new Response(itemsError.message, { status: 500 });
-	}
+	const { profile_items: profileItems, ...pageData } = page;
 
 	return {
-		page,
+		page: pageData,
 		handle,
 		profileItems: (profileItems as StudioOutletContext["profileItems"]) ?? [],
 	};
