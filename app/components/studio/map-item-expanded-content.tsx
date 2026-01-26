@@ -1,10 +1,15 @@
 import { Crosshair, Minus, Plus } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useFetcher } from "react-router";
 import type { ProfileItemLayout, StudioOutletContext } from "types/studio.types";
-import { MapCanvas, type MapCanvasControls, type MapCanvasViewport } from "@/components/map/map-canvas";
+import type { MapCanvasControls, MapCanvasViewport } from "@/components/map/map-canvas";
 import { MapSearch } from "@/components/map/map-search";
+
+// Mapbox 지연 로드 - 초기 번들 크기 794KB 감소
+const LazyMapCanvas = lazy(() =>
+	import("@/components/map/map-canvas").then((module) => ({ default: module.MapCanvas }))
+);
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -96,14 +101,16 @@ export function MapItemExpandedContent({ item }: { item: ProfileItem }) {
 				<input type="hidden" name="layout" value={layout} />
 
 				<div className="relative h-56 shrink-0 overflow-hidden rounded-2xl border bg-muted/10 md:h-80" data-vaul-no-drag>
-					<MapCanvas
-						key={mapKey}
-						center={center}
-						zoom={zoom}
-						onControlsChange={setControls}
-						onViewportChange={handleViewportChange}
-						className="h-full w-full"
-					/>
+					<Suspense fallback={<div className="h-full w-full animate-pulse bg-muted/40" />}>
+						<LazyMapCanvas
+							key={mapKey}
+							center={center}
+							zoom={zoom}
+							onControlsChange={setControls}
+							onViewportChange={handleViewportChange}
+							className="h-full w-full"
+						/>
+					</Suspense>
 					<div className="absolute top-2 right-2">
 						<ButtonGroup orientation={"vertical"} className="w-fit -space-y-0.5" aria-label="Map Controls">
 							{controlButtons.map((button) => (

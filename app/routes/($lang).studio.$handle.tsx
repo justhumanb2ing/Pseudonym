@@ -66,8 +66,13 @@ export async function loader(args: Route.LoaderArgs): Promise<StudioOutletContex
 }
 
 export default function StudioHandleLayoutRoute({ loaderData }: Route.ComponentProps) {
+	const imageUrl = loaderData.page.image_url;
+
 	return (
-		<SidebarProvider>
+		<>
+			{/* LCP 이미지 preload - React 19 자동 head 호이스팅 */}
+			{imageUrl && <link rel="preload" as="image" href={imageUrl} fetchPriority="high" />}
+			<SidebarProvider>
 			<AppSidebar pageId={loaderData.page.id} isPublic={loaderData.page.is_public} />
 			{/* TODO: bg-sidebar 고려 */}
 			<SidebarInset>
@@ -82,6 +87,7 @@ export default function StudioHandleLayoutRoute({ loaderData }: Route.ComponentP
 					<Outlet context={loaderData} />
 				</main>
 			</SidebarInset>
-		</SidebarProvider>
+			</SidebarProvider>
+		</>
 	);
 }

@@ -29,6 +29,18 @@ const PRETENDARD_STYLESHEET =
 const isAuthUiRoute = (pathname: string) => AUTH_UI_ROUTE_PATTERN.test(pathname);
 
 export const links: Route.LinksFunction = () => [
+	// CDN preconnect로 연결 시간 단축 (TTFB 개선)
+	{
+		rel: "preconnect",
+		href: "https://cdn.jsdelivr.net",
+		crossOrigin: "anonymous",
+	},
+	{
+		rel: "preconnect",
+		href: "https://supabase.co",
+		crossOrigin: "anonymous",
+	},
+	// Pretendard 폰트 CSS
 	{
 		rel: "preload",
 		as: "style",
