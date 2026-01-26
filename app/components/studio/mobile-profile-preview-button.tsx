@@ -13,7 +13,7 @@ interface MobileProfilePreviewButtonProps {
 }
 
 export default function MobileProfilePreviewButton({ handle, lang }: MobileProfilePreviewButtonProps) {
-	const isMobile = useIsMobile();
+	const isMobile = useIsMobile(1280);
 	const previewFrameRef = useRef<HTMLIFrameElement>(null);
 
 	const { handleIframeLoad } = useIframePreview({
@@ -39,7 +39,11 @@ export default function MobileProfilePreviewButton({ handle, lang }: MobileProfi
 					<SheetTitle hidden></SheetTitle>
 					<SheetDescription hidden></SheetDescription>
 				</SheetHeader>
-				<SheetPanel scrollFade scrollbarHidden className="h-dvh">
+				<SheetPanel
+					scrollFade
+					scrollbarHidden
+					className="h-dvh px-0 in-[[data-slot=sheet-popup]:has([data-slot=sheet-header])]:pt-0 in-[[data-slot=sheet-popup]:not(:has([data-slot=sheet-footer]))]:pb-0!"
+				>
 					<ProfilePreviewFrame
 						iframeRef={previewFrameRef}
 						handle={handle}

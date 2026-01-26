@@ -237,19 +237,19 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 							}
 						></Button>
 					</div>
-						<Iphone className="z-999">
-							<ProfilePreviewFrame
-								iframeRef={previewFrameRef}
-								handle={handle}
-								lang={lang}
-								className="h-full w-full"
-								onLoad={handleIframeLoad}
-							/>
+					<Iphone className="z-999">
+						<ProfilePreviewFrame
+							iframeRef={previewFrameRef}
+							handle={handle}
+							lang={lang}
+							className="h-full w-full"
+							onLoad={handleIframeLoad}
+						/>
 					</Iphone>
 				</aside>
 			</article>
 
-			<div className="fixed inset-x-0 bottom-0 z-30 bg-background md:hidden">
+			<div className="fixed inset-x-0 bottom-0 z-30 bg-background xl:hidden">
 				<div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-linear-to-t from-background/90 to-transparent" />
 				<div className="pointer-events-auto relative mx-auto flex w-full items-center gap-3 px-4 pt-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
 					<MobileProfilePreviewButton handle={handle} lang={lang} />
