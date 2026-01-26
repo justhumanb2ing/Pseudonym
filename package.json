@@ -8,7 +8,6 @@
 		"hooks:setup": "git config core.hooksPath config/githooks",
 		"test": "vitest run",
 		"cf-typegen": "wrangler types --include-runtime false",
-		"postinstall": "bun run cf-typegen",
 		"deploy": "bun run build && wrangler deploy",
 		"typecheck": "bun run cf-typegen && react-router typegen && tsc -b",
 		"gentype": "supabase gen types typescript --project-id mkkwldxodlabuyerxslb > types/database.types.ts",
