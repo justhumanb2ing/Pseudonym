@@ -1,0 +1,16 @@
+
+--- 2026-01-26T07:47:08.577Z debug
+🪵  Writing logs to "/Users/zentechie/Documents/KINMONGSANG/untitled-2nd/.wrangler/logs/wrangler-2026-01-26_07-46-42_098.log"
+---
+
+--- 2026-01-26T07:47:08.577Z debug
+local dev variables file not found at ".dev.vars". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---
+
+--- 2026-01-26T07:47:08.578Z log
+Using vars defined in .env
+---
+
+--- 2026-01-26T07:47:08.579Z debug
+.env file not found at "/Users/zentechie/Documents/KINMONGSANG/untitled-2nd/.env.local". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---

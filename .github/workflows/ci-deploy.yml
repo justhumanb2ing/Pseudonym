@@ -31,6 +31,8 @@ jobs:
         run: bun run typecheck
 
       - name: Build
+        env:
+          WRANGLER_LOG_PATH: ${{ runner.temp }}/wrangler-logs
         run: bun run build
 
       - name: Deploy (Workers)
