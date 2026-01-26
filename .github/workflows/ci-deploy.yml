@@ -32,11 +32,15 @@ jobs:
 
       - name: Build
         env:
+          NODE_OPTIONS: --trace-uncaught --trace-warnings
           WRANGLER_LOG: debug
           WRANGLER_LOG_PATH: ${{ runner.temp }}/wrangler-logs
         run: |
           set -o pipefail
           bun run build 2>&1 | tee "${{ runner.temp }}/build.log"
+          status=${PIPESTATUS[0]}
+          echo "build exit code: $status"
+          exit $status
       
       - name: Dump wrangler logs
         if: always()
