@@ -32,41 +32,21 @@ jobs:
 
       - name: Build
         env:
-          NODE_OPTIONS: --trace-uncaught --trace-warnings
-          WRANGLER_LOG: debug
-          WRANGLER_LOG_PATH: ${{ runner.temp }}/wrangler-logs
-        run: |
-          set -o pipefail
-          bun run build 2>&1 | tee "${{ runner.temp }}/build.log"
-          status=${PIPESTATUS[0]}
-          echo "build exit code: $status"
-          exit $status
-      
-      - name: Dump wrangler logs
-        if: always()
-        run: |
-          echo "WRANGLER_LOG_PATH=${{ runner.temp }}/wrangler-logs"
-          if [ -d "${{ runner.temp }}/wrangler-logs" ]; then
-            ls -al "${{ runner.temp }}/wrangler-logs" || true
-            for f in "${{ runner.temp }}/wrangler-logs"/*; do
-              if [ -f "$f" ]; then
-                echo "---- $f ----"
-                cat "$f" || true
-              fi
-            done
-          else
-            echo "No wrangler log directory found."
-          fi
-
-      - name: Dump build log
-        if: always()
-        run: |
-          if [ -f "${{ runner.temp }}/build.log" ]; then
-            echo "---- build.log ----"
-            cat "${{ runner.temp }}/build.log"
-          else
-            echo "No build.log found."
-          fi
+          # Clerk (required for prerender with rootAuthLoader)
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+          # Supabase
+          VITE_SB_ID: ${{ vars.VITE_SB_ID }}
+          VITE_SB_URL: ${{ vars.VITE_SB_URL }}
+          VITE_SB_PUBLISHABLE_KEY: ${{ secrets.VITE_SB_PUBLISHABLE_KEY }}
+          # Umami (optional, for analytics)
+          VITE_UMAMI_WEBSITE_ID: ${{ vars.VITE_UMAMI_WEBSITE_ID }}
+          VITE_UMAMI_SCRIPT_URL: ${{ vars.VITE_UMAMI_SCRIPT_URL }}
+          # Mapbox
+          VITE_MAPBOX_PUBLIC_TOKEN: ${{ vars.VITE_MAPBOX_PUBLIC_TOKEN }}
+          # Crawler
+          VITE_CRAWLER_SERVER_ENDPOINT: ${{ vars.VITE_CRAWLER_SERVER_ENDPOINT }}
+        run: bun run build
 
       - name: Deploy (Workers)
         env:
