@@ -94,6 +94,10 @@ describe("handle settings action", () => {
 			payload: { handle: "@newhandle" },
 			eq: { column: "id", value: "page-1" },
 		});
+		expect(result).toBeInstanceOf(Response);
+		if (!(result instanceof Response)) {
+			throw new Error("Expected a Response result.");
+		}
 		expect(result.headers.get("Location")).toBe("/en/studio/@newhandle/handle");
 	});
 });

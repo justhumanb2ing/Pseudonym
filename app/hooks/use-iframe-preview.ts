@@ -37,7 +37,7 @@ interface UseIframePreviewReturn {
  *   actionData,
  * });
  *
- * return <ProfilePreviewFrame ref={previewFrameRef} onLoad={handleIframeLoad} />
+ * return <ProfilePreviewFrame iframeRef={previewFrameRef} onLoad={handleIframeLoad} />
  * ```
  */
 export function useIframePreview<TActionData extends { success?: boolean } = { success?: boolean }>(

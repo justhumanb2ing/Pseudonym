@@ -15,14 +15,14 @@ type MockedUser = {
 };
 
 describe("resolveOnboardingRedirect", () => {
-	const getUser = vi.fn<[], Promise<MockedUser>>();
+	const getUser = vi.fn<() => Promise<MockedUser>>();
 
 	beforeEach(() => {
 		vi.mocked(clerkClient).mockReturnValue({
 			users: {
 				getUser,
 			},
-		} as ReturnType<typeof clerkClient>);
+		} as unknown as ReturnType<typeof clerkClient>);
 		getUser.mockReset();
 	});
 

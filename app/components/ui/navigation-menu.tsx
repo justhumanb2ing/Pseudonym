@@ -3,7 +3,11 @@ import { IconChevronDown } from "@tabler/icons-react";
 import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-function NavigationMenu({ className, children, ...props }: NavigationMenuPrimitive.Root.Props) {
+function NavigationMenu({
+	className,
+	children,
+	...props
+}: Omit<NavigationMenuPrimitive.Root.Props, "ref">) {
 	return (
 		<NavigationMenuPrimitive.Root
 			data-slot="navigation-menu"
@@ -16,7 +20,7 @@ function NavigationMenu({ className, children, ...props }: NavigationMenuPrimiti
 	);
 }
 
-function NavigationMenuList({ className, ...props }: NavigationMenuPrimitive.List.Props) {
+function NavigationMenuList({ className, ...props }: Omit<NavigationMenuPrimitive.List.Props, "ref">) {
 	return (
 		<NavigationMenuPrimitive.List
 			data-slot="navigation-menu-list"
@@ -26,7 +30,7 @@ function NavigationMenuList({ className, ...props }: NavigationMenuPrimitive.Lis
 	);
 }
 
-function NavigationMenuItem({ className, ...props }: NavigationMenuPrimitive.Item.Props) {
+function NavigationMenuItem({ className, ...props }: Omit<NavigationMenuPrimitive.Item.Props, "ref">) {
 	return <NavigationMenuPrimitive.Item data-slot="navigation-menu-item" className={cn("relative", className)} {...props} />;
 }
 
@@ -34,7 +38,11 @@ const navigationMenuTriggerStyle = cva(
 	"group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-2xl bg-background px-4.5 py-2.5 font-medium text-sm outline-none transition-all hover:bg-muted focus:bg-muted focus-visible:outline-1 focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 data-open:bg-muted/50 data-popup-open:bg-muted/50 data-open:focus:bg-muted data-open:hover:bg-muted data-popup-open:hover:bg-muted",
 );
 
-function NavigationMenuTrigger({ className, children, ...props }: NavigationMenuPrimitive.Trigger.Props) {
+function NavigationMenuTrigger({
+	className,
+	children,
+	...props
+}: Omit<NavigationMenuPrimitive.Trigger.Props, "ref">) {
 	return (
 		<NavigationMenuPrimitive.Trigger
 			data-slot="navigation-menu-trigger"
@@ -50,7 +58,7 @@ function NavigationMenuTrigger({ className, children, ...props }: NavigationMenu
 	);
 }
 
-function NavigationMenuContent({ className, ...props }: NavigationMenuPrimitive.Content.Props) {
+function NavigationMenuContent({ className, ...props }: Omit<NavigationMenuPrimitive.Content.Props, "ref">) {
 	return (
 		<NavigationMenuPrimitive.Content
 			data-slot="navigation-menu-content"
@@ -70,7 +78,7 @@ function NavigationMenuPositioner({
 	align = "start",
 	alignOffset = 0,
 	...props
-}: NavigationMenuPrimitive.Positioner.Props) {
+}: Omit<NavigationMenuPrimitive.Positioner.Props, "ref">) {
 	return (
 		<NavigationMenuPrimitive.Portal>
 			<NavigationMenuPrimitive.Positioner
@@ -92,7 +100,7 @@ function NavigationMenuPositioner({
 	);
 }
 
-function NavigationMenuLink({ className, ...props }: NavigationMenuPrimitive.Link.Props) {
+function NavigationMenuLink({ className, ...props }: Omit<NavigationMenuPrimitive.Link.Props, "ref">) {
 	return (
 		<NavigationMenuPrimitive.Link
 			data-slot="navigation-menu-link"
@@ -105,7 +113,7 @@ function NavigationMenuLink({ className, ...props }: NavigationMenuPrimitive.Lin
 	);
 }
 
-function NavigationMenuIndicator({ className, ...props }: NavigationMenuPrimitive.Icon.Props) {
+function NavigationMenuIndicator({ className, ...props }: Omit<NavigationMenuPrimitive.Icon.Props, "ref">) {
 	return (
 		<NavigationMenuPrimitive.Icon
 			data-slot="navigation-menu-indicator"

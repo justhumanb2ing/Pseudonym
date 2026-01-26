@@ -19,7 +19,7 @@ describe("account delete action", () => {
 			users: {
 				deleteUser,
 			},
-		} as ReturnType<typeof clerkClient>);
+		} as unknown as ReturnType<typeof clerkClient>);
 
 		const request = new Request("http://localhost/en/studio/@handle/account", {
 			method: "POST",

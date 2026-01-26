@@ -10,7 +10,7 @@ import { normalizePageDetails, pageDetailsSchema } from "@/service/pages/page-de
 import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/page-image";
 import { normalizeOptionalText, pageMediaSaveSchema, pageMediaUpdateSchema } from "@/service/pages/page-media";
 import { buildGoogleMapsHref } from "@/lib/map";
-import type { Database } from "../../../types/database.types";
+import type { Database, Json } from "../../../types/database.types";
 
 export type ActionIntent =
 	| "page-details"
@@ -426,19 +426,19 @@ export async function handleLinkUpdate({ formData, supabase }: PageProfileAction
 
 	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
 
+	const nextConfig = {
+		...configObject,
+		...(nextStyle !== undefined ? { style: nextStyle } : {}),
+		data: {
+			...configData,
+			title: normalizedTitle,
+			url: normalizedUrl,
+		},
+	} as Json;
+
 	const { error: updateError } = await supabase
 		.from("profile_items")
-		.update({
-			config: {
-				...configObject,
-				...(nextStyle !== undefined ? { style: nextStyle } : {}),
-				data: {
-					...configData,
-					title: normalizedTitle,
-					url: normalizedUrl,
-				},
-			},
-		})
+		.update({ config: nextConfig })
 		.eq("id", parsed.data.itemId);
 
 	if (updateError) {
@@ -696,22 +696,22 @@ export async function handleMapUpdate({ formData, supabase }: PageProfileActionC
 
 	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
 
+	const nextConfig = {
+		...configObject,
+		...(nextStyle !== undefined ? { style: nextStyle } : {}),
+		data: {
+			...configData,
+			url: buildGoogleMapsHref(nextCenter, parsed.data.zoom),
+			caption: normalizeOptionalText(parsed.data.caption ?? null),
+			lat: parsed.data.lat,
+			lng: parsed.data.lng,
+			zoom: parsed.data.zoom,
+		},
+	} as Json;
+
 	const { error: updateError } = await supabase
 		.from("profile_items")
-		.update({
-			config: {
-				...configObject,
-				...(nextStyle !== undefined ? { style: nextStyle } : {}),
-				data: {
-					...configData,
-					url: buildGoogleMapsHref(nextCenter, parsed.data.zoom),
-					caption: normalizeOptionalText(parsed.data.caption ?? null),
-					lat: parsed.data.lat,
-					lng: parsed.data.lng,
-					zoom: parsed.data.zoom,
-				},
-			},
-		})
+		.update({ config: nextConfig })
 		.eq("id", parsed.data.itemId);
 
 	if (updateError) {
@@ -827,19 +827,19 @@ export async function handleMediaUpdate({ formData, supabase }: PageProfileActio
 
 	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
 
+	const nextConfig = {
+		...configObject,
+		...(nextStyle !== undefined ? { style: nextStyle } : {}),
+		data: {
+			...configData,
+			caption: normalizeOptionalText(formData.get("caption")),
+			url: normalizeOptionalText(formData.get("url")),
+		},
+	} as Json;
+
 	const { error: updateError } = await supabase
 		.from("profile_items")
-		.update({
-			config: {
-				...configObject,
-				...(nextStyle !== undefined ? { style: nextStyle } : {}),
-				data: {
-					...configData,
-					caption: normalizeOptionalText(formData.get("caption")),
-					url: normalizeOptionalText(formData.get("url")),
-				},
-			},
-		})
+		.update({ config: nextConfig })
 		.eq("id", parsed.data.itemId);
 
 	if (updateError) {

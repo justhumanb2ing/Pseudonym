@@ -27,8 +27,8 @@ describe("createLinkSaver", () => {
 		const crawlUrl = async () => ({
 			normalizedUrl: "https://example.com",
 			response: {
-				ok: true,
-				mode: "static",
+				ok: true as const,
+				mode: "static" as const,
 				fallback: false,
 				durationMs: 100,
 				data: {
@@ -75,8 +75,8 @@ describe("createLinkSaver", () => {
 		const crawlUrl = async () => ({
 			normalizedUrl: "https://example.com",
 			response: {
-				ok: true,
-				mode: "static",
+				ok: true as const,
+				mode: "static" as const,
 				fallback: false,
 				durationMs: 100,
 				data: {

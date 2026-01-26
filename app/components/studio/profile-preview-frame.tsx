@@ -9,10 +9,10 @@ type ProfilePreviewFrameProps = {
 	lang?: string;
 	className?: string;
 	onLoad?: () => void;
-	ref?: React.RefObject<HTMLIFrameElement>;
+	iframeRef?: React.RefObject<HTMLIFrameElement | null>;
 };
 
-export default function ProfilePreviewFrame({ handle, lang, className, onLoad, ref }: ProfilePreviewFrameProps) {
+export default function ProfilePreviewFrame({ handle, lang, className, onLoad, iframeRef }: ProfilePreviewFrameProps) {
 	const localizedPath = getLocalizedPath(lang, `/${handle}`);
 	const src = buildPreviewPath(localizedPath);
 	const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +26,7 @@ export default function ProfilePreviewFrame({ handle, lang, className, onLoad, r
 			)}
 
 			<iframe
-				ref={ref}
+				ref={iframeRef}
 				src={src}
 				title="Profile preview"
 				className={cn("scrollbar-hide", className)}

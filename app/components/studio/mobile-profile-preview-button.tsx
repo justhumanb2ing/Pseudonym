@@ -40,7 +40,13 @@ export default function MobileProfilePreviewButton({ handle, lang }: MobileProfi
 					<SheetDescription hidden></SheetDescription>
 				</SheetHeader>
 				<SheetPanel scrollFade scrollbarHidden className="h-dvh">
-					<ProfilePreviewFrame ref={previewFrameRef} handle={handle} lang={lang} className="h-full w-full" onLoad={handleIframeLoad} />
+					<ProfilePreviewFrame
+						iframeRef={previewFrameRef}
+						handle={handle}
+						lang={lang}
+						className="h-full w-full"
+						onLoad={handleIframeLoad}
+					/>
 				</SheetPanel>
 			</SheetPopup>
 		</Sheet>

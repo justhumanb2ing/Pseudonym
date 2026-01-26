@@ -1,5 +1,5 @@
 import { SquareArrowOutUpRightIcon, UnlinkIcon } from "lucide-react";
-import { type RefObject, useRef } from "react";
+import { useRef } from "react";
 import { useActionData, useOutletContext, useParams } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import { Text } from "@/components/common/typhography";
@@ -237,14 +237,14 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 							}
 						></Button>
 					</div>
-					<Iphone className="z-999">
-						<ProfilePreviewFrame
-							ref={previewFrameRef as RefObject<HTMLIFrameElement>}
-							handle={handle}
-							lang={lang}
-							className="h-full w-full"
-							onLoad={handleIframeLoad}
-						/>
+						<Iphone className="z-999">
+							<ProfilePreviewFrame
+								iframeRef={previewFrameRef}
+								handle={handle}
+								lang={lang}
+								className="h-full w-full"
+								onLoad={handleIframeLoad}
+							/>
 					</Iphone>
 				</aside>
 			</article>

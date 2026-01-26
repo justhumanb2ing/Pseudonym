@@ -21,10 +21,11 @@ describe("handleLinkSave", () => {
 
 	afterEach(() => {
 		globalThis.fetch = originalFetch;
+		const env = process.env as Record<string, string | undefined>;
 		if (originalEndpoint === undefined) {
-			delete process.env.VITE_CRAWLER_SERVER_ENDPOINT;
+			delete env.VITE_CRAWLER_SERVER_ENDPOINT;
 		} else {
-			process.env.VITE_CRAWLER_SERVER_ENDPOINT = originalEndpoint;
+			env.VITE_CRAWLER_SERVER_ENDPOINT = originalEndpoint;
 		}
 	});
 
@@ -35,7 +36,7 @@ describe("handleLinkSave", () => {
 
 		const result = await handleLinkSave({
 			formData,
-			supabase: createSupabaseStub(),
+			supabase: createSupabaseStub().supabase,
 		});
 
 		expect(result.intent).toBe("link-save");
