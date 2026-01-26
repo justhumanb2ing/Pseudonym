@@ -14,3 +14,7 @@
 /app/generated/prisma
 
 .claude/PROMPT.md
+.cache/tsbuildinfo/
+
+tsconfig.cloudflare.tsbuildinfo
+tsconfig.node.tsbuildinfo
