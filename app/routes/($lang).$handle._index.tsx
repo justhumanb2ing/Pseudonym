@@ -1,13 +1,16 @@
 import { getAuth } from "@clerk/react-router/server";
+import { SparklesIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useLoaderData, useLocation, useRevalidator } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
+import { LocalizedLink } from "@/components/i18n/localized-link";
 import LinkItem from "@/components/page/link-item";
 import MapItem from "@/components/page/map-item";
 import MediaItem from "@/components/page/media-item";
 import SectionItem from "@/components/page/section-item";
 import TextItem from "@/components/page/text-item";
 import Watermark from "@/components/page/watermark";
+import { Button } from "@/components/ui/button";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isPreviewMessage, isPreviewRequest, isPreviewSearch } from "@/lib/preview";
@@ -29,7 +32,7 @@ export async function loader(args: Route.LoaderArgs) {
 	const pageSelectQuery = "id, owner_id, handle, title, description, image_url, is_public, is_primary";
 
 	const { data: page, error } = await supabase.from("pages").select(pageSelectQuery).eq("handle", handle).maybeSingle();
-	
+
 	if (error) {
 		throw new Response(error.message, { status: 500 });
 	}
@@ -155,7 +158,7 @@ export default function UserProfileRoute() {
 
 	return (
 		<div className={cn("box-border h-dvh overflow-hidden", !isMobile && "py-10")}>
-			<main className={cn(mainClassName, "scrollbar-hide box-border overflow-y-auto bg-white pb-10 dark:bg-black")}>
+			<main className={cn(mainClassName, "scrollbar-hide relative box-border overflow-y-auto bg-white pb-10 dark:bg-black")}>
 				<div className="flex flex-col gap-4 p-10 py-12 pb-2">
 					<div className="size-30 overflow-hidden rounded-full md:size-36">
 						{page.image_url ? (
@@ -200,6 +203,19 @@ export default function UserProfileRoute() {
 				<footer className="flex justify-center py-8">
 					<Watermark />
 				</footer>
+
+				<div className="absolute top-12 right-10">
+					<Button
+						size={"icon-lg"}
+						className={"rounded-full"}
+						aria-label="Let's make your unique page"
+						render={
+							<LocalizedLink to={"/"}>
+								<SparklesIcon />
+							</LocalizedLink>
+						}
+					></Button>
+				</div>
 			</main>
 		</div>
 	);
