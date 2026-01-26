@@ -14,19 +14,19 @@ export default defineConfig((config) => {
 		// 	__APP_ENV__: JSON.stringify(env.APP_ENV),
 		// },
 		build: {
-			// sourcemap: config.mode === "production",
-			// rollupOptions: {
-			// 	...(config.isSsrBuild ? { input: ["./server/app.ts"] } : {}),
+			sourcemap: config.mode === "production",
+			rollupOptions: {
+				...(config.isSsrBuild ? { input: ["./server/app.ts"] } : {}),
 
-			// 	onwarn(warning, warn) {
-			// 		// base-ui / node_modules sourcemap 경고 제거
-			// 		if (warning.code === "SOURCEMAP_ERROR" && warning.message?.includes("node_modules")) {
-			// 			return;
-			// 		}
+				onwarn(warning, warn) {
+					// base-ui / node_modules sourcemap 경고 제거
+					if (warning.code === "SOURCEMAP_ERROR" && warning.message?.includes("node_modules")) {
+						return;
+					}
 
-			// 		warn(warning);
-			// 	},
-			// },
+					warn(warning);
+				},
+			},
 		},
 		define: {
 			"globalThis.Cloudflare.compatibilityFlags": {
