@@ -13,25 +13,28 @@ import Watermark from "@/components/page/watermark";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { isPreviewMessage, isPreviewRequest, isPreviewSearch } from "@/lib/preview";
+import { isPreviewMessage, isPreviewSearch } from "@/lib/preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
-import { fetchUmamiVisits, getTodayRange, resolveUmamiConfig, UMAMI_TIMEZONE, UMAMI_UNIT, type UmamiResponse } from "../service/umami";
 import type { Route } from "./+types/($lang).$handle._index";
 
 export async function loader(args: Route.LoaderArgs) {
 	const { userId } = await getAuth(args);
 	const { handle } = args.params;
-	const isPreview = isPreviewRequest(args.request);
-
 	if (!handle) {
 		throw new Response("Not Found", { status: 404 });
 	}
 
 	const supabase = await getSupabaseServerClient(args);
-	const pageSelectQuery = "id, owner_id, handle, title, description, image_url, is_public, is_primary";
+	const pageSelectQuery =
+		"id, owner_id, handle, title, description, image_url, is_public, is_primary, profile_items(id, type, is_active, config, sort_key)";
 
-	const { data: page, error } = await supabase.from("pages").select(pageSelectQuery).eq("handle", handle).maybeSingle();
+	const { data: page, error } = await supabase
+		.from("pages")
+		.select(pageSelectQuery)
+		.eq("handle", handle)
+		.order("sort_key", { ascending: true, foreignTable: "profile_items" })
+		.maybeSingle();
 
 	if (error) {
 		throw new Response(error.message, { status: 500 });
@@ -46,55 +49,11 @@ export async function loader(args: Route.LoaderArgs) {
 		throw new Response("Forbidden", { status: 403 });
 	}
 
-	// profile_items 조회
-	const { data: profileItems, error: itemsError } = await supabase
-		.from("profile_items")
-		.select("*")
-		.eq("page_id", page.id)
-		.order("sort_key", { ascending: true });
-
-	if (itemsError) {
-		throw new Response(itemsError.message, { status: 500 });
-	}
-
-	let umamiResult: UmamiResponse | null = null;
-
-	if (!isPreview) {
-		const umamiConfig = resolveUmamiConfig();
-
-		if (!umamiConfig) {
-			umamiResult = {
-				ok: false,
-				status: 500,
-				error: "Missing Umami environment configuration.",
-			};
-		} else {
-			try {
-				const { startAt, endAt } = getTodayRange(UMAMI_TIMEZONE);
-				umamiResult = await fetchUmamiVisits({
-					...umamiConfig,
-					websiteId: umamiConfig.websiteId,
-					startAt,
-					endAt,
-					unit: UMAMI_UNIT,
-					timezone: UMAMI_TIMEZONE,
-					pageId: page.id,
-				});
-			} catch (error) {
-				umamiResult = {
-					ok: false,
-					status: 500,
-					error: error instanceof Error ? error.message : error,
-				};
-			}
-		}
-	}
-
+	const { profile_items: profileItems, ...pageData } = page;
 	return {
-		page,
+		page: pageData,
 		handle,
 		isOwner,
-		umamiResult,
 		profileItems: (profileItems as StudioOutletContext["profileItems"]) ?? [],
 	};
 }

@@ -1,6 +1,6 @@
 import { ArrowCircleUpRightIcon } from "@phosphor-icons/react";
+import { Suspense, lazy } from "react";
 import type { StudioOutletContext } from "types/studio.types";
-import { MapCanvas } from "@/components/map/map-canvas";
 import { Item, ItemContent } from "@/components/ui/item";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,8 @@ type ProfileItem = StudioOutletContext["profileItems"][number];
 interface MapItemProps {
 	item: ProfileItem;
 }
+
+const LazyMapCanvas = lazy(() => import("@/components/map/map-canvas").then((module) => ({ default: module.MapCanvas })));
 
 export default function MapItem({ item }: MapItemProps) {
 	const config = item.config;
@@ -33,7 +35,9 @@ export default function MapItem({ item }: MapItemProps) {
 							layout === "compact" ? "aspect-video" : "aspect-square",
 						)}
 					>
-						<MapCanvas center={center} zoom={mapZoom} interactive={false} className="h-full w-full" />
+						<Suspense fallback={<div className="h-full w-full bg-muted/40" />}>
+							<LazyMapCanvas center={center} zoom={mapZoom} interactive={false} className="h-full w-full" />
+						</Suspense>
 					</div>
 					{caption ? (
 						<p className="absolute bottom-2 left-2 line-clamp-2 w-fit max-w-[calc(100%-1rem)] break-all rounded-lg border bg-background px-2 py-1 text-left text-sm leading-5">
