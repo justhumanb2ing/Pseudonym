@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
 set -eu
 
-printf "Running tests before push...\n"
-bun run test
+printf "Skipping pre-push tests. CI runs tests and typecheck on main.\n"
