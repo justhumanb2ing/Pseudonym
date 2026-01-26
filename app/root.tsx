@@ -1,4 +1,4 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigation } from "react-router";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLocation, useNavigation } from "react-router";
 import type { ShouldRevalidateFunctionArgs } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -22,10 +22,21 @@ const clerkLocalization = {
 	},
 };
 
+const AUTH_UI_ROUTE_PATTERN = /(^|\/)(sign-in|sign-up|onboarding)(\/|$)/;
+const PRETENDARD_STYLESHEET =
+	"https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css";
+
+const isAuthUiRoute = (pathname: string) => AUTH_UI_ROUTE_PATTERN.test(pathname);
+
 export const links: Route.LinksFunction = () => [
 	{
+		rel: "preload",
+		as: "style",
+		href: PRETENDARD_STYLESHEET,
+	},
+	{
 		rel: "stylesheet",
-		href: "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css",
+		href: PRETENDARD_STYLESHEET,
 	},
 ];
 
@@ -84,9 +95,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
+	const location = useLocation();
+	const useClerkUi = isAuthUiRoute(location.pathname);
+
 	return (
 		<ClerkProvider
 			loaderData={loaderData}
+			clerkJSVariant={useClerkUi ? "" : "headless"}
 			localization={clerkLocalization}
 			appearance={{
 				theme: shadcn,
@@ -99,8 +114,6 @@ export default function App({ loaderData }: Route.ComponentProps) {
 					colorInputBackground: "#f5f5f5",
 					colorInputForeground: "#111827",
 					colorNeutral: "#d6d7dc",
-					fontFamily: "Pretendard, sans-serif",
-					fontFamilyButtons: "Pretendard, sans-serif",
 				},
 				elements: {
 					rootBox: "w-full min-w-sm max-w-md",
