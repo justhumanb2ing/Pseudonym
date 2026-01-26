@@ -34,7 +34,9 @@ jobs:
         env:
           WRANGLER_LOG: debug
           WRANGLER_LOG_PATH: ${{ runner.temp }}/wrangler-logs
-        run: bun run build
+        run: |
+          set -o pipefail
+          bun run build 2>&1 | tee "${{ runner.temp }}/build.log"
       
       - name: Dump wrangler logs
         if: always()
@@ -50,6 +52,16 @@ jobs:
             done
           else
             echo "No wrangler log directory found."
+          fi
+
+      - name: Dump build log
+        if: always()
+        run: |
+          if [ -f "${{ runner.temp }}/build.log" ]; then
+            echo "---- build.log ----"
+            cat "${{ runner.temp }}/build.log"
+          else
+            echo "No build.log found."
           fi
 
       - name: Deploy (Workers)
