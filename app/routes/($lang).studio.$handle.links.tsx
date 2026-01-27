@@ -1,6 +1,6 @@
 import { SquareArrowOutUpRightIcon, UnlinkIcon } from "lucide-react";
 import { useRef } from "react";
-import { useActionData, useOutletContext, useParams } from "react-router";
+import { useActionData, useLoaderData, useOutletContext, useParams } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import { Text } from "@/components/common/typhography";
 import Iphone from "@/components/effects/iphone";
@@ -37,29 +37,22 @@ import {
 	handleUpdateImage,
 	type PageProfileActionData,
 } from "@/service/pages/page-profile.action";
+import { requireStudioPage } from "@/service/pages/require-studio-page";
 import type { Route } from "./+types/($lang).studio.$handle.links";
 
 export type ActionData = PageProfileActionData;
 
 export async function loader(args: Route.LoaderArgs) {
-	const { handle } = args.params;
+	const pageSelectQuery = "id, owner_id, profile_items(*)";
+	const { page } = await requireStudioPage<{ owner_id: string; profile_items: StudioOutletContext["profileItems"] }>(args, {
+		select: pageSelectQuery,
+		order: { column: "sort_key", ascending: true, foreignTable: "profile_items" },
+	});
+	const { profile_items: profileItems } = page;
 
-	if (!handle) {
-		throw new Response("Not Found", { status: 404 });
-	}
-
-	const supabase = await getSupabaseServerClient(args);
-	const { data: page, error } = await supabase.from("pages").select("id").eq("handle", handle).maybeSingle();
-
-	if (error) {
-		throw new Response(error.message, { status: 500 });
-	}
-
-	if (!page) {
-		throw new Response("Not Found", { status: 404 });
-	}
-
-	return { pageId: page.id };
+	return {
+		profileItems: (profileItems as StudioOutletContext["profileItems"]) ?? [],
+	};
 }
 
 export async function action(args: Route.ActionArgs) {
@@ -155,8 +148,8 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 	const {
 		page: { id: pageId, owner_id, title, description, image_url },
 		handle,
-		profileItems,
 	} = useOutletContext<StudioOutletContext>();
+	const { profileItems } = useLoaderData<typeof loader>();
 	const { lang } = useParams();
 	const actionData = useActionData<ActionData>();
 	const previewFrameRef = useRef<HTMLIFrameElement>(null);
