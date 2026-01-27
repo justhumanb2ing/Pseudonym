@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { metadataConfig } from "@/config/metadata";
 import { useIframePreview } from "@/hooks/use-iframe-preview";
-import { getSupabaseServerClient } from "@/lib/supabase";
+// import { getSupabaseServerClient } from "@/lib/supabase";
 import {
 	handleItemsReorder,
 	handleLinkRemove,
@@ -48,24 +48,27 @@ export async function loader(args: Route.LoaderArgs) {
 		throw new Response("Not Found", { status: 404 });
 	}
 
-	const supabase = await getSupabaseServerClient(args);
-	const { data: page, error } = await supabase.from("pages").select("id").eq("handle", handle).maybeSingle();
+	// NOTE: Supabase 경로 영향 확인을 위해 임시로 비활성화.
+	// const supabase = await getSupabaseServerClient(args);
+	// const { data: page, error } = await supabase.from("pages").select("id").eq("handle", handle).maybeSingle();
+	//
+	// if (error) {
+	// 	throw new Response(error.message, { status: 500 });
+	// }
+	//
+	// if (!page) {
+	// 	throw new Response("Not Found", { status: 404 });
+	// }
+	//
+	// return { pageId: page.id };
 
-	if (error) {
-		throw new Response(error.message, { status: 500 });
-	}
-
-	if (!page) {
-		throw new Response("Not Found", { status: 404 });
-	}
-
-	return { pageId: page.id };
+	return { pageId: "supabase-disabled" };
 }
 
 export async function action(args: Route.ActionArgs) {
 	const formData = await args.request.formData();
 	const intent = formData.get("intent")?.toString();
-	const supabase = await getSupabaseServerClient(args);
+	// const supabase = await getSupabaseServerClient(args);
 	// Intent 타입 검증
 	const validIntents = [
 		"page-details",
@@ -107,6 +110,12 @@ export async function action(args: Route.ActionArgs) {
 		} satisfies ActionData;
 	}
 
+	return {
+		formError: "Supabase disabled for load impact check",
+		success: false,
+	} satisfies ActionData;
+
+	/*
 	switch (intent) {
 		case "update-image":
 			return handleUpdateImage({ formData, supabase });
@@ -149,6 +158,7 @@ export async function action(args: Route.ActionArgs) {
 				success: false,
 			} satisfies ActionData;
 	}
+	*/
 }
 
 export default function StudioLinksRoute(_props: Route.ComponentProps) {
@@ -237,7 +247,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 							}
 						></Button>
 					</div>
-					<Iphone className="z-999">
+					{/* <Iphone className="z-999">
 						<ProfilePreviewFrame
 							iframeRef={previewFrameRef}
 							handle={handle}
@@ -245,7 +255,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 							className="h-full w-full"
 							onLoad={handleIframeLoad}
 						/>
-					</Iphone>
+					</Iphone> */}
 				</aside>
 			</article>
 

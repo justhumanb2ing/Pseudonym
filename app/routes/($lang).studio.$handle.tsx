@@ -5,7 +5,7 @@ import AppSidebar from "@/components/common/app-sidebar";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import LocaleSwitcher from "@/components/i18n/locale-switcher";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { getSupabaseServerClient } from "@/lib/supabase";
+// import { getSupabaseServerClient } from "@/lib/supabase";
 import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard";
 import { getLocalizedPath } from "@/utils/localized-path";
 import type { Route } from "./+types/($lang).studio.$handle";
@@ -34,34 +34,44 @@ export async function loader(args: Route.LoaderArgs): Promise<StudioOutletContex
 		throw new Response("Not Found", { status: 404 });
 	}
 
-	const supabase = await getSupabaseServerClient(args);
-	const pageSelectQuery = "id, owner_id, handle, title, description, image_url, is_public, is_primary, profile_items(*)";
-
-	const { data: page, error } = await supabase
-		.from("pages")
-		.select(pageSelectQuery)
-		.eq("handle", handle)
-		.order("sort_key", { ascending: true, foreignTable: "profile_items" })
-		.maybeSingle();
-
-	if (error) {
-		throw new Response(error.message, { status: 500 });
-	}
-
-	if (!page) {
-		throw new Response("Not Found", { status: 404 });
-	}
-
-	if (page.owner_id !== auth.userId) {
-		throw new Response("Forbidden", { status: 403 });
-	}
-
-	const { profile_items: profileItems, ...pageData } = page;
+	// NOTE: Supabase 경로 영향 확인을 위해 임시로 비활성화.
+	// const supabase = await getSupabaseServerClient(args);
+	// const pageSelectQuery = "id, owner_id, handle, title, description, image_url, is_public, is_primary, profile_items(*)";
+	//
+	// const { data: page, error } = await supabase
+	// 	.from("pages")
+	// 	.select(pageSelectQuery)
+	// 	.eq("handle", handle)
+	// 	.order("sort_key", { ascending: true, foreignTable: "profile_items" })
+	// 	.maybeSingle();
+	//
+	// if (error) {
+	// 	throw new Response(error.message, { status: 500 });
+	// }
+	//
+	// if (!page) {
+	// 	throw new Response("Not Found", { status: 404 });
+	// }
+	//
+	// if (page.owner_id !== auth.userId) {
+	// 	throw new Response("Forbidden", { status: 403 });
+	// }
+	//
+	// const { profile_items: profileItems, ...pageData } = page;
 
 	return {
-		page: pageData,
+		page: {
+			id: "supabase-disabled",
+			owner_id: auth.userId,
+			handle,
+			title: handle,
+			description: null,
+			image_url: null,
+			is_public: false,
+			is_primary: false,
+		},
 		handle,
-		profileItems: (profileItems as StudioOutletContext["profileItems"]) ?? [],
+		profileItems: [],
 	};
 }
 
