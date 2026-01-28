@@ -26,7 +26,13 @@
 	},
 	"observability": {
 		"enabled": true
-	}
+	},
+	"hyperdrive": [
+		{
+			"binding": "HYPERDRIVE",
+			"id": "7b0e764212094e3eb00322b1a0a61c55"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

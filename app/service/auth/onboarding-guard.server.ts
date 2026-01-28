@@ -1,6 +1,12 @@
 import { redirect } from "react-router";
 import { auth } from "@/lib/auth.server";
-import { getLocalizedPathFromPathname, isOnboardingPath, isPublicAuthPath, isPublicRoute } from "./route-utils";
+import {
+	getLocalizedPathFromPathname,
+	isOnboardingPath,
+	isPublicAuthPath,
+	isPublicRoute,
+	isUserProfilePath,
+} from "./route-utils";
 
 // Re-export utilities for backwards compatibility
 export {
@@ -8,6 +14,7 @@ export {
 	isOnboardingPath,
 	isPublicAuthPath,
 	isPublicRoute,
+	isUserProfilePath,
 } from "./route-utils";
 
 type OnboardingGuardArgs = {
@@ -25,9 +32,15 @@ export async function resolveOnboardingRedirect(args: OnboardingGuardArgs): Prom
 	const isAuth = isPublicAuthPath(pathname);
 	const isOnboarding = isOnboardingPath(pathname);
 	const isApiRoute = pathname.includes("/api/");
+	const isUserProfile = isUserProfilePath(pathname);
 
 	// API 라우트는 guard에서 제외
 	if (isApiRoute) {
+		return null;
+	}
+
+	// 사용자 프로필 페이지는 자체 접근 제어 로직이 있으므로 guard에서 제외
+	if (isUserProfile) {
 		return null;
 	}
 
