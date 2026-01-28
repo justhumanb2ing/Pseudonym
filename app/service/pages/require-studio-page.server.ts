@@ -1,6 +1,6 @@
 import { type LoaderFunctionArgs, redirect } from "react-router";
-import { auth } from "@/lib/auth";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { auth } from "@/lib/auth.server";
+import { getSupabaseServerClient } from "@/lib/supabase.server";
 import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard.server";
 
 type RequireStudioPageOptions = {

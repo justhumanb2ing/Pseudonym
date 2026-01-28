@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { metadataConfig } from "@/config/metadata";
 import { useIframePreview } from "@/hooks/use-iframe-preview";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { getSupabaseServerClient } from "@/lib/supabase.server";
 import {
 	handleItemsReorder,
 	handleLinkRemove,
@@ -229,12 +229,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 						></Button>
 					</div>
 					<Iphone className="z-999">
-						<ProfilePreviewFrame
-							iframeRef={previewFrameRef}
-							handle={handle}
-							className="h-full w-full"
-							onLoad={handleIframeLoad}
-						/>
+						<ProfilePreviewFrame iframeRef={previewFrameRef} handle={handle} className="h-full w-full" onLoad={handleIframeLoad} />
 					</Iphone>
 				</aside>
 			</article>

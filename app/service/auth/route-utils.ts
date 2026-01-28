@@ -21,7 +21,7 @@ export function isUserProfilePath(pathname: string): boolean {
 
 	if (segments.length !== 1) return false;
 
-	const reservedPaths = ["studio", "sign-in", "sign-up", "onboarding", "changelog", "feedback"];
+	const reservedPaths = ["studio", "sign-in", "onboarding", "changelog", "feedback"];
 	return !reservedPaths.includes(segments[0]);
 }
 
@@ -44,11 +44,11 @@ export function getLocalizedPathFromPathname(pathname: string, targetPath: strin
 }
 
 /**
- * Returns true when the pathname points to a public auth route.
+ * Returns true when the pathname points to a public auth route (/sign-in).
  */
 export function isPublicAuthPath(pathname: string) {
 	const normalizedPathname = pathname.replace(/\/+$/, "");
-	const authSegmentPattern = /(^|\/)(sign-in|sign-up)(\/|$)/;
+	const authSegmentPattern = /(^|\/)sign-in(\/|$)/;
 
 	return authSegmentPattern.test(normalizedPathname);
 }

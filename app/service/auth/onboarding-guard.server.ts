@@ -1,14 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
 import { redirect } from "react-router";
-import { auth } from "@/lib/auth";
-import type { Database } from "../../../types/database.types";
-import {
-	getLocalizedPathFromPathname,
-	isOnboardingPath,
-	isPublicAuthPath,
-	isPublicRoute,
-	isUserProfilePath,
-} from "./route-utils";
+import { auth } from "@/lib/auth.server";
+import { getLocalizedPathFromPathname, isOnboardingPath, isPublicAuthPath, isPublicRoute } from "./route-utils";
 
 // Re-export utilities for backwards compatibility
 export {
@@ -32,7 +24,6 @@ export async function resolveOnboardingRedirect(args: OnboardingGuardArgs): Prom
 	const isPublic = isPublicRoute(pathname);
 	const isAuth = isPublicAuthPath(pathname);
 	const isOnboarding = isOnboardingPath(pathname);
-	const isUserProfile = isUserProfilePath(pathname);
 	const isApiRoute = pathname.includes("/api/");
 
 	// API 라우트는 guard에서 제외
@@ -46,31 +37,15 @@ export async function resolveOnboardingRedirect(args: OnboardingGuardArgs): Prom
 	});
 	const userId = session?.user?.id;
 
-	// Case 1: 비로그인 사용자 - 공개 라우트 + 인증 라우트 + 사용자 프로필 페이지만 허용
+	// Case 1: 비로그인 사용자 - 공개 라우트 + /sign-in만 허용
 	if (!userId) {
-		if (!isPublic && !isAuth && !isUserProfile) {
+		if (!isPublic && !isAuth) {
 			return redirect(getLocalizedPathFromPathname(pathname, "/sign-in"));
 		}
 		return null;
 	}
 
-	// onboarding 완료 여부 확인 (pages 테이블에서 handle 존재 여부로 판단)
-	const supabaseUrl = process.env.VITE_SB_URL;
-	const supabaseKey = process.env.VITE_SB_PUBLISHABLE_KEY;
-
-	let onboardingComplete = false;
-
-	if (supabaseUrl && supabaseKey) {
-		const supabase = createClient<Database>(supabaseUrl, supabaseKey);
-		const { data } = await supabase
-			.from("pages")
-			.select("handle")
-			.eq("owner_id", userId)
-			.eq("is_primary", true)
-			.maybeSingle();
-
-		onboardingComplete = !!data?.handle;
-	}
+	const onboardingComplete = session?.user?.userMetadata?.onboardingComplete === true;
 
 	// Case 2: 온보딩 미완료 사용자 - /onboarding만 허용
 	if (!onboardingComplete) {
@@ -80,8 +55,8 @@ export async function resolveOnboardingRedirect(args: OnboardingGuardArgs): Prom
 		return null;
 	}
 
-	// Case 3: 온보딩 완료 사용자 - /onboarding만 차단
-	if (isOnboarding) {
+	// Case 3: 온보딩 완료 사용자 - /onboarding, /sign-in 등 인증 라우트 차단
+	if (isOnboarding || isAuth) {
 		return redirect(getLocalizedPathFromPathname(pathname, "/"));
 	}
 

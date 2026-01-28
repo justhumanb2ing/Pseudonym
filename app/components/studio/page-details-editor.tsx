@@ -47,7 +47,7 @@ export default function PageDetailsEditor({ pageId, title, description }: PageDe
 	const formError = actionData?.formError;
 	const isSaving = fetcher.state !== "idle";
 	const isTitleMissing = titleValue.trim().length === 0;
-	const titleErrorMessage = isTitleMissing ? "Title is required." : undefined;
+	const titleErrorMessage = isTitleMissing ? "Title is required" : undefined;
 
 	useEffect(() => {
 		if (!open) {

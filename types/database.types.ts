@@ -141,7 +141,7 @@ export type Database = {
             foreignKeyName: "pages_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "user"
             referencedColumns: ["id"]
           },
         ]
@@ -244,6 +244,7 @@ export type Database = {
           name: string
           role: string | null
           updatedAt: string
+          userMetadata: Json
         }
         Insert: {
           banExpires?: string | null
@@ -257,6 +258,7 @@ export type Database = {
           name: string
           role?: string | null
           updatedAt: string
+          userMetadata?: Json
         }
         Update: {
           banExpires?: string | null
@@ -270,6 +272,7 @@ export type Database = {
           name?: string
           role?: string | null
           updatedAt?: string
+          userMetadata?: Json
         }
         Relationships: []
       }
@@ -364,7 +367,7 @@ export type Database = {
           p_handle: string
           p_image_url?: string
           p_is_public?: boolean
-          p_title?: string
+          p_title: string
         }
         Returns: {
           created_at: string
@@ -385,6 +388,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      current_user_id: { Args: never; Returns: string }
       reorder_page_items: {
         Args: { p_ordered_ids: string[]; p_page_id: string }
         Returns: undefined
@@ -397,6 +401,7 @@ export type Database = {
         Args: { p_layout: Json; p_page_id: string }
         Returns: undefined
       }
+      set_user_id: { Args: { user_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

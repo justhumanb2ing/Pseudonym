@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { authClient } from "@/lib/auth-client";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { authClient } from "@/lib/auth.client";
 import SignInRoute from "@/routes/_auth.sign-in";
 
 vi.mock("@/hooks/use-umami-page-view", () => ({
@@ -16,6 +16,25 @@ vi.mock("@/lib/auth.client", () => ({
 	},
 }));
 
+vi.mock("react-router", async () => {
+	const actual = await vi.importActual<typeof import("react-router")>("react-router");
+
+	return {
+		...actual,
+		Link: ({ children, to, ...props }: React.ComponentPropsWithoutRef<"a"> & { to: string }) => (
+			<a href={to} {...props}>
+				{children}
+			</a>
+		),
+		useFetcher: () => ({
+			Form: ({ children, ...props }: React.ComponentPropsWithoutRef<"form">) => <form {...props}>{children}</form>,
+			state: "idle",
+			data: undefined,
+		}),
+		useNavigate: () => vi.fn(),
+	};
+});
+
 describe("SignInRoute integration", () => {
 	beforeEach(() => {
 		vi.spyOn(console, "error").mockImplementation(() => {});
@@ -29,14 +48,17 @@ describe("SignInRoute integration", () => {
 	it("surfaces an error message when Google sign-in fails", async () => {
 		const user = userEvent.setup();
 		const socialMock = authClient.signIn.social as ReturnType<typeof vi.fn>;
-		socialMock.mockRejectedValueOnce(new Error("oauth unavailable"));
+		socialMock.mockImplementationOnce(async (_config, callbacks) => {
+			callbacks?.onRequest?.();
+			callbacks?.onError?.({ error: { message: "oauth unavailable" } });
+		});
 
 		render(<SignInRoute />);
 
 		const button = screen.getByRole("button", { name: /continue with google/i });
 		await user.click(button);
 
-		const error = await screen.findByText("Could not start Google sign-in. Please try again.");
+		const error = await screen.findByText("oauth unavailable");
 		expect(error).toBeInTheDocument();
 		expect(button).not.toBeDisabled();
 	});

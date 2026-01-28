@@ -9,7 +9,7 @@ describe("onboarding-guard utilities", () => {
 
 	it("detects public auth paths", () => {
 		expect(isPublicAuthPath("/sign-in")).toBe(true);
-		expect(isPublicAuthPath("/sign-up")).toBe(true);
+		expect(isPublicAuthPath("/sign-up")).toBe(false);
 		expect(isPublicAuthPath("/profile")).toBe(false);
 	});
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import { getSupabaseClient } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase.client";
 import { createPageImageUploader, type PageImageUploadPayload } from "@/service/pages/upload-page-image";
 
 /**

@@ -1,4 +1,3 @@
-import { getAuth } from "@clerk/react-router/server";
 import { useEffect, useRef, useState } from "react";
 import { redirect, useFetcher, useOutletContext } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
@@ -6,7 +5,8 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Field, FieldContent, FieldError, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { auth } from "@/lib/auth.server";
+import { getSupabaseServerClient } from "@/lib/supabase.server";
 import { formatPageHandle, HANDLE_PATTERN, handleSchema } from "@/service/pages/page-handle";
 import type { Route } from "./+types/studio.$handle.handle";
 
@@ -26,8 +26,11 @@ export async function action(args: Route.ActionArgs) {
 		return new Response("Method not allowed.", { status: 405 });
 	}
 
-	const auth = await getAuth(args);
-	if (!auth.userId) {
+	const session = await auth.api.getSession({
+		headers: args.request.headers,
+	});
+	const userId = session?.user?.id;
+	if (!userId) {
 		throw redirect("/sign-in");
 	}
 
@@ -65,7 +68,7 @@ export async function action(args: Route.ActionArgs) {
 		throw new Response("Not Found", { status: 404 });
 	}
 
-	if (page.owner_id !== auth.userId) {
+	if (page.owner_id !== userId) {
 		throw new Response("Forbidden", { status: 403 });
 	}
 

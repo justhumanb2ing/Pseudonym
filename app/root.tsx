@@ -5,9 +5,26 @@ import "./app.css";
 import NotFound from "./components/error/not-found";
 import { Spinner } from "./components/ui/spinner";
 import Providers from "./providers";
+import { resolveOnboardingRedirect } from "./service/auth/onboarding-guard.server";
 
 const PRETENDARD_STYLESHEET =
 	"https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css";
+
+export async function loader({ context, request }: Route.LoaderArgs) {
+	const pathname = new URL(request.url).pathname;
+
+	const redirectResponse = await resolveOnboardingRedirect({
+		context,
+		request,
+		pathname,
+	});
+
+	if (redirectResponse) {
+		throw redirectResponse;
+	}
+
+	return null;
+}
 
 export const links = () => [
 	// CDN preconnect로 연결 시간 단축 (TTFB 개선)

@@ -1,4 +1,3 @@
-import { getAuth } from "@clerk/react-router/server";
 import { SparklesIcon } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useLoaderData, useLocation, useRevalidator } from "react-router";
@@ -12,8 +11,9 @@ import Watermark from "@/components/page/watermark";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { auth } from "@/lib/auth.server";
 import { isPreviewMessage, isPreviewSearch } from "@/lib/preview";
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { getSupabaseServerClient } from "@/lib/supabase.server";
 import { cn } from "@/lib/utils";
 import type { Route } from "./+types/$handle._index";
 
@@ -25,7 +25,9 @@ const isLikelySignedUrl = (url: string) => {
 };
 
 export async function loader(args: Route.LoaderArgs) {
-	const { userId } = await getAuth(args);
+	const session = await auth.api.getSession({
+		headers: args.request.headers,
+	});
 	const { handle } = args.params;
 	if (!handle) {
 		throw new Response("Not Found", { status: 404 });
@@ -50,7 +52,7 @@ export async function loader(args: Route.LoaderArgs) {
 		throw new Response("Not Found", { status: 404 });
 	}
 
-	const isOwner = page.owner_id === userId;
+	const isOwner = page.owner_id === session?.user.id;
 	if (!page.is_public && !isOwner) {
 		throw new Response("Forbidden", { status: 403 });
 	}
@@ -130,13 +132,7 @@ export default function UserProfileRoute() {
 					<div className="flex flex-col gap-4 p-10 py-12 pb-2">
 						<div className="size-30 overflow-hidden rounded-full md:size-36">
 							{page.image_url ? (
-								<img
-									src={page.image_url}
-									alt={page.handle}
-									className="h-full w-full object-cover"
-									loading="eager"
-									decoding="async"
-								/>
+								<img src={page.image_url} alt={page.handle} className="h-full w-full object-cover" loading="eager" decoding="async" />
 							) : (
 								<div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground text-xs"></div>
 							)}
@@ -181,15 +177,15 @@ export default function UserProfileRoute() {
 					{!isPreview && (
 						<div className="absolute top-12 right-10">
 							<Button
-							size={"icon-lg"}
-							className={"rounded-full"}
-							aria-label="Let's make your unique page"
-							render={
-								<Link to="/">
-									<SparklesIcon />
-								</Link>
-							}
-						></Button>
+								size={"icon-lg"}
+								className={"rounded-full"}
+								aria-label="Let's make your unique page"
+								render={
+									<Link to="/">
+										<SparklesIcon />
+									</Link>
+								}
+							></Button>
 						</div>
 					)}
 				</main>

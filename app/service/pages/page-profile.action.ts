@@ -1,15 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { buildGoogleMapsHref } from "@/lib/map";
 import { normalizeLinkUrl } from "@/service/links/link-crawl";
 import { createLinkSaver } from "@/service/links/save-link";
 import { createMapSaver } from "@/service/maps/save-map";
 import { createMediaSaver } from "@/service/media/save-media";
-import { createSectionSaver } from "@/service/sections/save-section";
-import { createTextSaver } from "@/service/texts/save-text";
 import { normalizePageDetails, pageDetailsSchema } from "@/service/pages/page-details";
 import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/page-image";
 import { normalizeOptionalText, pageMediaSaveSchema, pageMediaUpdateSchema } from "@/service/pages/page-media";
-import { buildGoogleMapsHref } from "@/lib/map";
+import { createSectionSaver } from "@/service/sections/save-section";
+import { createTextSaver } from "@/service/texts/save-text";
 import type { Database, Json } from "../../../types/database.types";
 
 export type ActionIntent =
@@ -53,12 +53,15 @@ const layoutSchema = z.preprocess((value) => {
 	return value;
 }, z.enum(["compact", "full"]).optional());
 
-const layoutWithDefaultSchema = z.preprocess((value) => {
-	if (typeof value !== "string" || value.trim().length === 0) {
-		return "compact";
-	}
-	return value;
-}, z.enum(["compact", "full"]));
+const layoutWithDefaultSchema = z.preprocess(
+	(value) => {
+		if (typeof value !== "string" || value.trim().length === 0) {
+			return "compact";
+		}
+		return value;
+	},
+	z.enum(["compact", "full"]),
+);
 
 const linkSaveSchema = z.object({
 	pageId: z.string().min(1, "Page id is required."),
@@ -91,11 +94,7 @@ const textSaveSchema = z.object({
 
 const sectionSaveSchema = z.object({
 	pageId: z.string().min(1, "Page id is required."),
-	headline: z
-		.string()
-		.trim()
-		.min(1, "Headline is required.")
-		.max(50, "Headline must be 50 characters or less."),
+	headline: z.string().trim().min(1, "Headline is required.").max(50, "Headline must be 50 characters or less."),
 });
 
 const textUpdateSchema = z.object({
@@ -105,11 +104,7 @@ const textUpdateSchema = z.object({
 
 const sectionUpdateSchema = z.object({
 	itemId: z.string().min(1, "Item id is required."),
-	headline: z
-		.string()
-		.trim()
-		.min(1, "Headline is required.")
-		.max(50, "Headline must be 50 characters or less."),
+	headline: z.string().trim().min(1, "Headline is required.").max(50, "Headline must be 50 characters or less."),
 });
 
 const linkRemoveSchema = z.object({
@@ -140,7 +135,7 @@ const pageVisibilitySchema = z.object({
 		.min(1, "Visibility value is required.")
 		.refine((value) => value === "true" || value === "false", {
 			message: "Invalid visibility value.",
-	}),
+		}),
 });
 
 const itemsReorderSchema = z.object({
@@ -420,9 +415,7 @@ export async function handleLinkUpdate({ formData, supabase }: PageProfileAction
 			: {};
 	const rawConfigData = configObject.data;
 	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
-			? (rawConfigData as Record<string, unknown>)
-			: {};
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
 
 	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
 
@@ -436,10 +429,7 @@ export async function handleLinkUpdate({ formData, supabase }: PageProfileAction
 		},
 	} as Json;
 
-	const { error: updateError } = await supabase
-		.from("profile_items")
-		.update({ config: nextConfig })
-		.eq("id", parsed.data.itemId);
+	const { error: updateError } = await supabase.from("profile_items").update({ config: nextConfig }).eq("id", parsed.data.itemId);
 
 	if (updateError) {
 		return { formError: updateError.message, intent: "link-update", itemId: parsed.data.itemId };
@@ -470,10 +460,7 @@ export async function handleLinkToggle({ formData, supabase }: PageProfileAction
 	}
 
 	const nextIsActive = parsed.data.isActive === "true";
-	const { error: updateError } = await supabase
-		.from("profile_items")
-		.update({ is_active: nextIsActive })
-		.eq("id", parsed.data.itemId);
+	const { error: updateError } = await supabase.from("profile_items").update({ is_active: nextIsActive }).eq("id", parsed.data.itemId);
 
 	if (updateError) {
 		return { formError: updateError.message, intent: "link-toggle", itemId: parsed.data.itemId };
@@ -688,9 +675,7 @@ export async function handleMapUpdate({ formData, supabase }: PageProfileActionC
 			: {};
 	const rawConfigData = configObject.data;
 	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
-			? (rawConfigData as Record<string, unknown>)
-			: {};
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
 	const nextCenter: [number, number] = [parsed.data.lng, parsed.data.lat];
 	const nextLayout = parsed.data.layout;
 
@@ -709,10 +694,7 @@ export async function handleMapUpdate({ formData, supabase }: PageProfileActionC
 		},
 	} as Json;
 
-	const { error: updateError } = await supabase
-		.from("profile_items")
-		.update({ config: nextConfig })
-		.eq("id", parsed.data.itemId);
+	const { error: updateError } = await supabase.from("profile_items").update({ config: nextConfig }).eq("id", parsed.data.itemId);
 
 	if (updateError) {
 		return { formError: updateError.message, intent: "map-update", itemId: parsed.data.itemId };
@@ -757,9 +739,7 @@ export async function handleTextUpdate({ formData, supabase }: PageProfileAction
 		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
 	const rawConfigData = configObject.data;
 	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
-			? (rawConfigData as Record<string, unknown>)
-			: {};
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
 
 	const { error: updateError } = await supabase
 		.from("profile_items")
@@ -820,9 +800,7 @@ export async function handleMediaUpdate({ formData, supabase }: PageProfileActio
 			: {};
 	const rawConfigData = configObject.data;
 	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
-			? (rawConfigData as Record<string, unknown>)
-			: {};
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
 	const nextLayout = parsed.data.layout;
 
 	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
@@ -837,10 +815,7 @@ export async function handleMediaUpdate({ formData, supabase }: PageProfileActio
 		},
 	} as Json;
 
-	const { error: updateError } = await supabase
-		.from("profile_items")
-		.update({ config: nextConfig })
-		.eq("id", parsed.data.itemId);
+	const { error: updateError } = await supabase.from("profile_items").update({ config: nextConfig }).eq("id", parsed.data.itemId);
 
 	if (updateError) {
 		return { formError: updateError.message, intent: "media-update", itemId: parsed.data.itemId };
@@ -885,9 +860,7 @@ export async function handleSectionUpdate({ formData, supabase }: PageProfileAct
 		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
 	const rawConfigData = configObject.data;
 	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData)
-			? (rawConfigData as Record<string, unknown>)
-			: {};
+		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
 
 	const { error: updateError } = await supabase
 		.from("profile_items")

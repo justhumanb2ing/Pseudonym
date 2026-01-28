@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { getSupabaseClient } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase.client";
 import { getUmamiEventAttributes, trackUmamiEvent } from "@/lib/umami";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
 import { Button } from "../ui/button";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { getSupabaseClient } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase.client";
 
 export type HandleValidationResult = {
 	available: boolean;

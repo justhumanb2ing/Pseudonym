@@ -1,25 +1,38 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getAuth } from "@clerk/react-router/server";
-import * as supabaseModule from "@/lib/supabase";
+import { auth } from "@/lib/auth.server";
+import * as supabaseModule from "@/lib/supabase.server";
 import { action } from "@/routes/studio.$handle.handle";
 
-vi.mock("@clerk/react-router/server", () => ({
-	getAuth: vi.fn(),
+vi.mock("@/lib/auth.server", () => ({
+	auth: {
+		api: {
+			getSession: vi.fn(),
+		},
+	},
 }));
 
 type SupabaseStub = {
 	supabase: {
 		from: (table: string) => {
 			select: (columns: string) => {
-				eq: (column: string, value: string) => {
+				eq: (
+					column: string,
+					value: string,
+				) => {
 					maybeSingle: () => Promise<{ data: { id: string; handle: string; owner_id: string } | null; error: { message: string } | null }>;
-					neq: (column: string, value: string) => {
+					neq: (
+						column: string,
+						value: string,
+					) => {
 						maybeSingle: () => Promise<{ data: { id: string } | null; error: { message: string } | null }>;
 					};
 				};
 			};
 			update: (payload: Record<string, unknown>) => {
-				eq: (column: string, value: string) => {
+				eq: (
+					column: string,
+					value: string,
+				) => {
 					error: { message: string } | null;
 				};
 			};
@@ -72,7 +85,9 @@ describe("handle settings action", () => {
 		vi.spyOn(supabaseModule, "getSupabaseServerClient").mockResolvedValueOnce(
 			supabase as unknown as Awaited<ReturnType<typeof supabaseModule.getSupabaseServerClient>>,
 		);
-		vi.mocked(getAuth).mockResolvedValueOnce({ userId: "user-1" } as Awaited<ReturnType<typeof getAuth>>);
+		vi.mocked(auth.api.getSession).mockResolvedValueOnce({
+			user: { id: "user-1" },
+		} as Awaited<ReturnType<typeof auth.api.getSession>>);
 
 		const formData = new URLSearchParams();
 		formData.set("handle", "NewHandle");

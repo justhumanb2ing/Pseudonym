@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import * as supabaseModule from "@/lib/supabase";
+import * as supabaseModule from "@/lib/supabase.server";
 import { action } from "@/routes/studio.$handle.links";
 
 afterEach(() => {

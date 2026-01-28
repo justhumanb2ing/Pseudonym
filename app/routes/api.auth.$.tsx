@@ -1,13 +1,10 @@
-// app/routes/api.auth.$.tsx
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth.server";
+import type { Route } from "./+types/api.auth.$";
 
-// GET, HEAD 등
-export async function loader({ request }: LoaderFunctionArgs) {
-	return auth.handler(request);
+export async function loader(args: Route.LoaderArgs) {
+	return auth.handler(args.request);
 }
 
-// POST 등
-export async function action({ request }: ActionFunctionArgs) {
-	return auth.handler(request);
+export async function action(args: Route.ActionArgs) {
+	return auth.handler(args.request);
 }

@@ -12,7 +12,10 @@ import { useHandleValidation } from "@/hooks/use-handle-validation";
 import { useUmamiPageView } from "@/hooks/use-umami-page-view";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
 import { CompleteStep, DetailsStep, HandleStep } from "@/routes/onboarding/onboarding-steps";
+import { authClient } from "@/lib/auth.client";
 import { type ActionData, action } from "@/service/onboarding.action";
+import type { Route } from "./+types/_auth.onboarding";
+import { auth } from "@/lib/auth.server";
 
 type StepId<T extends string = string> = T;
 type Step = StepId<"handle" | "details" | "complete">;
@@ -26,6 +29,13 @@ function getStepMeta(steps: Array<StepItem>, step: Step) {
 	return { activeStep, activeStepItem, isCompleteStep };
 }
 
+export async function loader(args: Route.LoaderArgs) {
+	const session = await auth.api.getSession({
+		headers: args.request.headers
+		
+	})
+	console.log(session);
+}
 export default function OnboardingRoute() {
 	const navigation = useNavigation();
 	const navigate = useNavigate();
@@ -228,11 +238,15 @@ export default function OnboardingRoute() {
 		trackSignupStart("details");
 	};
 
-	const handleGoToPage = () => {
+	const handleGoToPage = async () => {
 		if (!completedHandle) {
 			return;
 		}
-		navigate(`/studio/${completedHandle}`);
+		// 세션 쿠키를 갱신하여 온보딩 가드를 통과할 수 있게 함
+		await authClient.getSession({
+			query: { disableCookieCache: true },
+		});
+		navigate(`/studio/${completedHandle}/links`);
 	};
 
 	return (

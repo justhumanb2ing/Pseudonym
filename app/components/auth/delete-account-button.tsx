@@ -1,4 +1,3 @@
-import { useClerk, useUser } from "@clerk/react-router";
 import { useState } from "react";
 import {
 	AlertDialog,
@@ -13,10 +12,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast";
+import { authClient } from "@/lib/auth.client";
 import { createUmamiAttemptId, getUmamiEventAttributes, trackUmamiEvent } from "@/lib/umami";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
-
-const DELETE_ACCOUNT_ENDPOINT = "/api/delete-account";
 
 type DeleteAccountResponse = {
 	message: string;
@@ -33,42 +31,31 @@ const getPayloadMessage = (value: unknown, key: "message" | "error"): string | n
 	return typeof candidate === "string" ? candidate : null;
 };
 
-type DeleteAccountButtonProps = {
-	endpoint?: string;
-};
-
-async function requestDeleteAccount(endpoint: string): Promise<DeleteAccountResponse> {
-	const response = await fetch(endpoint, {
-		method: "POST",
-		headers: {
-			Accept: "application/json",
-		},
-	});
-
-	const data = await response.json().catch(() => null);
-
-	if (!response.ok) {
-		const message = getPayloadMessage(data, "error") ?? "Failed to delete account.";
-		throw new Error(message);
+async function requestDeleteAccount(): Promise<DeleteAccountResponse> {
+	try {
+		const data = await authClient.deleteUser({
+			callbackURL: "/", // you can provide a callback URL to redirect after deletion
+		});
+		return {
+			message: getPayloadMessage(data, "message") ?? "Account deleted.",
+		};
+	} catch (_error) {
+		throw new Error("Failed to delete account");
 	}
-
-	return {
-		message: getPayloadMessage(data, "message") ?? "Account deleted.",
-	};
 }
 
-export default function DeleteAccountButton({ endpoint = DELETE_ACCOUNT_ENDPOINT }: DeleteAccountButtonProps) {
-	const clerk = useClerk();
-	const { isLoaded, isSignedIn } = useUser();
+export default function DeleteAccountButton() {
+	const sessionResponse = authClient.useSession();
 	const [open, setOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
-	const isDisabled = !isLoaded || !isSignedIn || isDeleting;
+	const isSigningIn = sessionResponse.isPending;
+	const isSignedIn = Boolean(sessionResponse.data?.user);
+	const isDisabled = isDeleting || isSigningIn || !isSignedIn;
 
 	const handleDelete = async () => {
 		if (isDisabled) {
 			return;
 		}
-
 		setIsDeleting(true);
 		const attemptId = createUmamiAttemptId("delete-account");
 		trackUmamiEvent(
@@ -82,7 +69,7 @@ export default function DeleteAccountButton({ endpoint = DELETE_ACCOUNT_ENDPOINT
 				once: true,
 			},
 		);
-		const deletePromise = requestDeleteAccount(endpoint);
+		const deletePromise = requestDeleteAccount();
 
 		toastManager.promise(deletePromise, {
 			loading: {
@@ -110,7 +97,10 @@ export default function DeleteAccountButton({ endpoint = DELETE_ACCOUNT_ENDPOINT
 					once: true,
 				},
 			);
-			await clerk.signOut({ redirectUrl: "/" });
+			await authClient.signOut();
+			if (typeof window !== "undefined") {
+				window.location.assign("/");
+			}
 		} catch (_error) {
 			trackUmamiEvent(
 				UMAMI_EVENTS.feature.accountDelete.error,
