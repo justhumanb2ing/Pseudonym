@@ -4,15 +4,13 @@ import { Link, type MetaFunction } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { metadataConfig } from "@/config/metadata";
-import { getLocalizedPath } from "@/utils/localized-path";
 
-const buildUrl = (lang: string | undefined, pathname: string) => new URL(getLocalizedPath(lang, pathname), metadataConfig.url).toString();
+const buildUrl = (pathname: string) => new URL(pathname, metadataConfig.url).toString();
 
 const defaultImageUrl = new URL(metadataConfig.defaultImage, metadataConfig.url).toString();
 
-export const meta: MetaFunction = ({ params }) => {
-	const _homeUrl = buildUrl(params.lang, "/");
-	const changelogUrl = buildUrl(params.lang, "/changelog");
+export const meta: MetaFunction = () => {
+	const changelogUrl = buildUrl("/changelog");
 
 	return generateMeta(
 		{
@@ -41,7 +39,7 @@ export default function ChangeLogRoute() {
 						<EmptyDescription>Everything remains the same for the time being.</EmptyDescription>
 					</EmptyHeader>
 					<EmptyContent>
-						<Button variant={"brand"} className={'px-6'} render={<Link to={"/"}>Go Home</Link>}></Button>
+						<Button variant={"brand"} className="px-6" render={<Link to="/">Go Home</Link>}></Button>
 					</EmptyContent>
 				</Empty>
 			</section>

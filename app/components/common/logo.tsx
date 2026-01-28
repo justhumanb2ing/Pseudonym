@@ -1,11 +1,11 @@
-import { LocalizedLink } from "../i18n/localized-link";
+import { Link } from "react-router";
 
 export default function Logo() {
 	return (
 		<div className="size-12">
-			<LocalizedLink to={"/"} className="font-medium text-xl tracking-tighter sm:text-3xl">
+			<Link to="/" className="font-medium text-xl tracking-tighter sm:text-3xl">
 				<img src="/logo.png" alt="logo" className="h-full w-full object-cover" />
-			</LocalizedLink>
+			</Link>
 		</div>
 	);
 }

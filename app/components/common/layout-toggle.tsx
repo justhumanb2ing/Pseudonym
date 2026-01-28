@@ -1,6 +1,5 @@
 import { DesktopIcon, DeviceMobileCameraIcon } from "@phosphor-icons/react";
 import { isMobileWeb } from "@toss/utils";
-import { useIntlayer } from "react-intlayer";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
@@ -15,7 +14,8 @@ const MOBILE_VALUE = "mobile";
 export default function LayoutToggle({ isDesktop, onToggle }: LayoutToggleProps) {
 	const currentValue = isDesktop ? DESKTOP_VALUE : MOBILE_VALUE;
 	const isMobileDevice = isMobileWeb();
-	const { desktopTooltip, mobileTooltip } = useIntlayer("layoutToggle");
+	const desktopTooltip = "Desktop layout";
+	const mobileTooltip = "Mobile layout";
 
 	if (isMobileDevice) return null;
 
@@ -51,7 +51,7 @@ export default function LayoutToggle({ isDesktop, onToggle }: LayoutToggleProps)
 								</ToggleGroupItem>
 							}
 						/>
-						<TooltipContent>{desktopTooltip.value}</TooltipContent>
+						<TooltipContent>{desktopTooltip}</TooltipContent>
 					</Tooltip>
 					<Tooltip>
 						<TooltipTrigger
@@ -66,7 +66,7 @@ export default function LayoutToggle({ isDesktop, onToggle }: LayoutToggleProps)
 								</ToggleGroupItem>
 							}
 						/>
-						<TooltipContent>{mobileTooltip.value}</TooltipContent>
+						<TooltipContent>{mobileTooltip}</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
 			</ToggleGroup>

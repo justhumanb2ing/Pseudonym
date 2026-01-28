@@ -1,9 +1,8 @@
 import { getAuth } from "@clerk/react-router/server";
 import { SparklesIcon } from "lucide-react";
 import { useEffect } from "react";
-import { useLoaderData, useLocation, useRevalidator } from "react-router";
+import { Link, useLoaderData, useLocation, useRevalidator } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
-import { LocalizedLink } from "@/components/i18n/localized-link";
 import LinkItem from "@/components/page/link-item";
 import MapItem from "@/components/page/map-item";
 import MediaItem from "@/components/page/media-item";
@@ -16,7 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { isPreviewMessage, isPreviewSearch } from "@/lib/preview";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
-import type { Route } from "./+types/($lang).$handle._index";
+import type { Route } from "./+types/$handle._index";
 
 const SIGNED_URL_HINTS = ["signature=", "expires=", "token=", "x-amz-"];
 
@@ -182,15 +181,15 @@ export default function UserProfileRoute() {
 					{!isPreview && (
 						<div className="absolute top-12 right-10">
 							<Button
-								size={"icon-lg"}
-								className={"rounded-full"}
-								aria-label="Let's make your unique page"
-								render={
-									<LocalizedLink to={"/"}>
-										<SparklesIcon />
-									</LocalizedLink>
-								}
-							></Button>
+							size={"icon-lg"}
+							className={"rounded-full"}
+							aria-label="Let's make your unique page"
+							render={
+								<Link to="/">
+									<SparklesIcon />
+								</Link>
+							}
+						></Button>
 						</div>
 					)}
 				</main>

@@ -2,8 +2,7 @@ import { clerkClient, getAuth } from "@clerk/react-router/server";
 import { redirect } from "react-router";
 import { z } from "zod";
 import { getSupabaseServerClient } from "@/lib/supabase";
-import { getLocalizedPath } from "@/utils/localized-path";
-import type { Route } from "../routes/+types/($lang)._auth.onboarding";
+import type { Route } from "../routes/+types/_auth.onboarding";
 
 export const onboardingSchema = z.object({
 	handle: z
@@ -36,7 +35,7 @@ async function getClerkProfileImageUrl(args: Route.ActionArgs, userId: string) {
 export async function action(args: Route.ActionArgs) {
 	const auth = await getAuth(args);
 	if (!auth.userId) {
-		throw redirect(getLocalizedPath(args.params.lang, "/sign-in"));
+		throw redirect("/sign-in");
 	}
 
 	const formData = await args.request.formData();

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getAuth } from "@clerk/react-router/server";
 import * as supabaseModule from "@/lib/supabase";
-import { action } from "@/routes/($lang).studio.$handle.handle";
+import { action } from "@/routes/studio.$handle.handle";
 
 vi.mock("@clerk/react-router/server", () => ({
 	getAuth: vi.fn(),
@@ -77,7 +77,7 @@ describe("handle settings action", () => {
 		const formData = new URLSearchParams();
 		formData.set("handle", "NewHandle");
 
-		const request = new Request("http://localhost/en/studio/@old/handle", {
+		const request = new Request("http://localhost/studio/@old/handle", {
 			method: "POST",
 			body: formData,
 			headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -85,7 +85,7 @@ describe("handle settings action", () => {
 
 		const result = await action({
 			request,
-			params: { lang: "en", handle: "@old" },
+			params: { handle: "@old" },
 			context: {},
 		} as Parameters<typeof action>[0]);
 
@@ -98,6 +98,6 @@ describe("handle settings action", () => {
 		if (!(result instanceof Response)) {
 			throw new Error("Expected a Response result.");
 		}
-		expect(result.headers.get("Location")).toBe("/en/studio/@newhandle/handle");
+		expect(result.headers.get("Location")).toBe("/studio/@newhandle/handle");
 	});
 });

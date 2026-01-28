@@ -1,10 +1,9 @@
 import { SquareArrowOutUpRightIcon, UnlinkIcon } from "lucide-react";
 import { useRef } from "react";
-import { useActionData, useLoaderData, useOutletContext, useParams } from "react-router";
+import { Link, useActionData, useLoaderData, useOutletContext } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import { Text } from "@/components/common/typhography";
 import Iphone from "@/components/effects/iphone";
-import { LocalizedLink } from "@/components/i18n/localized-link";
 import AddItemDrawer from "@/components/studio/add-item-drawer";
 import MobileProfilePreviewButton from "@/components/studio/mobile-profile-preview-button";
 import PageDetailsEditor from "@/components/studio/page-details-editor";
@@ -37,8 +36,8 @@ import {
 	handleUpdateImage,
 	type PageProfileActionData,
 } from "@/service/pages/page-profile.action";
-import { requireStudioPage } from "@/service/pages/require-studio-page";
-import type { Route } from "./+types/($lang).studio.$handle.links";
+import { requireStudioPage } from "@/service/pages/require-studio-page.server";
+import type { Route } from "./+types/studio.$handle.links";
 
 export type ActionData = PageProfileActionData;
 
@@ -150,7 +149,6 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 		handle,
 	} = useOutletContext<StudioOutletContext>();
 	const { profileItems } = useLoaderData<typeof loader>();
-	const { lang } = useParams();
 	const actionData = useActionData<ActionData>();
 	const previewFrameRef = useRef<HTMLIFrameElement>(null);
 
@@ -224,9 +222,9 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 							variant={"ghost"}
 							className={"rounded-md px-2 text-xs"}
 							render={
-								<LocalizedLink to={`/${handle}`}>
+								<Link to={`/${handle}`}>
 									<SquareArrowOutUpRightIcon />
-								</LocalizedLink>
+								</Link>
 							}
 						></Button>
 					</div>
@@ -234,7 +232,6 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 						<ProfilePreviewFrame
 							iframeRef={previewFrameRef}
 							handle={handle}
-							lang={lang}
 							className="h-full w-full"
 							onLoad={handleIframeLoad}
 						/>
@@ -245,7 +242,7 @@ export default function StudioLinksRoute(_props: Route.ComponentProps) {
 			<div className="fixed inset-x-0 bottom-0 z-30 bg-background xl:hidden">
 				<div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-linear-to-t from-background/90 to-transparent" />
 				<div className="pointer-events-auto relative mx-auto flex w-full items-center gap-3 px-4 pt-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-					<MobileProfilePreviewButton handle={handle} lang={lang} />
+					<MobileProfilePreviewButton handle={handle} />
 					<aside className="flex-1 basis-0">
 						<AddItemDrawer pageId={pageId} userId={owner_id} />
 					</aside>

@@ -14,7 +14,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 						disallow: ["/api/"],
 					}
 				: {}),
-			sitemap: [`${domain}/sitemap-index.xml`],
+			sitemap: [`${domain}/sitemap.xml`],
 		},
 	]);
 

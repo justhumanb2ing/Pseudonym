@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clerkClient, getAuth } from "@clerk/react-router/server";
-import { action } from "@/routes/($lang).studio.$handle.account";
+import { action } from "@/routes/studio.$handle.account";
 
 vi.mock("@clerk/react-router/server", () => ({
 	clerkClient: vi.fn(),
@@ -21,13 +21,13 @@ describe("account delete action", () => {
 			},
 		} as unknown as ReturnType<typeof clerkClient>);
 
-		const request = new Request("http://localhost/en/studio/@handle/account", {
+		const request = new Request("http://localhost/studio/@handle/account", {
 			method: "POST",
 		});
 
 		const result = await action({
 			request,
-			params: { lang: "en", handle: "@handle" },
+			params: { handle: "@handle" },
 			context: {},
 		} as Parameters<typeof action>[0]);
 

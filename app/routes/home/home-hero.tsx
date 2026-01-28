@@ -1,9 +1,13 @@
 import { motion } from "motion/react";
-import { useIntlayer } from "react-intlayer";
 import UserButton from "@/components/auth/user-button";
 
 export default function HomeHero() {
-	const content = useIntlayer("home-hero");
+	const content = {
+		headline1: "A Link in Bio.",
+		headline2: "But Simple and Fancy",
+		description: "Everything about you, in one place.",
+		ctaPrimary: "Start for free",
+	};
 
 	return (
 		<section className="relative flex min-h-dvh items-center justify-center overflow-hidden">
@@ -26,7 +30,7 @@ export default function HomeHero() {
 					{/* CTA Buttons */}
 					<div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
 						<motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-							<UserButton label={content.ctaPrimary.value} />
+							<UserButton label={content.ctaPrimary} />
 						</motion.div>
 					</div>
 				</motion.div>

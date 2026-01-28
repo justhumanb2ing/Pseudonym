@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as supabaseModule from "@/lib/supabase";
-import { action } from "@/routes/($lang).studio.$handle.links";
+import { action } from "@/routes/studio.$handle.links";
 
 afterEach(() => {
 	vi.restoreAllMocks();
@@ -43,7 +43,7 @@ describe("page items reorder action", () => {
 		formData.append("orderedIds", "item-1");
 		formData.append("orderedIds", "item-2");
 
-		const request = new Request("http://localhost/en/user", {
+		const request = new Request("http://localhost/user", {
 			method: "POST",
 			body: formData,
 			headers: {
@@ -53,7 +53,7 @@ describe("page items reorder action", () => {
 
 		const result = await action({
 			request,
-			params: { lang: "en" },
+			params: { handle: "@user" },
 			context: {},
 		} as Parameters<typeof action>[0]);
 

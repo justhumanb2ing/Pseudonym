@@ -1,6 +1,6 @@
 import { CaretLeftIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useFetcher, useNavigate, useNavigation, useParams } from "react-router";
+import { useFetcher, useNavigate, useNavigation } from "react-router";
 import { Activity } from "@/components/common/activity";
 import { Button } from "@/components/ui/button";
 import { FieldSet } from "@/components/ui/field";
@@ -13,7 +13,6 @@ import { useUmamiPageView } from "@/hooks/use-umami-page-view";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
 import { CompleteStep, DetailsStep, HandleStep } from "@/routes/onboarding/onboarding-steps";
 import { type ActionData, action } from "@/service/onboarding.action";
-import { getLocalizedPath } from "@/utils/localized-path";
 
 type StepId<T extends string = string> = T;
 type Step = StepId<"handle" | "details" | "complete">;
@@ -30,7 +29,6 @@ function getStepMeta(steps: Array<StepItem>, step: Step) {
 export default function OnboardingRoute() {
 	const navigation = useNavigation();
 	const navigate = useNavigate();
-	const { lang } = useParams();
 	const fetcher = useFetcher<ActionData>();
 	const formRef = useRef<HTMLFormElement>(null);
 	const isSubmitting = navigation.state !== "idle" || fetcher.state !== "idle";
@@ -234,7 +232,7 @@ export default function OnboardingRoute() {
 		if (!completedHandle) {
 			return;
 		}
-		navigate(getLocalizedPath(lang, `/studio/${completedHandle}`));
+		navigate(`/studio/${completedHandle}`);
 	};
 
 	return (

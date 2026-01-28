@@ -224,7 +224,7 @@ export function MapCanvas({ center, zoom, onControlsChange, onViewportChange, cl
 			<div
 				ref={containerRef}
 				role="application"
-				aria-label="대화형 지도"
+				aria-label="Interactive map"
 				data-vaul-no-drag
 				onPointerDown={(event) => event.stopPropagation()}
 				onMouseDown={(event) => event.stopPropagation()}

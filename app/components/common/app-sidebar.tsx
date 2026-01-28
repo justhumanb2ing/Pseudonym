@@ -1,5 +1,5 @@
 import { ChartColumnIcon, ChevronRightIcon, LayoutDashboardIcon, type LucideIcon, SettingsIcon } from "lucide-react";
-import { useLocation, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import {
 	Sidebar,
 	SidebarContent,
@@ -14,9 +14,7 @@ import {
 	SidebarMenuSubItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { getLocalizedPath } from "@/utils/localized-path";
 import UserDropdown from "../auth/user-dropdown";
-import { LocalizedLink } from "../i18n/localized-link";
 import PageVisibilityToggle from "../studio/page-visibility-toggle";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import Logo from "./logo";
@@ -48,11 +46,14 @@ type SidebarAsideItem = {
 };
 
 export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarProps) {
-	const { lang, handle } = useParams();
+	const { handle } = useParams();
 	const location = useLocation();
 	const { state } = useSidebar();
 	const isCollapsed = state === "collapsed";
-	const _settingsBaseUrl = getLocalizedPath(lang, `/studio/${handle}/settings`);
+	if (!handle) {
+		return null;
+	}
+	const basePath = `/studio/${handle}`;
 
 	const data: { main: SidebarMainItem[]; aside: SidebarAsideItem[] } = {
 		main: [
@@ -63,12 +64,12 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 				items: [
 					{
 						title: "Links",
-						url: getLocalizedPath(lang, `/studio/${handle}/links`),
+						url: `${basePath}/links`,
 						isEnabled: true,
 					},
 					{
 						title: "Design",
-						url: getLocalizedPath(lang, `/studio/${handle}/design`),
+						url: `${basePath}/design`,
 						isEnabled: false,
 					},
 				],
@@ -77,7 +78,7 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 		aside: [
 			{
 				title: "Insights",
-				url: getLocalizedPath(lang, `/studio/${handle}/insights`),
+				url: `${basePath}/insights`,
 				icon: ChartColumnIcon,
 				isEnabled: false,
 			},
@@ -88,19 +89,19 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 				items: [
 					{
 						title: "Account",
-						url: getLocalizedPath(lang, `/studio/${handle}/account`),
+						url: `${basePath}/account`,
 						isEnabled: true,
 					},
 					{
 						title: "Handle",
-						url: getLocalizedPath(lang, `/studio/${handle}/handle`),
+						url: `${basePath}/handle`,
 						isEnabled: true,
 					},
 				],
 			},
 		],
 	};
-	const visibilityActionUrl = getLocalizedPath(lang, `/studio/${handle}/links`);
+	const visibilityActionUrl = `${basePath}/links`;
 
 	return (
 		<Sidebar collapsible="icon" className="group-data-[side=left]:border-r-0" {...props}>
@@ -142,9 +143,9 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 															tabIndex={subItem.isEnabled ? 0 : -1}
 															render={
 																subItem.isEnabled ? (
-																	<LocalizedLink to={subItem.url}>
+																	<Link to={subItem.url}>
 																		<span>{subItem.title}</span>
-																	</LocalizedLink>
+																	</Link>
 																) : (
 																	<span aria-disabled="true">{subItem.title}</span>
 																)
@@ -191,13 +192,13 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 													render={
 														item.isEnabled ? (
 															item.url ? (
-																<LocalizedLink to={item.url}>
+																<Link to={item.url}>
 																	<item.icon />
 																	<span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
 																	{item.items ? (
 																		<ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[collapsible=icon]:hidden group-data-open/collapsible:rotate-90" />
 																	) : null}
-																</LocalizedLink>
+																</Link>
 															) : (
 																<span className="flex items-center gap-2">
 																	<item.icon />
@@ -228,9 +229,9 @@ export default function AppSidebar({ pageId, isPublic, ...props }: AppSidebarPro
 																tabIndex={subItem.isEnabled ? 0 : -1}
 																render={
 																	subItem.isEnabled ? (
-																		<LocalizedLink to={subItem.url}>
+																		<Link to={subItem.url}>
 																			<span>{subItem.title}</span>
-																		</LocalizedLink>
+																		</Link>
 																	) : (
 																		<span aria-disabled="true">{subItem.title}</span>
 																	)

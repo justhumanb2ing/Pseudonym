@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import z from "zod";
-import type { Route } from "../routes/+types/($lang).feedback";
+import type { Route } from "../routes/+types/feedback";
 
 export type FieldErrors = Partial<Record<"senderEmail" | "subject" | "content", string>>;
 
@@ -45,7 +45,7 @@ export async function action({ request }: Route.ActionArgs) {
 			console.error("RESEND_API_KEY is missing.");
 			const data = {
 				ok: false,
-				formError: "메일 전송에 실패했어요. 잠시 후 다시 시도해주세요.",
+				formError: "Failed to send the email. Please try again later.",
 			} satisfies ActionData;
 
 			return Response.json(data, { status: 500 });
@@ -65,7 +65,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 		const data = {
 			ok: true,
-			message: "메일을 전송했어요.",
+			message: "Email sent successfully.",
 		} satisfies ActionData;
 
 		return Response.json(data, { status: 200 });
@@ -74,7 +74,7 @@ export async function action({ request }: Route.ActionArgs) {
 
 		const data = {
 			ok: false,
-			formError: "메일 전송에 실패했어요. 잠시 후 다시 시도해주세요.",
+			formError: "Failed to send the email. Please try again later.",
 		} satisfies ActionData;
 
 		return Response.json(data, { status: 502 });

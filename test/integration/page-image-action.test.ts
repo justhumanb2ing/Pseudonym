@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as supabaseModule from "@/lib/supabase";
-import { action } from "@/routes/($lang).studio.$handle.links";
+import { action } from "@/routes/studio.$handle.links";
 
 afterEach(() => {
 	vi.restoreAllMocks();
@@ -63,7 +63,7 @@ describe("page image action", () => {
 		formData.set("pageId", "page-123");
 		formData.set("imageUrl", "https://cdn.example.com/avatar.png");
 
-		const request = new Request("http://localhost/en/user", {
+		const request = new Request("http://localhost/user", {
 			method: "POST",
 			body: formData,
 			headers: {
@@ -73,7 +73,7 @@ describe("page image action", () => {
 
 		const result = await action({
 			request,
-			params: { lang: "en" },
+			params: { handle: "@user" },
 			context: {},
 		} as Parameters<typeof action>[0]);
 
@@ -95,7 +95,7 @@ describe("page image action", () => {
 		formData.set("intent", "remove-image");
 		formData.set("pageId", "page-123");
 
-		const request = new Request("http://localhost/en/user", {
+		const request = new Request("http://localhost/user", {
 			method: "POST",
 			body: formData,
 			headers: {
@@ -105,7 +105,7 @@ describe("page image action", () => {
 
 		const result = await action({
 			request,
-			params: { lang: "en" },
+			params: { handle: "@user" },
 			context: {},
 		} as Parameters<typeof action>[0]);
 

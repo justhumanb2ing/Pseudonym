@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as supabaseModule from "@/lib/supabase";
-import { action } from "@/routes/($lang).studio.$handle.links";
+import { action } from "@/routes/studio.$handle.links";
  
 afterEach(() => {
 	vi.restoreAllMocks();
@@ -64,7 +64,7 @@ describe("page details action", () => {
 		formData.set("title", "  My Page  ");
 		formData.set("description", "   ");
 
-		const request = new Request("http://localhost/en/user", {
+		const request = new Request("http://localhost/user", {
 			method: "POST",
 			body: formData,
 			headers: {
@@ -74,7 +74,7 @@ describe("page details action", () => {
 
 		const result = await action({
 			request,
-			params: { lang: "en" },
+			params: { handle: "@user" },
 			context: {},
 		} as Parameters<typeof action>[0]);
 

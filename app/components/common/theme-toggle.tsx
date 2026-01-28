@@ -2,7 +2,6 @@ import { IconMoonStars, IconSun } from "@tabler/icons-react";
 import { useTheme } from "next-themes";
 import { useCallback, useRef } from "react";
 import { flushSync } from "react-dom";
-import { useIntlayer } from "react-intlayer";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
@@ -14,7 +13,7 @@ interface ThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {
 export const ThemeToggle = ({ className, duration = 400, iconSize, ...props }: ThemeTogglerProps) => {
 	const { theme, setTheme } = useTheme();
 	const buttonRef = useRef<HTMLButtonElement>(null);
-	const { themeTooltip } = useIntlayer("themeToggle");
+	const themeTooltip = "Theme";
 
 	const toggleTheme = useCallback(async () => {
 		if (!buttonRef.current) return;
@@ -58,7 +57,7 @@ export const ThemeToggle = ({ className, duration = 400, iconSize, ...props }: T
 				}
 			/>
 			<TooltipContent side="bottom" sideOffset={8}>
-				<p>{themeTooltip.value}</p>
+				<p>{themeTooltip}</p>
 			</TooltipContent>
 		</Tooltip>
 	);

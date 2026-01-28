@@ -190,12 +190,11 @@ React Router의 action 함수는 복잡도에 따라 위치를 결정합니다:
   - 자동 재시도: 없음 (사용자가 다시 편집하면 재시도)
   - 에러 분석: Umami 이벤트 발송 (feature.pageSave.error)
 
-### 4.5 다국어
-- UI 언어: 한국어, 영어
-  - URL에 언어 코드 포함 (/:lang)
-  - Clerk 인증 UI, 버튼, 메시지 등
-  - intlayer 라이브러리 사용
-- 페이지 콘텐츠: 단일 언어만 지원 (Out of Scope)
+### 4.5 언어
+- UI 언어: 영어 (기본)
+  - URL 언어 코드 미사용
+  - 번역 라이브러리 미사용
+- 페이지 콘텐츠: 단일 언어만 지원
   - title, description: 하나의 언어로만 작성
   - 블록 콘텐츠: 다국어 지원 없음
   - 향후: JSONB 구조로 다국어 지원 고려 (Future Plans)

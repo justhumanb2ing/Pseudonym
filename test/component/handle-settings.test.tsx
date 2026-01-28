@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import StudioSettingsHandleRoute from "@/routes/($lang).studio.$handle.handle";
+import StudioSettingsHandleRoute from "@/routes/studio.$handle.handle";
 
 vi.mock("react-router", async () => {
 	const actual = await vi.importActual<typeof import("react-router")>("react-router");

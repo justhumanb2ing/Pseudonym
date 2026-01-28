@@ -1,10 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { useIntlayer } from "react-intlayer";
 import { useFetcher } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import { Switch } from "@/components/ui/switch";
 import { toastManager } from "@/components/ui/toast";
-import { PROFILE_LINK_TOAST_KEYS } from "@/constants/toast-messages";
 import type { PageProfileActionData } from "@/service/pages/page-profile.action";
 
 type ProfileItem = StudioOutletContext["profileItems"][number];
@@ -15,9 +13,12 @@ type ProfileItemActiveSwitchProps = {
 };
 
 const lastToastByItem = new Map<string, string>();
+const LINK_TOGGLE_MESSAGES = {
+	errorTitle: "Update failed",
+	errorDescription: "Unable to update link visibility. Please try again.",
+};
 
 export default function ProfileItemActiveSwitch({ item, size = "default" }: ProfileItemActiveSwitchProps) {
-	const { linkToggle } = useIntlayer("toast");
 	const fetcher = useFetcher<PageProfileActionData>({
 		key: `profile-item-active-${item.id}`,
 	});
@@ -48,11 +49,11 @@ export default function ProfileItemActiveSwitch({ item, size = "default" }: Prof
 
 		lastToastByItem.set(item.id, message);
 		toastManager.add({
-			type: PROFILE_LINK_TOAST_KEYS.toggle.error.type,
-			title: linkToggle.errorTitle.value,
-			description: message ?? linkToggle.errorDescription.value,
+			type: "error",
+			title: LINK_TOGGLE_MESSAGES.errorTitle,
+			description: message ?? LINK_TOGGLE_MESSAGES.errorDescription,
 		});
-	}, [fetcher.data, item.id, linkToggle.errorDescription.value, linkToggle.errorTitle.value]);
+	}, [fetcher.data, item.id]);
 
 	const handleCheckedChange = (checked: boolean) => {
 		lastToastByItem.delete(item.id);

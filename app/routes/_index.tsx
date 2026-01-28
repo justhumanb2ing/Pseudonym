@@ -5,17 +5,16 @@ import type { MetaFunction } from "react-router";
 import { metadataConfig } from "@/config/metadata";
 import { useUmamiPageView } from "@/hooks/use-umami-page-view";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
-import { getLocalizedPath } from "@/utils/localized-path";
 import HomeFeature from "./home/home-feature";
 import HomeFooter from "./home/home-footer";
 import HomeHero from "./home/home-hero";
 
-const buildUrl = (lang: string | undefined, pathname: string) => new URL(getLocalizedPath(lang, pathname), metadataConfig.url).toString();
+const buildUrl = (pathname: string) => new URL(pathname, metadataConfig.url).toString();
 
 const defaultImageUrl = new URL(metadataConfig.defaultImage, metadataConfig.url).toString();
 
-export const meta: MetaFunction = ({ params }) => {
-	const url = buildUrl(params.lang, "/");
+export const meta: MetaFunction = () => {
+	const url = buildUrl("/");
 
 	return generateMeta(
 		{

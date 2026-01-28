@@ -1,6 +1,5 @@
+import { Link } from "react-router";
 import BuyMeCoffee from "@/components/effects/buy-me-coffee";
-import LocaleSelector from "@/components/i18n/locale-selector";
-import { LocalizedLink } from "@/components/i18n/localized-link";
 
 // TODO: 하드코딩 값 변경
 export default function HomeFooter() {
@@ -19,13 +18,13 @@ export default function HomeFooter() {
 						<div className="flex grow flex-col justify-between gap-8 text-sm lg:pb-16">
 							<ul className="flex flex-row items-center gap-6">
 								<li className="underline-offset-2 hover:underline">
-									<LocalizedLink to={"/sign-in"}>Sign In</LocalizedLink>
+									<Link to="/sign-in">Sign In</Link>
 								</li>
 								<li className="underline-offset-2 hover:underline">
-									<LocalizedLink to={"/changelog"}>Changelog</LocalizedLink>
+									<Link to="/changelog">Changelog</Link>
 								</li>
 								<li className="underline-offset-2 hover:underline">
-									<LocalizedLink to={"/feedback"}>Feedback</LocalizedLink>
+									<Link to="/feedback">Feedback</Link>
 								</li>
 								<li className="underline-offset-2 hover:underline">
 									<a href="https://github.com/justhumanb2ing">Github</a>
@@ -39,7 +38,6 @@ export default function HomeFooter() {
 									</div>
 								</div>
 								<div className="flex flex-col justify-between gap-2">
-									<LocaleSelector />
 									<div>
 										<p className="h-full text-muted-foreground text-xs/relaxed">2026 Venus. All rights reserved.</p>
 									</div>

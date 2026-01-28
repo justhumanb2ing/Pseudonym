@@ -9,10 +9,9 @@ import ProfilePreviewFrame from "./profile-preview-frame";
 
 interface MobileProfilePreviewButtonProps {
 	handle: string;
-	lang?: string;
 }
 
-export default function MobileProfilePreviewButton({ handle, lang }: MobileProfilePreviewButtonProps) {
+export default function MobileProfilePreviewButton({ handle }: MobileProfilePreviewButtonProps) {
 	const isMobile = useIsMobile(1280);
 	const previewFrameRef = useRef<HTMLIFrameElement>(null);
 
@@ -47,7 +46,6 @@ export default function MobileProfilePreviewButton({ handle, lang }: MobileProfi
 					<ProfilePreviewFrame
 						iframeRef={previewFrameRef}
 						handle={handle}
-						lang={lang}
 						className="h-full w-full"
 						onLoad={handleIframeLoad}
 					/>

@@ -8,8 +8,7 @@ import { Field, FieldContent, FieldError, FieldLabel, FieldSet } from "@/compone
 import { Input } from "@/components/ui/input";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { formatPageHandle, HANDLE_PATTERN, handleSchema } from "@/service/pages/page-handle";
-import { getLocalizedPath } from "@/utils/localized-path";
-import type { Route } from "./+types/($lang).studio.$handle.handle";
+import type { Route } from "./+types/studio.$handle.handle";
 
 type ActionData = {
 	formError?: string;
@@ -29,7 +28,7 @@ export async function action(args: Route.ActionArgs) {
 
 	const auth = await getAuth(args);
 	if (!auth.userId) {
-		throw redirect(getLocalizedPath(args.params.lang, "/sign-in"));
+		throw redirect("/sign-in");
 	}
 
 	const { handle: currentHandle } = args.params;
@@ -100,7 +99,7 @@ export async function action(args: Route.ActionArgs) {
 		return { formError: updateError.message } satisfies ActionData;
 	}
 
-	return redirect(getLocalizedPath(args.params.lang, `/studio/${nextHandle}/handle`));
+	return redirect(`/studio/${nextHandle}/handle`);
 }
 
 export default function StudioSettingsHandleRoute() {

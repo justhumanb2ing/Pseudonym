@@ -1,20 +1,17 @@
 import { useState } from "react";
 import { buildPreviewPath } from "@/lib/preview";
 import { cn } from "@/lib/utils";
-import { getLocalizedPath } from "@/utils/localized-path";
 import { Spinner } from "../ui/spinner";
 
 type ProfilePreviewFrameProps = {
 	handle: string;
-	lang?: string;
 	className?: string;
 	onLoad?: () => void;
 	iframeRef?: React.RefObject<HTMLIFrameElement | null>;
 };
 
-export default function ProfilePreviewFrame({ handle, lang, className, onLoad, iframeRef }: ProfilePreviewFrameProps) {
-	const localizedPath = getLocalizedPath(lang, `/${handle}`);
-	const src = buildPreviewPath(localizedPath);
+export default function ProfilePreviewFrame({ handle, className, onLoad, iframeRef }: ProfilePreviewFrameProps) {
+	const src = buildPreviewPath(`/${handle}`);
 	const [isLoading, setIsLoading] = useState(true);
 
 	return (

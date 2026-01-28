@@ -1,7 +1,7 @@
 import { LoaderIcon } from "lucide-react";
 import { useFetcher } from "react-router";
 import { Button } from "@/components/ui/button";
-import type { ActionData } from "@/routes/($lang).studio.$handle.links";
+import type { ActionData } from "@/routes/studio.$handle.links";
 
 type PageVisibilityToggleProps = {
 	pageId: string;

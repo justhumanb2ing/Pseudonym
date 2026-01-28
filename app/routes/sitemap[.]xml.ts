@@ -1,48 +1,32 @@
 import { generateRemixSitemap } from "@forge42/seo-tools/remix/sitemap";
-import type { Route } from "./+types/sitemap.$lang[.]xml";
+import type { Route } from "./+types/sitemap[.]xml";
 
 // TODO: 일부 경로 제외하기
-export async function loader({ request, params }: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
 	const { routes } = await import("virtual:react-router/server-build");
 	const { origin } = new URL(request.url);
-	const { lang } = params;
 
 	const sitemap = await generateRemixSitemap({
 		domain: origin,
 		routes,
 		ignore: [
-			// root without concrete content
-			"/:lang?",
-
 			// auth / onboarding
-			"/:lang?/onboarding",
-			"/:lang?/sign-in",
-			"/:lang?/sign-in/create/sso-callback",
+			"/onboarding",
+			"/sign-in",
+			"/sign-in/create/sso-callback",
 
 			// dynamic routes
-			"/:lang?/:handle",
-			"/:lang?/studio/:handle",
+			"/:handle",
+			"/studio/:handle",
 
 			// api
 			"/api/delete-account",
+			"/api/auth",
+			"/api/auth/*",
 		],
-		urlTransformer: (url) => {
-			const normalizedLang = lang ? `/${lang}` : "";
-			return url.replace("/:lang?", normalizedLang);
-		},
-		sitemapData: {
-			lang,
-		},
 	});
 
-	const allowedPaths = new Set<string>();
-	if (lang) {
-		allowedPaths.add(`/${lang}/changelog`);
-		allowedPaths.add(`/${lang}/feedback`);
-		allowedPaths.add(`/${lang}/sign-in`);
-
-		allowedPaths.add(`/${lang}`);
-	}
+	const allowedPaths = new Set<string>(["/", "/changelog", "/feedback", "/sign-in"]);
 
 	const normalizePath = (path: string) => {
 		if (path === "/") {

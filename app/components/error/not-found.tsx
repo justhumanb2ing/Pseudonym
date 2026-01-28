@@ -1,4 +1,4 @@
-import { LocalizedLink } from "../i18n/localized-link";
+import { Link } from "react-router";
 import { Button } from "../ui/button";
 
 export default function NotFound() {
@@ -9,7 +9,7 @@ export default function NotFound() {
 				</div>
 				<div className="flex flex-col items-center gap-8">
 					<div className="text-sm/relaxed">It seems you got a little bit lost...</div>
-					<Button size={"lg"} className={"h-10 rounded-xl px-6 text-sm"} render={<LocalizedLink to={"/"}>Go home</LocalizedLink>} />
+					<Button size={"lg"} className={"h-10 rounded-xl px-6 text-sm"} render={<Link to="/">Go home</Link>} />
 				</div>
 			</section>
 		);

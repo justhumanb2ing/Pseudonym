@@ -1,8 +1,7 @@
-import { getAuth } from "@clerk/react-router/server";
 import { type LoaderFunctionArgs, redirect } from "react-router";
+import { auth } from "@/lib/auth";
 import { getSupabaseServerClient } from "@/lib/supabase";
-import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard";
-import { getLocalizedPath } from "@/utils/localized-path";
+import { resolveOnboardingRedirect } from "@/service/auth/onboarding-guard.server";
 
 type RequireStudioPageOptions = {
 	select: string;
@@ -14,17 +13,19 @@ type RequireStudioPageOptions = {
 };
 
 export async function requireStudioPage<TPage extends { owner_id: string }>(args: LoaderFunctionArgs, options: RequireStudioPageOptions) {
-	const auth = await getAuth(args);
-	const requestWithAuth = Object.assign(args.request, { auth });
+	// Better Auth 세션 확인
+	const session = await auth.api.getSession({
+		headers: args.request.headers,
+	});
+	const userId = session?.user?.id;
 
-	if (!auth.userId) {
-		throw redirect(getLocalizedPath(args.params.lang, "/sign-in"));
+	if (!userId) {
+		throw redirect("/sign-in");
 	}
 
 	const pathname = new URL(args.request.url).pathname;
 	const redirectResponse = await resolveOnboardingRedirect({
-		...args,
-		request: requestWithAuth,
+		request: args.request,
 		pathname,
 	});
 	if (redirectResponse) {
@@ -56,7 +57,7 @@ export async function requireStudioPage<TPage extends { owner_id: string }>(args
 		throw new Response("Not Found", { status: 404 });
 	}
 
-	if (page.owner_id !== auth.userId) {
+	if (page.owner_id !== userId) {
 		throw new Response("Forbidden", { status: 403 });
 	}
 

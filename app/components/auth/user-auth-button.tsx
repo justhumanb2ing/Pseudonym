@@ -1,5 +1,4 @@
 import { SignInButton, SignOutButton, useUser } from "@clerk/react-router";
-import { useIntlayer } from "react-intlayer";
 import { useLocation } from "react-router";
 import { getUmamiEventAttributes } from "@/lib/umami";
 import { UMAMI_EVENTS, UMAMI_PROP_KEYS } from "@/lib/umami-events";
@@ -10,7 +9,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 export default function UserAuthButton() {
 	const { isSignedIn, isLoaded } = useUser();
 	const location = useLocation();
-	const { signInLabel, signOutLabel } = useIntlayer("userAuthButton");
+	const signInLabel = "Sign in";
+	const signOutLabel = "Sign out";
 
 	if (!isLoaded) return <Spinner />;
 
@@ -28,7 +28,7 @@ export default function UserAuthButton() {
 									[UMAMI_PROP_KEYS.ctx.source]: "bottom_action_bar",
 								})}
 							>
-								{signOutLabel.value}
+								{signOutLabel}
 							</Button>
 						</SignOutButton>
 					) : (
@@ -41,14 +41,14 @@ export default function UserAuthButton() {
 									[UMAMI_PROP_KEYS.ctx.source]: "bottom_action_bar",
 								})}
 							>
-								{signInLabel.value}
+								{signInLabel}
 							</Button>
 						</SignInButton>
 					)
 				}
 			/>
 			<TooltipContent side="bottom" sideOffset={8}>
-				{isSignedIn ? signOutLabel.value : signInLabel.value}
+				{isSignedIn ? signOutLabel : signInLabel}
 			</TooltipContent>
 		</Tooltip>
 	);

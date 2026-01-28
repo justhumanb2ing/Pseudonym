@@ -1,8 +1,7 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig, } from "vite";
-import { intlayer, intlayerProxy } from "vite-intlayer";
+import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig((config) => {
@@ -36,8 +35,6 @@ export default defineConfig((config) => {
 			tailwindcss(),
 			reactRouter(),
 			tsconfigPaths(),
-			intlayer(),
-			intlayerProxy(),
 		],
 	};
 });

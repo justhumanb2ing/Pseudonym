@@ -1,8 +1,7 @@
 import { clerkClient, getAuth } from "@clerk/react-router/server";
 import { useParams } from "react-router";
 import DeleteAccountButton from "@/components/auth/delete-account-button";
-import { getLocalizedPath } from "@/utils/localized-path";
-import type { Route } from "./+types/($lang).studio.$handle.account";
+import type { Route } from "./+types/studio.$handle.account";
 
 type ErrorResponse = {
 	error: string;
@@ -43,8 +42,8 @@ export async function action(args: Route.ActionArgs) {
 }
 
 export default function StudioSettingsAccountRoute() {
-	const { lang, handle } = useParams();
-	const deleteEndpoint = handle ? getLocalizedPath(lang, `/studio/${handle}/account`) : "/api/delete-account";
+	const { handle } = useParams();
+	const deleteEndpoint = handle ? `/studio/${handle}/account` : "/api/delete-account";
 
 	return (
 		<section className="flex grow flex-col gap-6 p-2 px-4 pb-6">

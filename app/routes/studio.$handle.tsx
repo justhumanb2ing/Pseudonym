@@ -2,10 +2,9 @@ import { Outlet } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import AppSidebar from "@/components/common/app-sidebar";
 import { ThemeToggle } from "@/components/common/theme-toggle";
-import LocaleSwitcher from "@/components/i18n/locale-switcher";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { requireStudioPage } from "@/service/pages/require-studio-page";
-import type { Route } from "./+types/($lang).studio.$handle";
+import { requireStudioPage } from "@/service/pages/require-studio-page.server";
+import type { Route } from "./+types/studio.$handle";
 
 export async function loader(args: Route.LoaderArgs): Promise<StudioOutletContext> {
 	const pageSelectQuery = "id, owner_id, handle, title, description, image_url, is_public, is_primary";
@@ -34,7 +33,6 @@ export default function StudioHandleLayoutRoute({ loaderData }: Route.ComponentP
 							<div className="ml-auto flex items-center gap-2">
 								<SidebarTrigger className="size-8 rounded-md bg-white dark:bg-black" />
 								<ThemeToggle iconSize="size-4" />
-								<LocaleSwitcher />
 							</div>
 						</aside>
 						<Outlet context={loaderData} />

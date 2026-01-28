@@ -1,4 +1,4 @@
-import { LocalizedLink } from "@/components/i18n/localized-link";
+import { Link } from "react-router";
 import { Button } from "../ui/button";
 
 interface UserButtonProps {
@@ -8,9 +8,9 @@ interface UserButtonProps {
 export default function UserButton({ label }: UserButtonProps) {
 	return (
 		<Button size={"lg"} variant={"brand"} className={"px-12 text-base/relaxed"}>
-			<LocalizedLink prefetch="viewport" to="/sign-in">
+			<Link prefetch="viewport" to="/sign-in">
 				{label}
-			</LocalizedLink>
+			</Link>
 		</Button>
 	);
 }
