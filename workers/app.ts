@@ -15,7 +15,7 @@ export default {
     );
 
     // Hyperdrive connectionString을 사용하여 모든 요청 처리
-    return runWithConnectionString(env.HYPERDRIVE.connectionString, () =>
+    return runWithConnectionString(env.HYPERDRIVE.connectionString, env, () =>
       requestHandler(request, provider)
     );
   },
