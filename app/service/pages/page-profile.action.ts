@@ -395,44 +395,14 @@ export async function handleLinkUpdate({ formData, supabase }: PageProfileAction
 	const normalizedUrl = normalizeLinkUrl(parsed.data.url);
 	const nextLayout = parsed.data.layout;
 
-	const { data: profileItem, error: itemError } = await supabase
-		.from("profile_items")
-		.select("config")
-		.eq("id", parsed.data.itemId)
-		.maybeSingle();
+	const { error: rpcError } = await supabase.rpc("update_page_item_config", {
+		p_item_id: parsed.data.itemId,
+		p_data: { title: normalizedTitle, url: normalizedUrl } as unknown as Json,
+		p_style: nextLayout ? ({ layout: nextLayout } as unknown as Json) : undefined,
+	});
 
-	if (itemError) {
-		return { formError: itemError.message, intent: "link-update", itemId: parsed.data.itemId };
-	}
-
-	const rawConfig = profileItem?.config;
-	const configObject =
-		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
-	const rawConfigStyle = configObject.style;
-	const configStyle =
-		rawConfigStyle && typeof rawConfigStyle === "object" && !Array.isArray(rawConfigStyle)
-			? (rawConfigStyle as Record<string, unknown>)
-			: {};
-	const rawConfigData = configObject.data;
-	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
-
-	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
-
-	const nextConfig = {
-		...configObject,
-		...(nextStyle !== undefined ? { style: nextStyle } : {}),
-		data: {
-			...configData,
-			title: normalizedTitle,
-			url: normalizedUrl,
-		},
-	} as Json;
-
-	const { error: updateError } = await supabase.from("profile_items").update({ config: nextConfig }).eq("id", parsed.data.itemId);
-
-	if (updateError) {
-		return { formError: updateError.message, intent: "link-update", itemId: parsed.data.itemId };
+	if (rpcError) {
+		return { formError: rpcError.message, intent: "link-update", itemId: parsed.data.itemId };
 	}
 
 	return { success: true, intent: "link-update", itemId: parsed.data.itemId };
@@ -655,49 +625,23 @@ export async function handleMapUpdate({ formData, supabase }: PageProfileActionC
 		};
 	}
 
-	const { data: profileItem, error: itemError } = await supabase
-		.from("profile_items")
-		.select("config")
-		.eq("id", parsed.data.itemId)
-		.maybeSingle();
-
-	if (itemError) {
-		return { formError: itemError.message, intent: "map-update", itemId: parsed.data.itemId };
-	}
-
-	const rawConfig = profileItem?.config;
-	const configObject =
-		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
-	const rawConfigStyle = configObject.style;
-	const configStyle =
-		rawConfigStyle && typeof rawConfigStyle === "object" && !Array.isArray(rawConfigStyle)
-			? (rawConfigStyle as Record<string, unknown>)
-			: {};
-	const rawConfigData = configObject.data;
-	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
 	const nextCenter: [number, number] = [parsed.data.lng, parsed.data.lat];
 	const nextLayout = parsed.data.layout;
 
-	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
-
-	const nextConfig = {
-		...configObject,
-		...(nextStyle !== undefined ? { style: nextStyle } : {}),
-		data: {
-			...configData,
+	const { error: rpcError } = await supabase.rpc("update_page_item_config", {
+		p_item_id: parsed.data.itemId,
+		p_data: {
 			url: buildGoogleMapsHref(nextCenter, parsed.data.zoom),
 			caption: normalizeOptionalText(parsed.data.caption ?? null),
 			lat: parsed.data.lat,
 			lng: parsed.data.lng,
 			zoom: parsed.data.zoom,
-		},
-	} as Json;
+		} as unknown as Json,
+		p_style: nextLayout ? ({ layout: nextLayout } as unknown as Json) : undefined,
+	});
 
-	const { error: updateError } = await supabase.from("profile_items").update({ config: nextConfig }).eq("id", parsed.data.itemId);
-
-	if (updateError) {
-		return { formError: updateError.message, intent: "map-update", itemId: parsed.data.itemId };
+	if (rpcError) {
+		return { formError: rpcError.message, intent: "map-update", itemId: parsed.data.itemId };
 	}
 
 	return { success: true, intent: "map-update", itemId: parsed.data.itemId };
@@ -724,38 +668,13 @@ export async function handleTextUpdate({ formData, supabase }: PageProfileAction
 		};
 	}
 
-	const { data: profileItem, error: itemError } = await supabase
-		.from("profile_items")
-		.select("config")
-		.eq("id", parsed.data.itemId)
-		.maybeSingle();
+	const { error: rpcError } = await supabase.rpc("update_page_item_config", {
+		p_item_id: parsed.data.itemId,
+		p_data: { title: parsed.data.title } as unknown as Json,
+	});
 
-	if (itemError) {
-		return { formError: itemError.message, intent: "text-update", itemId: parsed.data.itemId };
-	}
-
-	const rawConfig = profileItem?.config;
-	const configObject =
-		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
-	const rawConfigData = configObject.data;
-	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
-
-	const { error: updateError } = await supabase
-		.from("profile_items")
-		.update({
-			config: {
-				...configObject,
-				data: {
-					...configData,
-					title: parsed.data.title,
-				},
-			},
-		})
-		.eq("id", parsed.data.itemId);
-
-	if (updateError) {
-		return { formError: updateError.message, intent: "text-update", itemId: parsed.data.itemId };
+	if (rpcError) {
+		return { formError: rpcError.message, intent: "text-update", itemId: parsed.data.itemId };
 	}
 
 	return { success: true, intent: "text-update", itemId: parsed.data.itemId };
@@ -780,45 +699,19 @@ export async function handleMediaUpdate({ formData, supabase }: PageProfileActio
 		};
 	}
 
-	const { data: profileItem, error: itemError } = await supabase
-		.from("profile_items")
-		.select("config")
-		.eq("id", parsed.data.itemId)
-		.maybeSingle();
-
-	if (itemError) {
-		return { formError: itemError.message, intent: "media-update", itemId: parsed.data.itemId };
-	}
-
-	const rawConfig = profileItem?.config;
-	const configObject =
-		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
-	const rawConfigStyle = configObject.style;
-	const configStyle =
-		rawConfigStyle && typeof rawConfigStyle === "object" && !Array.isArray(rawConfigStyle)
-			? (rawConfigStyle as Record<string, unknown>)
-			: {};
-	const rawConfigData = configObject.data;
-	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
 	const nextLayout = parsed.data.layout;
 
-	const nextStyle = nextLayout ? { ...configStyle, layout: nextLayout } : configObject.style;
-
-	const nextConfig = {
-		...configObject,
-		...(nextStyle !== undefined ? { style: nextStyle } : {}),
-		data: {
-			...configData,
+	const { error: rpcError } = await supabase.rpc("update_page_item_config", {
+		p_item_id: parsed.data.itemId,
+		p_data: {
 			caption: normalizeOptionalText(formData.get("caption")),
 			url: normalizeOptionalText(formData.get("url")),
-		},
-	} as Json;
+		} as unknown as Json,
+		p_style: nextLayout ? ({ layout: nextLayout } as unknown as Json) : undefined,
+	});
 
-	const { error: updateError } = await supabase.from("profile_items").update({ config: nextConfig }).eq("id", parsed.data.itemId);
-
-	if (updateError) {
-		return { formError: updateError.message, intent: "media-update", itemId: parsed.data.itemId };
+	if (rpcError) {
+		return { formError: rpcError.message, intent: "media-update", itemId: parsed.data.itemId };
 	}
 
 	return { success: true, intent: "media-update", itemId: parsed.data.itemId };
@@ -845,38 +738,13 @@ export async function handleSectionUpdate({ formData, supabase }: PageProfileAct
 		};
 	}
 
-	const { data: profileItem, error: itemError } = await supabase
-		.from("profile_items")
-		.select("config")
-		.eq("id", parsed.data.itemId)
-		.maybeSingle();
+	const { error: rpcError } = await supabase.rpc("update_page_item_config", {
+		p_item_id: parsed.data.itemId,
+		p_data: { headline: parsed.data.headline } as unknown as Json,
+	});
 
-	if (itemError) {
-		return { formError: itemError.message, intent: "section-update", itemId: parsed.data.itemId };
-	}
-
-	const rawConfig = profileItem?.config;
-	const configObject =
-		rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig) ? (rawConfig as Record<string, unknown>) : {};
-	const rawConfigData = configObject.data;
-	const configData =
-		rawConfigData && typeof rawConfigData === "object" && !Array.isArray(rawConfigData) ? (rawConfigData as Record<string, unknown>) : {};
-
-	const { error: updateError } = await supabase
-		.from("profile_items")
-		.update({
-			config: {
-				...configObject,
-				data: {
-					...configData,
-					headline: parsed.data.headline,
-				},
-			},
-		})
-		.eq("id", parsed.data.itemId);
-
-	if (updateError) {
-		return { formError: updateError.message, intent: "section-update", itemId: parsed.data.itemId };
+	if (rpcError) {
+		return { formError: rpcError.message, intent: "section-update", itemId: parsed.data.itemId };
 	}
 
 	return { success: true, intent: "section-update", itemId: parsed.data.itemId };

@@ -402,6 +402,10 @@ export type Database = {
         Returns: undefined
       }
       set_user_id: { Args: { user_id: string }; Returns: undefined }
+      update_page_item_config: {
+        Args: { p_data?: Json; p_item_id: string; p_style?: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
