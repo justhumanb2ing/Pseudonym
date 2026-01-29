@@ -76,7 +76,7 @@ describe("handleLinkSave", () => {
 
 		const result = await handleLinkSave({ formData, supabase });
 
-		expect(result).toEqual({ success: true, intent: "link-save" });
+		expect(result).toMatchObject({ success: true, intent: "link-save", item: { id: "item-1", type: "link" } });
 		expect(fetchCalls[0]?.url).toBe("https://crawler.test/api/crawl?url=https%3A%2F%2Fexample.com&mode=auto&timings=true");
 		expect(calls.rpc).toEqual({
 			fn: "add_page_item",
@@ -178,20 +178,17 @@ describe("handleLinkUpdate", () => {
 		});
 		const result = await handleLinkUpdate({ formData, supabase });
 
-		expect(result).toEqual({ success: true, intent: "link-update", itemId: "item-1" });
-		expect(calls.update).toEqual({
-			table: "profile_items",
+		expect(result).toMatchObject({ success: true, intent: "link-update", itemId: "item-1", item: { id: "item-1" } });
+		expect(calls.rpc).toEqual({
+			fn: "update_page_item_config",
 			payload: {
-				config: {
-					data: {
-						title: "New Title",
-						url: "https://example.com",
-						site_name: "Example",
-					},
+				p_item_id: "item-1",
+				p_data: {
+					title: "New Title",
+					url: "https://example.com",
 				},
+				p_style: undefined,
 			},
-			column: "id",
-			value: "item-1",
 		});
 	});
 });
@@ -233,7 +230,7 @@ describe("handleLinkToggle", () => {
 		const { supabase, calls } = createSupabaseStub();
 		const result = await handleLinkToggle({ formData, supabase });
 
-		expect(result).toEqual({ success: true, intent: "link-toggle", itemId: "item-1" });
+		expect(result).toMatchObject({ success: true, intent: "link-toggle", itemId: "item-1", item: { id: "item-1" } });
 		expect(calls.update).toEqual({
 			table: "profile_items",
 			payload: { is_active: false },
@@ -301,7 +298,7 @@ describe("handleMapSave", () => {
 		const { supabase, calls } = createSupabaseStub();
 		const result = await handleMapSave({ formData, supabase });
 
-		expect(result).toEqual({ success: true, intent: "map-save" });
+		expect(result).toMatchObject({ success: true, intent: "map-save", item: { id: "item-1", type: "map" } });
 		expect(calls.rpc).toEqual({
 			fn: "add_page_item",
 			payload: {
@@ -360,22 +357,20 @@ describe("handleMapUpdate", () => {
 		});
 		const result = await handleMapUpdate({ formData, supabase });
 
-		expect(result).toEqual({ success: true, intent: "map-update", itemId: "item-1" });
-		expect(calls.update).toEqual({
-			table: "profile_items",
+		expect(result).toMatchObject({ success: true, intent: "map-update", itemId: "item-1", item: { id: "item-1" } });
+		expect(calls.rpc).toEqual({
+			fn: "update_page_item_config",
 			payload: {
-				config: {
-					data: {
-						caption: "Los Angeles",
-						lat: 34.048051,
-						lng: -118.254187,
-						zoom: 13,
-						url: "https://www.google.com/maps/@34.048051,-118.254187,13z",
-					},
+				p_item_id: "item-1",
+				p_data: {
+					url: "https://www.google.com/maps/@34.048051,-118.254187,13z",
+					caption: "Los Angeles",
+					lat: 34.048051,
+					lng: -118.254187,
+					zoom: 13,
 				},
+				p_style: undefined,
 			},
-			column: "id",
-			value: "item-1",
 		});
 	});
 });
@@ -403,7 +398,7 @@ describe("handleSectionSave", () => {
 		const { supabase, calls } = createSupabaseStub();
 		const result = await handleSectionSave({ formData, supabase });
 
-		expect(result).toEqual({ success: true, intent: "section-save" });
+		expect(result).toMatchObject({ success: true, intent: "section-save", item: { id: "item-1", type: "section" } });
 		expect(calls.rpc).toEqual({
 			fn: "add_page_item",
 			payload: {
@@ -450,19 +445,13 @@ describe("handleSectionUpdate", () => {
 		});
 		const result = await handleSectionUpdate({ formData, supabase });
 
-		expect(result).toEqual({ success: true, intent: "section-update", itemId: "item-1" });
-		expect(calls.update).toEqual({
-			table: "profile_items",
+		expect(result).toMatchObject({ success: true, intent: "section-update", itemId: "item-1", item: { id: "item-1" } });
+		expect(calls.rpc).toEqual({
+			fn: "update_page_item_config",
 			payload: {
-				config: {
-					data: {
-						headline: "New Headline",
-						title: "Other",
-					},
-				},
+				p_item_id: "item-1",
+				p_data: { headline: "New Headline" },
 			},
-			column: "id",
-			value: "item-1",
 		});
 	});
 });
@@ -503,7 +492,7 @@ describe("handleItemsReorder", () => {
 		const { supabase, calls } = createSupabaseStub();
 		const result = await handleItemsReorder({ formData, supabase });
 
-		expect(result).toEqual({ success: true, intent: "items-reorder" });
+		expect(result).toEqual({ success: true, intent: "items-reorder", orderedIds: ["item-1", "item-2"] });
 		expect(calls.rpc).toEqual({
 			fn: "reorder_page_items",
 			payload: { p_page_id: "page-1", p_ordered_ids: ["item-1", "item-2"] },
@@ -531,7 +520,17 @@ function createSupabaseStub(options?: {
 					maybeSingle: () => {
 						calls.select = { table, column, value };
 						return {
-							data: { config: options?.config ?? null },
+							data:
+								table === "profile_items"
+									? {
+											id: value,
+											type: "link",
+											is_active: true,
+											config: options?.config ?? null,
+											sort_key: 1,
+											page_id: "page-1",
+										}
+									: { config: options?.config ?? null },
 							error: options?.selectError ? { message: options.selectError } : null,
 						};
 					},
@@ -552,6 +551,19 @@ function createSupabaseStub(options?: {
 		}),
 		rpc: (fn: string, payload: Record<string, unknown>) => {
 			calls.rpc = { fn, payload };
+			if (fn === "add_page_item") {
+				return {
+					data: {
+						id: "item-1",
+						type: payload.p_type,
+						is_active: payload.p_is_active ?? true,
+						config: payload.p_config ?? null,
+						sort_key: 1,
+						page_id: payload.p_page_id,
+					},
+					error: null,
+				};
+			}
 			return { error: null };
 		},
 	} as unknown as SupabaseClient<Database>;

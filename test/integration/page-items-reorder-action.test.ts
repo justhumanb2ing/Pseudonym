@@ -61,6 +61,6 @@ describe("page items reorder action", () => {
 			fn: "reorder_page_items",
 			payload: { p_page_id: "page-123", p_ordered_ids: ["item-1", "item-2"] },
 		});
-		expect(result).toEqual({ success: true, intent: "items-reorder" });
+		expect(result).toEqual({ success: true, intent: "items-reorder", orderedIds: ["item-1", "item-2"] });
 	});
 });

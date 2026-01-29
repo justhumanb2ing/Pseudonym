@@ -14,7 +14,7 @@ function createSupabaseStub({ linkError = null }: { linkError?: SupabaseError | 
 		rpc: (fn: string, payload: Record<string, unknown>) => {
 			calls.fn = fn;
 			calls.payload = payload;
-			return { error: linkError };
+			return { data: { id: "item-1" }, error: linkError };
 		},
 	};
 

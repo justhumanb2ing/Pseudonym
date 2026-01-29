@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import { Switch } from "@/components/ui/switch";
@@ -23,13 +23,12 @@ export default function ProfileItemActiveSwitch({ item, size = "default" }: Prof
 		key: `profile-item-active-${item.id}`,
 	});
 	const baseIsActive = Boolean(item.is_active);
-	const optimisticIsActive = useMemo(() => {
-		const nextValue = fetcher.formData?.get("isActive");
-		if (typeof nextValue === "string") {
-			return nextValue === "true";
-		}
-		return baseIsActive;
-	}, [baseIsActive, fetcher.formData]);
+	const [confirmedIsActive, setConfirmedIsActive] = useState(baseIsActive);
+	const pendingIsActiveRef = useRef<boolean | null>(null);
+
+	useEffect(() => {
+		setConfirmedIsActive(baseIsActive);
+	}, [baseIsActive]);
 
 	useEffect(() => {
 		const data = fetcher.data;
@@ -38,6 +37,9 @@ export default function ProfileItemActiveSwitch({ item, size = "default" }: Prof
 		}
 		if (data.success) {
 			lastToastByItem.delete(item.id);
+			if (typeof pendingIsActiveRef.current === "boolean") {
+				setConfirmedIsActive(pendingIsActiveRef.current);
+			}
 			return;
 		}
 
@@ -57,6 +59,7 @@ export default function ProfileItemActiveSwitch({ item, size = "default" }: Prof
 
 	const handleCheckedChange = (checked: boolean) => {
 		lastToastByItem.delete(item.id);
+		pendingIsActiveRef.current = checked;
 		fetcher.submit(
 			{
 				intent: "link-toggle",
@@ -67,10 +70,13 @@ export default function ProfileItemActiveSwitch({ item, size = "default" }: Prof
 		);
 	};
 
+	const displayIsActive =
+		fetcher.state !== "idle" && typeof pendingIsActiveRef.current === "boolean" ? pendingIsActiveRef.current : confirmedIsActive;
+
 	return (
 		<Switch
 			size={size}
-			checked={optimisticIsActive}
+			checked={displayIsActive}
 			disabled={fetcher.state !== "idle"}
 			onCheckedChange={handleCheckedChange}
 			aria-label="Toggle link visibility"

@@ -25,8 +25,8 @@ export type ActionData = {
 
 export async function action(args: Route.ActionArgs) {
 	const session = await auth.api.getSession({
-		headers: args.request.headers
-	})
+		headers: args.request.headers,
+	});
 	const userId = session?.user?.id;
 	if (!userId) {
 		throw redirect("/sign-in");
@@ -57,7 +57,7 @@ export async function action(args: Route.ActionArgs) {
 
 	const { handle, title, description } = parsed.data;
 
-	const supabase = await getSupabaseServerClient(args);
+	const supabase = await getSupabaseServerClient(args, { session });
 	const profileImageUrl = session?.user?.image ?? null;
 	const { error } = await supabase.rpc("create_page", {
 		p_handle: `@${handle}`,

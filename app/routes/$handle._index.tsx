@@ -33,7 +33,7 @@ export async function loader(args: Route.LoaderArgs) {
 		throw new Response("Not Found", { status: 404 });
 	}
 
-	const supabase = await getSupabaseServerClient(args);
+	const supabase = await getSupabaseServerClient(args, { session });
 	const pageSelectQuery =
 		"id, owner_id, handle, title, description, image_url, is_public, is_primary, profile_items(id, type, is_active, config, sort_key)";
 

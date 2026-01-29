@@ -37,7 +37,7 @@ export async function requireStudioPage<TPage extends { owner_id: string }>(args
 		throw new Response("Not Found", { status: 404 });
 	}
 
-	const supabase = await getSupabaseServerClient(args);
+	const supabase = await getSupabaseServerClient(args, { session });
 	const pageQuery = supabase.from("pages").select(options.select).eq("handle", handle);
 	if (options.order) {
 		pageQuery.order(options.order.column, {

@@ -10,6 +10,7 @@ import { pageImageRemoveSchema, pageImageUpdateSchema } from "@/service/pages/pa
 import { normalizeOptionalText, pageMediaSaveSchema, pageMediaUpdateSchema } from "@/service/pages/page-media";
 import { createSectionSaver } from "@/service/sections/save-section";
 import { createTextSaver } from "@/service/texts/save-text";
+import type { StudioOutletContext } from "types/studio.types";
 import type { Database, Json } from "../../../types/database.types";
 
 export type ActionIntent =
@@ -44,6 +45,8 @@ export type PageProfileActionData = {
 	success?: boolean;
 	intent?: ActionIntent;
 	itemId?: string;
+	item?: StudioOutletContext["profileItems"][number];
+	orderedIds?: string[];
 };
 
 const layoutSchema = z.preprocess((value) => {
@@ -147,6 +150,24 @@ export type PageProfileActionContext = {
 	formData: FormData;
 	supabase: SupabaseClient<Database>;
 };
+
+async function fetchProfileItem(supabase: SupabaseClient<Database>, itemId: string) {
+	const { data, error } = await supabase
+		.from("profile_items")
+		.select("id, type, is_active, config, sort_key, page_id")
+		.eq("id", itemId)
+		.maybeSingle();
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	if (!data) {
+		throw new Error("Item not found.");
+	}
+
+	return data as StudioOutletContext["profileItems"][number];
+}
 
 /**
  * Updates the page image url when requested from the profile page.
@@ -297,7 +318,7 @@ export async function handleItemsReorder({ formData, supabase }: PageProfileActi
 		return { formError: error.message, intent: "items-reorder" };
 	}
 
-	return { success: true, intent: "items-reorder" };
+	return { success: true, intent: "items-reorder", orderedIds: parsed.data.orderedIds };
 }
 
 /**
@@ -324,19 +345,18 @@ export async function handleLinkSave({ formData, supabase }: PageProfileActionCo
 	const saveLink = createLinkSaver(Promise.resolve(supabase));
 
 	try {
-		await saveLink({
+		const item = await saveLink({
 			pageId: parsed.data.pageId,
 			url: parsed.data.url,
 			layout: parsed.data.layout,
 		});
+		return { success: true, intent: "link-save", item };
 	} catch (error) {
 		return {
 			formError: error instanceof Error ? error.message : "Crawl failed. Please try again.",
 			intent: "link-save",
 		};
 	}
-
-	return { success: true, intent: "link-save" };
 }
 
 /**
@@ -405,7 +425,16 @@ export async function handleLinkUpdate({ formData, supabase }: PageProfileAction
 		return { formError: rpcError.message, intent: "link-update", itemId: parsed.data.itemId };
 	}
 
-	return { success: true, intent: "link-update", itemId: parsed.data.itemId };
+	try {
+		const item = await fetchProfileItem(supabase, parsed.data.itemId);
+		return { success: true, intent: "link-update", itemId: parsed.data.itemId, item };
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to load updated item.",
+			intent: "link-update",
+			itemId: parsed.data.itemId,
+		};
+	}
 }
 
 /**
@@ -436,7 +465,16 @@ export async function handleLinkToggle({ formData, supabase }: PageProfileAction
 		return { formError: updateError.message, intent: "link-toggle", itemId: parsed.data.itemId };
 	}
 
-	return { success: true, intent: "link-toggle", itemId: parsed.data.itemId };
+	try {
+		const item = await fetchProfileItem(supabase, parsed.data.itemId);
+		return { success: true, intent: "link-toggle", itemId: parsed.data.itemId, item };
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to load updated item.",
+			intent: "link-toggle",
+			itemId: parsed.data.itemId,
+		};
+	}
 }
 
 /**
@@ -462,18 +500,17 @@ export async function handleTextSave({ formData, supabase }: PageProfileActionCo
 	const saveText = createTextSaver(Promise.resolve(supabase));
 
 	try {
-		await saveText({
+		const item = await saveText({
 			pageId: parsed.data.pageId,
 			title: parsed.data.title,
 		});
+		return { success: true, intent: "text-save", item };
 	} catch (error) {
 		return {
 			formError: error instanceof Error ? error.message : "Failed to save text.",
 			intent: "text-save",
 		};
 	}
-
-	return { success: true, intent: "text-save" };
 }
 
 /**
@@ -499,18 +536,17 @@ export async function handleSectionSave({ formData, supabase }: PageProfileActio
 	const saveSection = createSectionSaver(Promise.resolve(supabase));
 
 	try {
-		await saveSection({
+		const item = await saveSection({
 			pageId: parsed.data.pageId,
 			headline: parsed.data.headline,
 		});
+		return { success: true, intent: "section-save", item };
 	} catch (error) {
 		return {
 			formError: error instanceof Error ? error.message : "Failed to save section.",
 			intent: "section-save",
 		};
 	}
-
-	return { success: true, intent: "section-save" };
 }
 
 /**
@@ -537,7 +573,7 @@ export async function handleMediaSave({ formData, supabase }: PageProfileActionC
 	const saveMedia = createMediaSaver(Promise.resolve(supabase));
 
 	try {
-		await saveMedia({
+		const item = await saveMedia({
 			pageId: parsed.data.pageId,
 			mediaUrl: parsed.data.mediaUrl,
 			mediaType: parsed.data.mediaType,
@@ -545,14 +581,13 @@ export async function handleMediaSave({ formData, supabase }: PageProfileActionC
 			url: normalizeOptionalText(formData.get("url")),
 			layout: parsed.data.layout,
 		});
+		return { success: true, intent: "media-save", item };
 	} catch (error) {
 		return {
 			formError: error instanceof Error ? error.message : "Failed to save media.",
 			intent: "media-save",
 		};
 	}
-
-	return { success: true, intent: "media-save" };
 }
 
 /**
@@ -583,21 +618,20 @@ export async function handleMapSave({ formData, supabase }: PageProfileActionCon
 	const saveMap = createMapSaver(Promise.resolve(supabase));
 
 	try {
-		await saveMap({
+		const item = await saveMap({
 			pageId: parsed.data.pageId,
 			center: [parsed.data.lng, parsed.data.lat],
 			zoom: parsed.data.zoom,
 			caption: normalizeOptionalText(parsed.data.caption ?? null),
 			layout: parsed.data.layout,
 		});
+		return { success: true, intent: "map-save", item };
 	} catch (error) {
 		return {
 			formError: error instanceof Error ? error.message : "Failed to save map.",
 			intent: "map-save",
 		};
 	}
-
-	return { success: true, intent: "map-save" };
 }
 
 /**
@@ -644,7 +678,16 @@ export async function handleMapUpdate({ formData, supabase }: PageProfileActionC
 		return { formError: rpcError.message, intent: "map-update", itemId: parsed.data.itemId };
 	}
 
-	return { success: true, intent: "map-update", itemId: parsed.data.itemId };
+	try {
+		const item = await fetchProfileItem(supabase, parsed.data.itemId);
+		return { success: true, intent: "map-update", itemId: parsed.data.itemId, item };
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to load updated item.",
+			intent: "map-update",
+			itemId: parsed.data.itemId,
+		};
+	}
 }
 
 /**
@@ -677,7 +720,16 @@ export async function handleTextUpdate({ formData, supabase }: PageProfileAction
 		return { formError: rpcError.message, intent: "text-update", itemId: parsed.data.itemId };
 	}
 
-	return { success: true, intent: "text-update", itemId: parsed.data.itemId };
+	try {
+		const item = await fetchProfileItem(supabase, parsed.data.itemId);
+		return { success: true, intent: "text-update", itemId: parsed.data.itemId, item };
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to load updated item.",
+			intent: "text-update",
+			itemId: parsed.data.itemId,
+		};
+	}
 }
 
 /**
@@ -714,7 +766,16 @@ export async function handleMediaUpdate({ formData, supabase }: PageProfileActio
 		return { formError: rpcError.message, intent: "media-update", itemId: parsed.data.itemId };
 	}
 
-	return { success: true, intent: "media-update", itemId: parsed.data.itemId };
+	try {
+		const item = await fetchProfileItem(supabase, parsed.data.itemId);
+		return { success: true, intent: "media-update", itemId: parsed.data.itemId, item };
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to load updated item.",
+			intent: "media-update",
+			itemId: parsed.data.itemId,
+		};
+	}
 }
 
 /**
@@ -747,5 +808,14 @@ export async function handleSectionUpdate({ formData, supabase }: PageProfileAct
 		return { formError: rpcError.message, intent: "section-update", itemId: parsed.data.itemId };
 	}
 
-	return { success: true, intent: "section-update", itemId: parsed.data.itemId };
+	try {
+		const item = await fetchProfileItem(supabase, parsed.data.itemId);
+		return { success: true, intent: "section-update", itemId: parsed.data.itemId, item };
+	} catch (error) {
+		return {
+			formError: error instanceof Error ? error.message : "Failed to load updated item.",
+			intent: "section-update",
+			itemId: parsed.data.itemId,
+		};
+	}
 }

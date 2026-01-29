@@ -15,7 +15,7 @@ export function createSectionSaver(supabasePromise: Promise<SupabaseClient<Datab
 	return async function saveSection(payload: SectionSavePayload) {
 		const supabase = await supabasePromise;
 
-		const { error } = await supabase.rpc("add_page_item", {
+		const { data, error } = await supabase.rpc("add_page_item", {
 			p_page_id: payload.pageId,
 			p_type: "section",
 			p_is_active: payload.isActive ?? true,
@@ -29,5 +29,11 @@ export function createSectionSaver(supabasePromise: Promise<SupabaseClient<Datab
 		if (error) {
 			throw new Error(error.message);
 		}
+
+		if (!data) {
+			throw new Error("Failed to save section.");
+		}
+
+		return data;
 	};
 }

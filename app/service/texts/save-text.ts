@@ -16,7 +16,7 @@ export function createTextSaver(supabasePromise: Promise<SupabaseClient<Database
 	return async function saveText(payload: TextSavePayload) {
 		const supabase = await supabasePromise;
 
-		const { error } = await supabase.rpc("add_page_item", {
+		const { data, error } = await supabase.rpc("add_page_item", {
 			p_page_id: payload.pageId,
 			p_type: "text",
 			p_is_active: payload.isActive ?? true,
@@ -30,5 +30,11 @@ export function createTextSaver(supabasePromise: Promise<SupabaseClient<Database
 		if (error) {
 			throw new Error(error.message);
 		}
+
+		if (!data) {
+			throw new Error("Failed to save text.");
+		}
+
+		return data;
 	};
 }

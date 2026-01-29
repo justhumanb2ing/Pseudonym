@@ -33,9 +33,9 @@ export function createLinkSaver(supabasePromise: Promise<SupabaseClient<Database
 		} catch (error) {
 			throw new Error("Crawl failed. Please try again.", { cause: error });
 		}
-		const { data } = response;
+		const { data: crawlData } = response;
 
-		const { error } = await supabase.rpc("add_page_item", {
+		const { data: item, error } = await supabase.rpc("add_page_item", {
 			p_page_id: payload.pageId,
 			p_type: "link",
 			p_is_active: payload.isActive ?? true,
@@ -45,11 +45,11 @@ export function createLinkSaver(supabasePromise: Promise<SupabaseClient<Database
 				},
 				data: {
 					url: normalizedUrl,
-					title: data.title ?? null,
-					description: data.description,
-					site_name: data.site_name,
-					icon_url: data.favicon,
-					image_url: data.image,
+					title: crawlData.title ?? null,
+					description: crawlData.description,
+					site_name: crawlData.site_name,
+					icon_url: crawlData.favicon,
+					image_url: crawlData.image,
 				},
 			},
 		});
@@ -57,5 +57,11 @@ export function createLinkSaver(supabasePromise: Promise<SupabaseClient<Database
 		if (error) {
 			throw new Error(error.message);
 		}
+
+		if (!item) {
+			throw new Error("Failed to save link.");
+		}
+
+		return item;
 	};
 }

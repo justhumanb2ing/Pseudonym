@@ -1,6 +1,6 @@
 import { SquareArrowOutUpRightIcon, UnlinkIcon } from "lucide-react";
-import { useRef } from "react";
-import { Link, useActionData, useLoaderData, useOutletContext } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { Link, useActionData, useFetchers, useLoaderData, useOutletContext } from "react-router";
 import type { StudioOutletContext } from "types/studio.types";
 import { Text } from "@/components/common/typhography";
 import Iphone from "@/components/effects/iphone";
@@ -40,6 +40,31 @@ import { requireStudioPage } from "@/service/pages/require-studio-page.server";
 import type { Route } from "./+types/studio.$handle.links";
 
 export type ActionData = PageProfileActionData;
+
+type ProfileItem = StudioOutletContext["profileItems"][number];
+
+function upsertProfileItem(items: ProfileItem[], nextItem: ProfileItem) {
+	const index = items.findIndex((item) => item.id === nextItem.id);
+	const updated = index >= 0 ? items.map((item) => (item.id === nextItem.id ? nextItem : item)) : [...items, nextItem];
+
+	return updated.sort((a, b) => a.sort_key - b.sort_key);
+}
+
+function reorderProfileItems(items: ProfileItem[], orderedIds: string[]) {
+	const itemMap = new Map(items.map((item) => [item.id, item]));
+	const ordered: ProfileItem[] = [];
+
+	orderedIds.forEach((id) => {
+		const item = itemMap.get(id);
+		if (item) {
+			ordered.push(item);
+			itemMap.delete(id);
+		}
+	});
+
+	itemMap.forEach((item) => ordered.push(item));
+	return ordered;
+}
 
 export async function loader(args: Route.LoaderArgs) {
 	const pageSelectQuery = "id, owner_id, profile_items(*)";
@@ -143,14 +168,94 @@ export async function action(args: Route.ActionArgs) {
 	}
 }
 
+const SKIP_REVALIDATE_INTENTS = new Set<ActionData["intent"]>([
+	"link-save",
+	"link-remove",
+	"link-update",
+	"link-toggle",
+	"map-save",
+	"map-update",
+	"text-save",
+	"text-update",
+	"section-save",
+	"section-update",
+	"media-save",
+	"media-update",
+	"items-reorder",
+	"update-image",
+	"remove-image",
+]);
+
+export const shouldRevalidate: Route.ShouldRevalidateFunction = ({ actionResult, defaultShouldRevalidate }) => {
+	if (actionResult?.success && actionResult?.intent && SKIP_REVALIDATE_INTENTS.has(actionResult.intent)) {
+		return false;
+	}
+
+	return defaultShouldRevalidate;
+};
+
 export default function StudioLinksRoute(_props: Route.ComponentProps) {
 	const {
 		page: { id: pageId, owner_id, title, description, image_url },
 		handle,
 	} = useOutletContext<StudioOutletContext>();
-	const { profileItems } = useLoaderData<typeof loader>();
+	const { profileItems: loaderItems } = useLoaderData<typeof loader>();
 	const actionData = useActionData<ActionData>();
+	const fetchers = useFetchers();
+	const [profileItems, setProfileItems] = useState(loaderItems);
 	const previewFrameRef = useRef<HTMLIFrameElement>(null);
+	const lastAppliedRef = useRef(new Map<string, unknown>());
+
+	useEffect(() => {
+		setProfileItems(loaderItems);
+	}, [loaderItems]);
+
+	useEffect(() => {
+		if (!actionData?.success || !actionData.intent) {
+			return;
+		}
+
+		if (actionData.item) {
+			setProfileItems((current) => upsertProfileItem(current, actionData.item as ProfileItem));
+		} else if (actionData.intent === "link-remove" && actionData.itemId) {
+			setProfileItems((current) => current.filter((item) => item.id !== actionData.itemId));
+		} else if (actionData.intent === "items-reorder" && actionData.orderedIds) {
+			setProfileItems((current) => reorderProfileItems(current, actionData.orderedIds ?? []));
+		}
+	}, [actionData]);
+
+	useEffect(() => {
+		for (const fetcher of fetchers) {
+			const data = fetcher.data as ActionData | undefined;
+			if (!data?.success || !data.intent) {
+				continue;
+			}
+
+			const key =
+				fetcher.key ??
+				`${data.intent}:${data.itemId ?? data.item?.id ?? ""}:${data.orderedIds?.join(",") ?? ""}`;
+			const lastPayload = lastAppliedRef.current.get(key);
+			if (lastPayload === data) {
+				continue;
+			}
+
+			lastAppliedRef.current.set(key, data);
+
+			if (data.item) {
+				setProfileItems((current) => upsertProfileItem(current, data.item as ProfileItem));
+				continue;
+			}
+
+			if (data.intent === "link-remove" && data.itemId) {
+				setProfileItems((current) => current.filter((item) => item.id !== data.itemId));
+				continue;
+			}
+
+			if (data.intent === "items-reorder" && data.orderedIds) {
+				setProfileItems((current) => reorderProfileItems(current, data.orderedIds ?? []));
+			}
+		}
+	}, [fetchers]);
 
 	const { handleIframeLoad } = useIframePreview({
 		iframeRef: previewFrameRef,

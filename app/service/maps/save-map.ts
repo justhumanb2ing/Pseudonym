@@ -21,7 +21,7 @@ export function createMapSaver(supabasePromise: Promise<SupabaseClient<Database>
 	const supabase = await supabasePromise;
 	const url = buildGoogleMapsHref(payload.center, payload.zoom);
 
-	const { error } = await supabase.rpc("add_page_item", {
+	const { data, error } = await supabase.rpc("add_page_item", {
 		p_page_id: payload.pageId,
 		p_type: "map",
 		p_is_active: payload.isActive ?? true,
@@ -39,8 +39,14 @@ export function createMapSaver(supabasePromise: Promise<SupabaseClient<Database>
 		},
 	});
 
-		if (error) {
-			throw new Error(error.message);
-		}
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	if (!data) {
+		throw new Error("Failed to save map.");
+	}
+
+	return data;
 	};
 }

@@ -53,7 +53,7 @@ export async function action(args: Route.ActionArgs) {
 		} satisfies ActionData;
 	}
 
-	const supabase = await getSupabaseServerClient(args);
+	const supabase = await getSupabaseServerClient(args, { session });
 	const { data: page, error: pageError } = await supabase
 		.from("pages")
 		.select("id, handle, owner_id")
