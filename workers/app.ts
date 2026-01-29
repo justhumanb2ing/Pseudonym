@@ -13,10 +13,21 @@ export default {
     const provider = new RouterContextProvider(
       new Map([[cloudflareContext, { env, ctx }]])
     );
+    // 1. runWithConnectionString 앞뒤에 로그 넣기
+    console.log("before runWithConnectionString");
 
-    // Hyperdrive connectionString을 사용하여 모든 요청 처리
-    return runWithConnectionString(env.HYPERDRIVE.connectionString, env, () =>
-      requestHandler(request, provider)
+    const response = await runWithConnectionString(
+      env.HYPERDRIVE.connectionString,
+      env,
+      () => {
+        console.log("inside runWithConnectionString callback - before requestHandler");
+        return requestHandler(request, provider);
+      }
     );
+
+    console.log("after runWithConnectionString");
+
+    return response;
+
   },
 } satisfies ExportedHandler<Env>;

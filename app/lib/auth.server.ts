@@ -27,15 +27,20 @@ function getRuntimeEnvValue<Key extends keyof Env>(key: Key) {
 	return requestContextStorage.getStore()?.env?.[key] ?? process.env[key];
 }
 
+function isHyperdriveConnection(connectionString: string): boolean {
+	return connectionString.includes(".hyperdrive.local");
+}
+
 function getOrCreateAuth(connectionString: string) {
 	let authInstance = authCache.get(connectionString);
 	if (!authInstance) {
 		const betterAuthSecret = getRuntimeEnvValue("BETTER_AUTH_SECRET");
+		const useHyperdrive = isHyperdriveConnection(connectionString);
 		const sql = postgres(connectionString, {
-			ssl: "require",
+			ssl: useHyperdrive ? false : "require",
 			max: 1,
 			prepare: false,
-			connect_timeout: 5,
+			connect_timeout: 10,
 		});
 
 		authInstance = betterAuth({
@@ -89,6 +94,7 @@ export const auth = new Proxy({} as ReturnType<typeof betterAuth>, {
 			context?.connectionString ??
 			context?.env?.DATABASE_URL ??
 			process.env.DATABASE_URL;
+		
 		if (!connectionString) {
 			throw new Error("DATABASE_URL environment variable is not set");
 		}

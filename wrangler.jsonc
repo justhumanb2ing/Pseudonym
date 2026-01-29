@@ -22,7 +22,8 @@
 		"VITE_UMAMI_WEBSITE_ID": "913b402f-ffb7-4247-8407-98b91b9ec264",
 		"VITE_UMAMI_SCRIPT_URL": "https://cloud.umami.is/script.js",
 		"VITE_MAPBOX_PUBLIC_TOKEN": "pk.eyJ1IjoianVzdGh1bWFuYjJpbmciLCJhIjoiY21rM3RncDhiMDBlcDNkcHlmeWtsMXc3cyJ9.SpXaX9eMjErIeyYPqEyGtA",
-		"VITE_CRAWLER_SERVER_ENDPOINT": "https://og-crawler-server.onrender.com"
+		"VITE_CRAWLER_SERVER_ENDPOINT": "https://og-crawler-server.onrender.com",
+		"BETTER_AUTH_URL": "https://venus.zentechie7.workers.dev"
 	},
 	"observability": {
 		"enabled": true
